@@ -61,6 +61,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       {showComment && <TwikooComments />}
     </article>
 
+    {/* 评论跳转按钮 — 与 back-to-top 同时出现/消失 */}
+    {showComment && (
+      <button class="jump-comments" id="jump-comments" aria-label="跳转到评论">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </button>
+    )}
+
     {showToc && headings.length > 0 && (
       <aside class="article__sidebar">
         <TOC headings={headings} />
@@ -116,4 +125,72 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   @media (max-width: 768px) {
     .article__title { font-size: var(--text-xl); }
   }
+
+  /* ── 评论跳转按钮 ── */
+  .jump-comments {
+    position: fixed;
+    bottom: calc(var(--space-8) + 20px + 44px + var(--space-2));
+    right: var(--space-4);
+    z-index: 50;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    color: var(--foreground-secondary);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(var(--space-4));
+    pointer-events: none;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md), inset 0 0.5px 0 var(--glass-highlight);
+    transition:
+      opacity var(--duration-normal) var(--ease-entrance),
+      transform var(--duration-normal) var(--ease-entrance),
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
+  }
+
+  .jump-comments--visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .jump-comments:hover {
+    color: var(--foreground);
+  }
 </style>
+
+<script>
+  function initJumpComments() {
+    const btn = document.getElementById("jump-comments");
+    const backToTop = document.getElementById("back-to-top");
+    if (!btn || !backToTop) return;
+
+    // 与 back-to-top 同步显示/隐藏
+    function syncVisibility() {
+      if (backToTop.classList.contains("back-to-top--visible")) {
+        btn.classList.add("jump-comments--visible");
+      } else {
+        btn.classList.remove("jump-comments--visible");
+      }
+    }
+
+    const observer = new MutationObserver(syncVisibility);
+    observer.observe(backToTop, { attributes: true, attributeFilter: ["class"] });
+    syncVisibility();
+
+    btn.addEventListener("click", () => {
+      const target = document.getElementById("tcomment");
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initJumpComments);
+  document.addEventListener("astro:page-load", initJumpComments);
+</script>
