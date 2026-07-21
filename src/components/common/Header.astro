@@ -1,60 +1,61 @@
 ---
 /**
- * 导航栏组件
- * 液态玻璃效果 + 响应式布局
+ * 全局导航栏
+ * ─────────────────────────────────────────────────
+ * 液态玻璃效果，粘性定位，所有页面共享。
+ * 使用 DESIGN.md §9.2 全局 Shell 规范。
  */
 import { siteConfig } from "../../config/site";
 import { navConfig } from "../../config/nav";
 import ThemeToggle from "./ThemeToggle.astro";
 
 const currentPath = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href === "/") return currentPath === "/";
+  return currentPath.startsWith(href);
+}
 ---
 
-<header class="glass-header animate-on-load delay-0">
-  <nav class="nav">
-    {/* Logo / 站点标题 */}
-    <a href="/" class="logo">
-      <span class="logo__text gradient-text">{siteConfig.title}</span>
+<header class="glass-nav" id="site-header">
+  <nav class="header__inner">
+    <a href="/" class="header__logo">
+      {siteConfig.title}
     </a>
 
-    {/* 桌面端导航 */}
-    <div class="nav__links">
+    <div class="header__links hide-mobile">
       {navConfig.main.map((item) => (
         <a
           href={item.href}
-          class:list={["nav__link", { active: currentPath === item.href || currentPath.startsWith(item.href + "/") }]}
+          class:list={["header__link", { "header__link--active": isActive(item.href) }]}
         >
           {item.label}
         </a>
       ))}
     </div>
 
-    {/* 右侧操作区 */}
-    <div class="nav__actions">
+    <div class="header__actions">
       <ThemeToggle />
-
-      {/* 移动端菜单按钮 */}
       <button
         id="mobile-menu-toggle"
-        class="mobile-menu-toggle"
+        class="header__menu-btn hide-desktop"
         aria-label="打开菜单"
         aria-expanded="false"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
         </svg>
       </button>
     </div>
   </nav>
 
-  {/* 移动端菜单 */}
-  <div id="mobile-menu" class="mobile-menu" hidden>
+  <div id="mobile-menu" class="header__mobile-menu" hidden>
     {navConfig.main.map((item) => (
       <a
         href={item.href}
-        class:list={["mobile-menu__link", { active: currentPath === item.href }]}
+        class:list={["header__mobile-link", { "header__mobile-link--active": isActive(item.href) }]}
       >
         {item.label}
       </a>
@@ -63,7 +64,7 @@ const currentPath = Astro.url.pathname;
 </header>
 
 <style>
-  .nav {
+  .header__inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -73,108 +74,100 @@ const currentPath = Astro.url.pathname;
     padding: 0 var(--space-4);
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
+  .header__logo {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
     font-weight: 700;
-    font-size: 1.25rem;
+    color: var(--foreground);
+    text-decoration: none;
+    letter-spacing: -0.02em;
   }
 
-  .nav__links {
+  .header__logo:hover {
+    color: var(--foreground);
+  }
+
+  .header__links {
     display: flex;
     gap: var(--space-1);
   }
 
-  .nav__link {
+  .header__link {
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
-    text-decoration: none;
-    color: var(--foreground-secondary);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     font-weight: 500;
+    color: var(--foreground-secondary);
+    text-decoration: none;
     transition:
-      color var(--transition-fast),
-      background var(--transition-fast);
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
   }
 
-  .nav__link:hover {
+  .header__link:hover {
     color: var(--foreground);
-    background: oklch(0.70 0.14 var(--hue) / 0.08);
+    background: var(--accent-subtle);
   }
 
-  .nav__link.active {
-    color: var(--primary);
-    background: oklch(0.70 0.14 var(--hue) / 0.1);
+  .header__link--active {
+    color: var(--accent);
+    background: var(--accent-subtle);
   }
 
-  .nav__actions {
+  .header__actions {
     display: flex;
     align-items: center;
     gap: var(--space-2);
   }
 
-  .mobile-menu-toggle {
-    display: none;
+  .header__menu-btn {
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0;
-    border: none;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-md);
-    background: transparent;
     color: var(--foreground);
-    cursor: pointer;
-    transition: background var(--transition-fast);
+    transition: background var(--duration-fast) var(--ease-standard);
   }
 
-  .mobile-menu-toggle:hover {
-    background: oklch(0.70 0.14 var(--hue) / 0.08);
+  .header__menu-btn:hover {
+    background: var(--accent-subtle);
   }
 
-  .mobile-menu {
+  .header__mobile-menu {
     display: none;
     flex-direction: column;
     padding: var(--space-2) var(--space-4) var(--space-4);
     max-width: var(--page-width);
     margin: 0 auto;
+    animation: slide-down var(--duration-normal) var(--ease-entrance);
   }
 
-  .mobile-menu__link {
+  .header__mobile-menu[data-open="true"] {
+    display: flex;
+  }
+
+  .header__mobile-link {
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-md);
-    text-decoration: none;
-    color: var(--foreground-secondary);
-    font-size: 1rem;
+    font-size: var(--text-base);
     font-weight: 500;
+    color: var(--foreground-secondary);
+    text-decoration: none;
     transition:
-      color var(--transition-fast),
-      background var(--transition-fast);
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
   }
 
-  .mobile-menu__link:hover {
+  .header__mobile-link:hover {
     color: var(--foreground);
-    background: oklch(0.70 0.14 var(--hue) / 0.08);
+    background: var(--accent-subtle);
   }
 
-  .mobile-menu__link.active {
-    color: var(--primary);
-    background: oklch(0.70 0.14 var(--hue) / 0.1);
-  }
-
-  @media (max-width: 768px) {
-    .nav__links {
-      display: none;
-    }
-
-    .mobile-menu-toggle {
-      display: flex;
-    }
-
-    .mobile-menu[data-open="true"] {
-      display: flex;
-    }
+  .header__mobile-link--active {
+    color: var(--accent);
+    background: var(--accent-subtle);
   }
 </style>
 

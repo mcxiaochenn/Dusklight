@@ -1,13 +1,15 @@
 ---
 /**
  * 站点背景装饰
- * 网格纹理 + 噪点叠加
+ * ─────────────────────────────────────────────────
+ * 微妙的网格纹理 + 噪点叠加，增加视觉层次。
+ * 固定定位，不响应交互。
  */
 ---
 
-<div class="site-backdrop">
-  <div class="site-grid"></div>
-  <div class="site-grain"></div>
+<div class="site-backdrop" aria-hidden="true">
+  <div class="site-backdrop__grid"></div>
+  <div class="site-backdrop__grain"></div>
 </div>
 
 <style>
@@ -19,21 +21,21 @@
     overflow: hidden;
   }
 
-  .site-grid {
+  .site-backdrop__grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(var(--line-divider) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line-divider) 1px, transparent 1px);
+      linear-gradient(var(--border-subtle) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
     background-size: 60px 60px;
     opacity: 0.4;
   }
 
-  :root.dark .site-grid {
+  :root.dark .site-backdrop__grid {
     opacity: 0.15;
   }
 
-  .site-grain {
+  .site-backdrop__grain {
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");

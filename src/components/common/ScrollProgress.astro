@@ -1,0 +1,25 @@
+---
+/**
+ * 滚动进度条
+ * ─────────────────────────────────────────────────
+ * 固定在视口顶部的渐变进度条。
+ * 所有页面共享，通过 JS 实时更新宽度。
+ */
+---
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<script>
+  function updateScrollProgress() {
+    const bar = document.getElementById("scroll-progress");
+    if (!bar) return;
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = `${progress}%`;
+  }
+
+  window.addEventListener("scroll", updateScrollProgress, { passive: true });
+  document.addEventListener("DOMContentLoaded", updateScrollProgress);
+  document.addEventListener("astro:page-load", updateScrollProgress);
+</script>

@@ -1,13 +1,13 @@
 ---
 /**
  * 主题切换组件
- * 支持 light/dark/auto 三档切换
- * 无闪烁主题恢复（内联脚本）
- * View Transitions 兼容
+ * ─────────────────────────────────────────────────
+ * 支持 light / dark / auto 三档切换。
+ * 无闪烁主题恢复（内联脚本）。
+ * View Transitions 兼容。
  */
 ---
 
-{/* 防闪烁脚本 - 必须在 head 中执行 */}
 <script is:inline>
   (function() {
     const theme = localStorage.getItem("theme") || "auto";
@@ -31,8 +31,7 @@
   class="theme-toggle"
   title="切换主题"
 >
-  {/* 太阳图标（亮色模式显示） */}
-  <svg class="icon icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <svg class="theme-toggle__icon theme-toggle__icon--sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <circle cx="12" cy="12" r="5"></circle>
     <line x1="12" y1="1" x2="12" y2="3"></line>
     <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -44,13 +43,11 @@
     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
   </svg>
 
-  {/* 月亮图标（暗色模式显示） */}
-  <svg class="icon icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <svg class="theme-toggle__icon theme-toggle__icon--moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
   </svg>
 
-  {/* 自动图标（跟随系统显示） */}
-  <svg class="icon icon--auto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <svg class="theme-toggle__icon theme-toggle__icon--auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
     <line x1="8" y1="21" x2="16" y2="21"></line>
     <line x1="12" y1="17" x2="12" y2="21"></line>
@@ -59,48 +56,45 @@
 
 <style>
   .theme-toggle {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    background: transparent;
-    color: var(--color-text);
-    cursor: pointer;
-    transition: background var(--transition-fast), color var(--transition-fast);
-    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    color: var(--foreground-secondary);
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
   }
 
   .theme-toggle:hover {
-    background: var(--glass-bg);
+    color: var(--foreground);
+    background: var(--accent-subtle);
   }
 
-  .icon {
+  .theme-toggle__icon {
     position: absolute;
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-entrance);
   }
 
-  /* 默认显示太阳图标 */
-  .icon--sun { opacity: 1; transform: rotate(0); }
-  .icon--moon { opacity: 0; transform: rotate(-90deg); }
-  .icon--auto { opacity: 0; transform: rotate(90deg); }
+  .theme-toggle__icon--sun   { opacity: 1; transform: rotate(0); }
+  .theme-toggle__icon--moon  { opacity: 0; transform: rotate(-90deg); }
+  .theme-toggle__icon--auto  { opacity: 0; transform: rotate(90deg); }
 
-  /* 暗色模式显示月亮图标 */
-  :root.dark .icon--sun { opacity: 0; transform: rotate(90deg); }
-  :root.dark .icon--moon { opacity: 1; transform: rotate(0); }
-  :root.dark .icon--auto { opacity: 0; transform: rotate(-90deg); }
+  :root.dark .theme-toggle__icon--sun   { opacity: 0; transform: rotate(90deg); }
+  :root.dark .theme-toggle__icon--moon  { opacity: 1; transform: rotate(0); }
+  :root.dark .theme-toggle__icon--auto  { opacity: 0; transform: rotate(-90deg); }
 
-  /* 自动模式显示自动图标 */
-  :root.auto .icon--sun { opacity: 0; transform: rotate(-90deg); }
-  :root.auto .icon--moon { opacity: 0; transform: rotate(90deg); }
-  :root.auto .icon--auto { opacity: 1; transform: rotate(0); }
+  :root.auto .theme-toggle__icon--sun   { opacity: 0; transform: rotate(-90deg); }
+  :root.auto .theme-toggle__icon--moon  { opacity: 0; transform: rotate(90deg); }
+  :root.auto .theme-toggle__icon--auto  { opacity: 1; transform: rotate(0); }
 </style>
 
 <script>
-  // 主题管理器
   const ThemeManager = {
     getTheme(): string {
       if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
@@ -133,8 +127,6 @@
 
     init() {
       this.applyTheme(this.getTheme());
-
-      // 监听系统主题变化
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
         if (this.getTheme() === "auto") {
           this.applyTheme("auto");
@@ -149,16 +141,13 @@
     },
   };
 
-  // 初始化
   ThemeManager.init();
 
-  // 绑定点击事件
   document.addEventListener("DOMContentLoaded", () => {
     const toggle = document.getElementById("theme-toggle");
     toggle?.addEventListener("click", () => ThemeManager.toggle());
   });
 
-  // View Transitions 兼容
   document.addEventListener("astro:after-swap", () => {
     ThemeManager.applyTheme(ThemeManager.getTheme());
   });
