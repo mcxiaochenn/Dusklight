@@ -134,7 +134,7 @@
     const btn = document.getElementById("back-to-top");
     if (!btn) return;
     function toggle() {
-      btn.classList.toggle("back-to-top--visible", window.scrollY > 300);
+      btn.classList.toggle("back-to-top--visible", window.scrollY > 1);
     }
     window.addEventListener("scroll", toggle, { passive: true });
     btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
