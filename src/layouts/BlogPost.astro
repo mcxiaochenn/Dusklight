@@ -58,6 +58,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <slot />
       </div>
 
+      {/* 评论区锚点 — 始终渲染，用于跳转定位 */}
+      <div id="comments-anchor" style="height: 0; overflow: hidden;"></div>
       {showComment && <TwikooComments />}
     </article>
 
@@ -129,7 +131,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   /* ── 评论跳转按钮 ── */
   .jump-comments {
     position: fixed;
-    bottom: calc(var(--space-8) + 20px + 44px + var(--space-2));
+    bottom: calc(var(--space-10) + 20px + 44px + var(--space-2));
     right: var(--space-4);
     z-index: 50;
     width: 44px;
@@ -186,7 +188,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     syncVisibility();
 
     btn.addEventListener("click", () => {
-      const target = document.getElementById("tcomment");
+      const target = document.getElementById("comments-anchor") || document.getElementById("tcomment");
       target?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   }
