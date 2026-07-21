@@ -1,0 +1,80 @@
+---
+/**
+ * SEO 元标签组件
+ * 完整的 Meta 标签、Open Graph、Twitter Cards
+ */
+import { siteConfig } from "../../config/site";
+import { seoConfig } from "../../config/seo";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  article?: {
+    publishedTime: string;
+    modifiedTime?: string;
+    authors: string[];
+    tags: string[];
+  };
+}
+
+const {
+  title = seoConfig.defaults.title,
+  description = seoConfig.defaults.description,
+  image = seoConfig.defaults.image,
+  article,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const imageURL = image ? new URL(image, Astro.site).href : undefined;
+---
+
+<!-- 基础 Meta -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalURL} />
+<meta name="author" content={siteConfig.author} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={article ? "article" : "website"} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:site_name" content={siteConfig.title} />
+<meta property="og:locale" content="zh_CN" />
+{imageURL && <meta property="og:image" content={imageURL} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{imageURL && <meta name="twitter:image" content={imageURL} />}
+
+<!-- 文章特有 Meta -->
+{article && (
+  <>
+    <meta property="article:published_time" content={article.publishedTime} />
+    {article.modifiedTime && (
+      <meta property="article:modified_time" content={article.modifiedTime} />
+    )}
+    {article.authors.map((author) => (
+      <meta property="article:author" content={author} />
+    ))}
+    {article.tags.map((tag) => (
+      <meta property="article:tag" content={tag} />
+    ))}
+  </>
+)}
+
+<!-- 搜索引擎验证 -->
+{seoConfig.verification.google && (
+  <meta name="google-site-verification" content={seoConfig.verification.google} />
+)}
+{seoConfig.verification.bing && (
+  <meta name="msvalidate.01" content={seoConfig.verification.bing} />
+)}
+{seoConfig.verification.baidu && (
+  <meta name="baidu-site-verification" content={seoConfig.verification.baidu} />
+)}
