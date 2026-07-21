@@ -33,13 +33,14 @@
 	--color-border: #d2d2d7;
 
 	/* 液态玻璃效果 */
-	--glass-bg: rgba(255, 255, 255, 0.72);
-	--glass-bg-hover: rgba(255, 255, 255, 0.85);
-	--glass-border: rgba(255, 255, 255, 0.5);
-	--glass-blur: 20px;
+	--glass-bg: rgba(255, 255, 255, 0.65);
+	--glass-bg-hover: rgba(255, 255, 255, 0.8);
+	--glass-border: rgba(255, 255, 255, 0.4);
+	--glass-blur: 24px;
 	--glass-shadow:
-		0 8px 32px rgba(0, 0, 0, 0.08),
-		0 2px 8px rgba(0, 0, 0, 0.04);
+		0 8px 32px rgba(0, 0, 0, 0.12),
+		0 2px 8px rgba(0, 0, 0, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.5);
 	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
 	/* 间距系统 (8pt 网格) */
@@ -90,13 +91,14 @@
 	--color-text-tertiary: #86868b;
 	--color-border: #48484a;
 
-	--glass-bg: rgba(30, 30, 32, 0.72);
-	--glass-bg-hover: rgba(30, 30, 32, 0.85);
-	--glass-border: rgba(255, 255, 255, 0.12);
+	--glass-bg: rgba(30, 30, 32, 0.65);
+	--glass-bg-hover: rgba(30, 30, 32, 0.8);
+	--glass-border: rgba(255, 255, 255, 0.15);
 	--glass-shadow:
-		0 8px 32px rgba(0, 0, 0, 0.3),
-		0 2px 8px rgba(0, 0, 0, 0.2);
-	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+		0 8px 32px rgba(0, 0, 0, 0.4),
+		0 2px 8px rgba(0, 0, 0, 0.3),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	--glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* ===== 全局样式 ===== */
@@ -106,9 +108,10 @@ body {
 	padding: 0;
 	text-align: left;
 	background:
-		radial-gradient(ellipse at 20% 20%, rgba(35, 55, 255, 0.05) 0%, transparent 50%),
-		radial-gradient(ellipse at 80% 80%, rgba(0, 138, 138, 0.04) 0%, transparent 50%),
-		linear-gradient(180deg, rgba(var(--gray-light), 40%) 0%, rgba(var(--gray-light), 10%) 30%, var(--color-bg) 60%);
+		radial-gradient(ellipse at 20% 20%, rgba(35, 55, 255, 0.08) 0%, transparent 50%),
+		radial-gradient(ellipse at 80% 80%, rgba(0, 138, 138, 0.06) 0%, transparent 50%),
+		radial-gradient(ellipse at 50% 50%, rgba(255, 100, 100, 0.03) 0%, transparent 70%),
+		linear-gradient(180deg, rgba(var(--gray-light), 50%) 0%, rgba(var(--gray-light), 20%) 30%, var(--color-bg) 60%);
 	background-attachment: fixed;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
@@ -119,8 +122,9 @@ body {
 
 :root.dark body {
 	background:
-		radial-gradient(ellipse at 20% 20%, rgba(35, 55, 255, 0.08) 0%, transparent 50%),
-		radial-gradient(ellipse at 80% 80%, rgba(0, 138, 138, 0.06) 0%, transparent 50%),
+		radial-gradient(ellipse at 20% 20%, rgba(35, 55, 255, 0.12) 0%, transparent 50%),
+		radial-gradient(ellipse at 80% 80%, rgba(0, 138, 138, 0.08) 0%, transparent 50%),
+		radial-gradient(ellipse at 50% 50%, rgba(255, 100, 100, 0.04) 0%, transparent 70%),
 		linear-gradient(180deg, #1c1c1e 0%, #000 100%);
 }
 
