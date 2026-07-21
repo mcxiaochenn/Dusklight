@@ -59,6 +59,13 @@
   .site-backdrop__image--loaded {
     opacity: 1;
   }
+
+  /* 背景图加载后隐藏网格和噪点 */
+  .site-backdrop--has-image .site-backdrop__grid,
+  .site-backdrop--has-image .site-backdrop__grain {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
 </style>
 
 <script>
@@ -70,6 +77,7 @@
     img.onload = () => {
       el.style.backgroundImage = `url(${img.src})`;
       el.classList.add("site-backdrop__image--loaded");
+      el.parentElement?.classList.add("site-backdrop--has-image");
     };
     img.src = "/images/bg/xiowo-bg-dark.webp";
   }
