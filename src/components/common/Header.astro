@@ -10,11 +10,11 @@ import ThemeToggle from "./ThemeToggle.astro";
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="header glass">
+<header class="glass-header animate-on-load delay-0">
   <nav class="nav">
     {/* Logo / 站点标题 */}
     <a href="/" class="logo">
-      <span class="logo__text">{siteConfig.title}</span>
+      <span class="logo__text gradient-text">{siteConfig.title}</span>
     </a>
 
     {/* 桌面端导航 */}
@@ -40,7 +40,7 @@ const currentPath = Astro.url.pathname;
         aria-label="打开菜单"
         aria-expanded="false"
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -63,35 +63,22 @@ const currentPath = Astro.url.pathname;
 </header>
 
 <style>
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    margin: 0;
-    padding: 0 var(--space-4);
-    padding-top: var(--safe-top);
-  }
-
   .nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: var(--header-height);
-    max-width: calc(var(--content-width) + var(--space-8));
+    max-width: var(--page-width);
     margin: 0 auto;
+    padding: 0 var(--space-4);
   }
 
   .logo {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: var(--color-text);
     font-weight: 700;
     font-size: 1.25rem;
-  }
-
-  .logo:hover {
-    color: var(--accent);
   }
 
   .nav__links {
@@ -101,22 +88,24 @@ const currentPath = Astro.url.pathname;
 
   .nav__link {
     padding: var(--space-2) var(--space-3);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-md);
     text-decoration: none;
-    color: var(--color-text-secondary);
-    font-size: 0.9375rem;
+    color: var(--foreground-secondary);
+    font-size: 0.875rem;
     font-weight: 500;
-    transition: color var(--transition-fast), background var(--transition-fast);
+    transition:
+      color var(--transition-fast),
+      background var(--transition-fast);
   }
 
   .nav__link:hover {
-    color: var(--color-text);
-    background: var(--glass-bg);
+    color: var(--foreground);
+    background: oklch(0.70 0.14 var(--hue) / 0.08);
   }
 
   .nav__link.active {
-    color: var(--accent);
-    background: rgba(35, 55, 255, 0.08);
+    color: var(--primary);
+    background: oklch(0.70 0.14 var(--hue) / 0.1);
   }
 
   .nav__actions {
@@ -129,49 +118,51 @@ const currentPath = Astro.url.pathname;
     display: none;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     padding: 0;
     border: none;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-md);
     background: transparent;
-    color: var(--color-text);
+    color: var(--foreground);
     cursor: pointer;
+    transition: background var(--transition-fast);
   }
 
   .mobile-menu-toggle:hover {
-    background: var(--glass-bg);
+    background: oklch(0.70 0.14 var(--hue) / 0.08);
   }
 
   .mobile-menu {
     display: none;
     flex-direction: column;
     padding: var(--space-2) var(--space-4) var(--space-4);
-    max-width: calc(var(--content-width) + var(--space-8));
+    max-width: var(--page-width);
     margin: 0 auto;
   }
 
   .mobile-menu__link {
     padding: var(--space-3) var(--space-4);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-md);
     text-decoration: none;
-    color: var(--color-text-secondary);
+    color: var(--foreground-secondary);
     font-size: 1rem;
     font-weight: 500;
-    transition: color var(--transition-fast), background var(--transition-fast);
+    transition:
+      color var(--transition-fast),
+      background var(--transition-fast);
   }
 
   .mobile-menu__link:hover {
-    color: var(--color-text);
-    background: var(--glass-bg);
+    color: var(--foreground);
+    background: oklch(0.70 0.14 var(--hue) / 0.08);
   }
 
   .mobile-menu__link.active {
-    color: var(--accent);
-    background: rgba(35, 55, 255, 0.08);
+    color: var(--primary);
+    background: oklch(0.70 0.14 var(--hue) / 0.1);
   }
 
-  /* 响应式 */
   @media (max-width: 768px) {
     .nav__links {
       display: none;
@@ -188,21 +179,17 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <script>
-  // 移动端菜单切换
   function initMobileMenu() {
     const toggle = document.getElementById("mobile-menu-toggle");
     const menu = document.getElementById("mobile-menu");
-
     if (!toggle || !menu) return;
 
     toggle.addEventListener("click", () => {
       const isOpen = menu.getAttribute("data-open") === "true";
       menu.setAttribute("data-open", String(!isOpen));
       toggle.setAttribute("aria-expanded", String(!isOpen));
-      toggle.setAttribute("aria-label", isOpen ? "打开菜单" : "关闭菜单");
     });
 
-    // 点击链接后关闭菜单
     menu.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         menu.setAttribute("data-open", "false");

@@ -1,10 +1,12 @@
 ---
 /**
  * 首页 - 博客列表
+ * 使用全新设计系统
  */
 import { getCollection } from "astro:content";
 import Header from "../components/common/Header.astro";
 import Footer from "../components/common/Footer.astro";
+import SiteBackdrop from "../components/common/SiteBackdrop.astro";
 import PostCard from "../components/blog/PostCard.astro";
 import SEOHead from "../components/seo/SEOHead.astro";
 import { siteConfig } from "../config/site";
@@ -21,45 +23,61 @@ const posts = (await getCollection("blog"))
   </head>
 
   <body>
+    <SiteBackdrop />
     <Header />
 
     <main class="blog-list">
-      <div class="blog-list__header">
-        <h1 class="blog-list__title">{siteConfig.title}</h1>
+      {/* 页面标题 */}
+      <div class="blog-list__hero animate-on-load delay-100">
+        <h1 class="blog-list__title gradient-text">{siteConfig.title}</h1>
         <p class="blog-list__subtitle">{siteConfig.description}</p>
       </div>
 
+      {/* 文章列表 */}
       <div class="blog-list__grid">
         {posts.map((post, index) => (
-          <PostCard post={post} variant={index === 0 ? "featured" : "default"} />
+          <div class={`animate-on-load delay-${Math.min(200 + index * 50, 400)}`}>
+            <PostCard post={post} variant={index === 0 ? "featured" : "default"} />
+          </div>
         ))}
       </div>
     </main>
 
     <Footer />
+
+    {/* 滚动进度条 */}
+    <div class="scroll-progress" id="scroll-progress"></div>
+
+    {/* 返回顶部 */}
+    <button class="back-to-top" id="back-to-top" aria-label="返回顶部">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
   </body>
 </html>
 
 <style>
   .blog-list {
-    max-width: calc(var(--content-width) + var(--space-8));
+    max-width: var(--page-width);
     margin: 0 auto;
     padding: var(--space-8) var(--space-4);
   }
 
-  .blog-list__header {
-    margin-bottom: var(--space-8);
+  .blog-list__hero {
     text-align: center;
+    margin-bottom: var(--space-10);
   }
 
   .blog-list__title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 var(--space-2) 0;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 0 var(--space-3) 0;
+    letter-spacing: -0.02em;
   }
 
   .blog-list__subtitle {
-    color: var(--color-text-secondary);
+    color: var(--foreground-secondary);
     margin: 0;
     font-size: 1.125rem;
   }
@@ -70,14 +88,56 @@ const posts = (await getCollection("blog"))
     gap: var(--space-4);
   }
 
-  /* 第一篇文章占满宽度 */
   .blog-list__grid > :first-child {
     grid-column: 1 / -1;
   }
 
   @media (max-width: 768px) {
+    .blog-list__title {
+      font-size: 2rem;
+    }
+
     .blog-list__grid {
       grid-template-columns: 1fr;
     }
   }
 </style>
+
+<script>
+  // 滚动进度条
+  function updateScrollProgress() {
+    const progressBar = document.getElementById("scroll-progress");
+    if (!progressBar) return;
+
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  // 返回顶部按钮
+  function updateBackToTop() {
+    const btn = document.getElementById("back-to-top");
+    if (!btn) return;
+
+    if (window.scrollY > 300) {
+      btn.classList.add("visible");
+    } else {
+      btn.classList.remove("visible");
+    }
+  }
+
+  window.addEventListener("scroll", () => {
+    updateScrollProgress();
+    updateBackToTop();
+  });
+
+  document.getElementById("back-to-top")?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateScrollProgress();
+    updateBackToTop();
+  });
+</script>
