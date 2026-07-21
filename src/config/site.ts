@@ -13,6 +13,9 @@ export const siteConfig = {
   // 时区
   timezone: "Asia/Shanghai",
 
+  // 分页
+  postsPerPage: 8,
+
   // 功能开关
   features: {
     comments: true,

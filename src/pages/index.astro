@@ -1,16 +1,21 @@
 ---
 /**
  * 首页
- * 瀑布流双列布局 + 交错入场动画
+ * 单列文章流 + 交错入场动画 + 分页
  */
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/blog/PostCard.astro";
+import Button from "../components/ui/Button.astro";
 import { siteConfig } from "../config/site";
 
-const posts = (await getCollection("blog"))
+const allPosts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const perPage = siteConfig.postsPerPage;
+const posts = allPosts.slice(0, perPage);
+const showPagination = allPosts.length > perPage;
 ---
 
 <BaseLayout>
@@ -22,16 +27,22 @@ const posts = (await getCollection("blog"))
     </div>
   </section>
 
-  {/* 文章瀑布流 */}
-  <section class="posts section-sm">
-    <div class="page-container">
-      <div class="posts__grid">
+  {/* 文章流 — 单列 */}
+  <section class="posts">
+    <div class="content-container">
+      <div class="posts__list">
         {posts.map((post, i) => (
           <div class="posts__item" style={`--i: ${i}`}>
             <PostCard post={post} />
           </div>
         ))}
       </div>
+
+      {showPagination && (
+        <div class="posts__more">
+          <Button href="/archive" variant="secondary">查看全部文章 →</Button>
+        </div>
+      )}
     </div>
   </section>
 </BaseLayout>
@@ -58,10 +69,10 @@ const posts = (await getCollection("blog"))
     margin: 0;
   }
 
-  /* ── 瀑布流网格 ── */
-  .posts__grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* ── 单列文章流 ── */
+  .posts__list {
+    display: flex;
+    flex-direction: column;
     gap: var(--space-4);
   }
 
@@ -73,25 +84,22 @@ const posts = (await getCollection("blog"))
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── 移动端单列 ── */
+  /* ── 翻页区域 ── */
+  .posts__more {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-10);
+    padding-bottom: var(--space-16);
+  }
+
   @media (max-width: 768px) {
     .hero {
       padding-top: var(--space-12);
       padding-bottom: var(--space-8);
-    }
-
-    .posts__grid {
-      grid-template-columns: 1fr;
     }
   }
 </style>
