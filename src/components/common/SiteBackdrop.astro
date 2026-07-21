@@ -1,0 +1,42 @@
+---
+/**
+ * 站点背景装饰
+ * 网格纹理 + 噪点叠加
+ */
+---
+
+<div class="site-backdrop">
+  <div class="site-grid"></div>
+  <div class="site-grain"></div>
+</div>
+
+<style>
+  .site-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .site-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line-divider) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-divider) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.4;
+  }
+
+  :root.dark .site-grid {
+    opacity: 0.15;
+  }
+
+  .site-grain {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+</style>
