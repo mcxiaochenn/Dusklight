@@ -1,0 +1,136 @@
+---
+/**
+ * 全局脚本
+ * 代码块复制按钮 + 图片灯箱 + 滚动入场动画
+ */
+---
+
+<div id="lightbox" class="lightbox" hidden>
+  <img id="lightbox-img" class="lightbox__img" alt="" />
+</div>
+
+<style>
+  .code-copy-btn {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    opacity: 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
+  }
+
+  pre:hover .code-copy-btn {
+    opacity: 1;
+  }
+
+  .code-copy-btn:hover {
+    color: var(--foreground);
+    background: var(--surface-3);
+  }
+
+  .code-copy-btn--copied {
+    color: var(--success);
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: oklch(0 0 0 / 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: zoom-out;
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-standard);
+  }
+
+  .lightbox[hidden] { display: none; }
+  .lightbox--open { opacity: 1; }
+
+  .lightbox__img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    transform: scale(0.95);
+    transition: transform var(--duration-normal) var(--ease-entrance);
+  }
+
+  .lightbox--open .lightbox__img { transform: scale(1); }
+
+  /* 滚动入场隐藏状态 */
+  .reveal-hidden {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+</style>
+
+<script>
+  function initCodeCopy() {
+    document.querySelectorAll(".prose pre").forEach((pre) => {
+      if (pre.querySelector(".code-copy-btn")) return;
+      const btn = document.createElement("button");
+      btn.className = "code-copy-btn";
+      btn.textContent = "复制";
+      btn.setAttribute("aria-label", "复制代码");
+      (pre as HTMLElement).style.position = "relative";
+      pre.appendChild(btn);
+      btn.addEventListener("click", async () => {
+        const code = pre.querySelector("code")?.textContent || "";
+        await navigator.clipboard.writeText(code);
+        btn.textContent = "已复制";
+        btn.classList.add("code-copy-btn--copied");
+        setTimeout(() => { btn.textContent = "复制"; btn.classList.remove("code-copy-btn--copied"); }, 2000);
+      });
+    });
+  }
+
+  function initLightbox() {
+    const lb = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lightbox-img") as HTMLImageElement;
+    if (!lb || !lbImg) return;
+    document.querySelectorAll(".prose img").forEach((img) => {
+      (img as HTMLElement).style.cursor = "zoom-in";
+      img.addEventListener("click", () => {
+        lbImg.src = (img as HTMLImageElement).src;
+        lbImg.alt = (img as HTMLImageElement).alt;
+        lb.hidden = false;
+        requestAnimationFrame(() => lb.classList.add("lightbox--open"));
+      });
+    });
+    lb.addEventListener("click", () => {
+      lb.classList.remove("lightbox--open");
+      setTimeout(() => { lb.hidden = true; }, 300);
+    });
+  }
+
+  function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate-in");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll(".post-card, .posts__item").forEach((el) => {
+      el.classList.add("reveal-hidden");
+      observer.observe(el);
+    });
+  }
+
+  function initAll() { initCodeCopy(); initLightbox(); initScrollReveal(); }
+  document.addEventListener("DOMContentLoaded", initAll);
+  document.addEventListener("astro:page-load", initAll);
+</script>

@@ -4,6 +4,7 @@
  * BaseLayout + .prose + TOC + ArticleMeta + Tag
  */
 import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import TOC from "../components/blog/TOC.astro";
 import ArticleMeta from "../components/blog/ArticleMeta.astro";
@@ -23,10 +24,11 @@ interface Props {
   category?: string;
   toc?: boolean;
   comment?: boolean;
+  readingTime?: number;
   headings?: { depth: number; slug: string; text: string }[];
 }
 
-const { title, description, pubDate, updatedDate, heroImage, cover, coverAlt, tags, category, toc: showToc = true, comment: showComment = true, headings = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, cover, coverAlt, tags, category, toc: showToc = true, comment: showComment = true, readingTime, headings = [] } = Astro.props;
 const coverImage = cover || (heroImage ? heroImage.src : undefined);
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -49,7 +51,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           </div>
         )}
         <h1 class="article__title">{title}</h1>
-        <ArticleMeta pubDate={pubDate} updatedDate={updatedDate} category={category} />
+        <ArticleMeta pubDate={pubDate} updatedDate={updatedDate} category={category} readingTime={readingTime} />
       </header>
 
       <div class="article__content prose">

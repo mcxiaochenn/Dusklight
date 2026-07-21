@@ -10,6 +10,7 @@ import Footer from "../components/common/Footer.astro";
 import ScrollProgress from "../components/common/ScrollProgress.astro";
 import BackToTop from "../components/common/BackToTop.astro";
 import SiteBackdrop from "../components/common/SiteBackdrop.astro";
+import GlobalScripts from "../components/common/GlobalScripts.astro";
 import SEOHead from "../components/seo/SEOHead.astro";
 
 interface Props {
@@ -38,6 +39,7 @@ const { title, description, image } = Astro.props;
     <Footer />
     <ScrollProgress />
     <BackToTop />
+    <GlobalScripts />
   </body>
 </html>
 

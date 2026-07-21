@@ -14,8 +14,11 @@ type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
 const { Content, headings } = await render(post);
+
+const words = post.body?.length || 0;
+const readingTime = Math.max(1, Math.ceil(words / 400));
 ---
 
-<BlogPost {...post.data} headings={headings}>
+<BlogPost {...post.data} headings={headings} readingTime={readingTime}>
   <Content />
 </BlogPost>

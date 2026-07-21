@@ -9,10 +9,11 @@ interface Props {
   pubDate: Date;
   updatedDate?: Date;
   category?: string;
+  readingTime?: number;
   class?: string;
 }
 
-const { pubDate, updatedDate, category, class: className } = Astro.props;
+const { pubDate, updatedDate, category, readingTime, class: className } = Astro.props;
 ---
 
 <div class:list={["article-meta", className]}>
@@ -25,6 +26,7 @@ const { pubDate, updatedDate, category, class: className } = Astro.props;
     </span>
   )}
   {category && <span class="article-meta__category">{category}</span>}
+  {readingTime && <span class="article-meta__reading">{readingTime} 分钟阅读</span>}
 </div>
 
 <style>
@@ -45,5 +47,10 @@ const { pubDate, updatedDate, category, class: className } = Astro.props;
     background: var(--surface-2);
     border-radius: var(--radius-sm);
     font-size: var(--text-xs);
+  }
+
+  .article-meta__reading::before {
+    content: "·";
+    margin-right: var(--space-2);
   }
 </style>

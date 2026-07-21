@@ -187,15 +187,20 @@
 
   ThemeManager.init();
 
-  document.addEventListener("DOMContentLoaded", () => {
+  function bindToggle() {
     const toggle = document.getElementById("theme-toggle");
-    toggle?.addEventListener("click", (e) => {
+    if (!toggle) return;
+    toggle.addEventListener("click", (e) => {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       ThemeManager.toggleWithAnimation(rect.left + rect.width / 2, rect.top + rect.height / 2);
     });
-  });
+  }
 
+  bindToggle();
+
+  // View Transitions: 页面切换后重新绑定
   document.addEventListener("astro:after-swap", () => {
     ThemeManager.applyTheme(ThemeManager.getTheme());
+    bindToggle();
   });
 </script>
