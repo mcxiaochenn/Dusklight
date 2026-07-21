@@ -1,22 +1,16 @@
 ---
 /**
  * 首页
- * 不对称布局：Hero + Featured Post + PostCardList + PostCard 网格。
+ * 瀑布流双列布局 + 交错入场动画
  */
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/blog/PostCard.astro";
-import PostCardList from "../components/blog/PostCardList.astro";
-import Button from "../components/ui/Button.astro";
 import { siteConfig } from "../config/site";
 
 const posts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-const featured = posts[0];
-const recent = posts.slice(1, 5);
-const morePosts = posts.slice(5, 9);
 ---
 
 <BaseLayout>
@@ -28,40 +22,16 @@ const morePosts = posts.slice(5, 9);
     </div>
   </section>
 
-  {/* Latest Writing */}
-  {featured && (
-    <section class="latest section-sm">
-      <div class="page-container">
-        <h2 class="section-label">最新文章</h2>
-        <div class="latest__grid">
-          <div class="latest__featured">
-            <PostCard post={featured} variant="hero" />
+  {/* 文章瀑布流 */}
+  <section class="posts section-sm">
+    <div class="page-container">
+      <div class="posts__grid">
+        {posts.map((post, i) => (
+          <div class="posts__item" style={`--i: ${i}`}>
+            <PostCard post={post} />
           </div>
-          {recent.length > 0 && (
-            <aside class="latest__sidebar">
-              <PostCardList posts={recent} />
-            </aside>
-          )}
-        </div>
+        ))}
       </div>
-    </section>
-  )}
-
-  {/* More posts */}
-  {morePosts.length > 0 && (
-    <section class="more-posts section">
-      <div class="page-container">
-        <div class="more-posts__grid">
-          {morePosts.map((post) => <PostCard post={post} />)}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {/* View all */}
-  <section class="view-all">
-    <div class="page-container" style="text-align: center;">
-      <Button href="/archive" variant="secondary">查看全部文章 →</Button>
     </div>
   </section>
 </BaseLayout>
@@ -70,7 +40,7 @@ const morePosts = posts.slice(5, 9);
   .hero {
     text-align: center;
     padding-top: var(--space-20);
-    padding-bottom: var(--space-16);
+    padding-bottom: var(--space-12);
   }
 
   .hero__title {
@@ -88,52 +58,39 @@ const morePosts = posts.slice(5, 9);
     margin: 0;
   }
 
-  .section-label {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--foreground-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 var(--space-6);
-  }
-
-  .latest__grid {
+  /* ── 瀑布流网格 ── */
+  .posts__grid {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: var(--space-6);
-    align-items: start;
-  }
-
-  .latest__sidebar {
-    position: sticky;
-    top: calc(var(--header-height) + var(--space-4));
-  }
-
-  .more-posts__grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
   }
 
-  .view-all {
-    padding-bottom: var(--space-16);
+  /* ── 交错入场动画 ── */
+  .posts__item {
+    opacity: 0;
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: calc(var(--i) * 60ms);
   }
 
-  @media (max-width: 1024px) {
-    .latest__grid {
-      grid-template-columns: 1fr;
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
     }
-    .latest__sidebar {
-      position: static;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
+  /* ── 移动端单列 ── */
   @media (max-width: 768px) {
     .hero {
       padding-top: var(--space-12);
-      padding-bottom: var(--space-10);
+      padding-bottom: var(--space-8);
     }
-    .more-posts__grid {
+
+    .posts__grid {
       grid-template-columns: 1fr;
     }
   }

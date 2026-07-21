@@ -1,9 +1,11 @@
 ---
 /**
- * 全局导航栏
+ * 全局导航栏 — 浮动药丸设计
  * ─────────────────────────────────────────────────
- * 液态玻璃效果，粘性定位，所有页面共享。
- * 使用 DESIGN.md §9.2 全局 Shell 规范。
+ * 参考 blog.liushen.fun 的视觉风格：
+ * - Logo 和导航链接分别在独立的药丸容器中
+ * - 初始透明，滚动后显现玻璃效果
+ * - 所有元素 border-radius: 999px
  */
 import { siteConfig } from "../../config/site";
 import { navConfig } from "../../config/nav";
@@ -17,140 +19,241 @@ function isActive(href: string): boolean {
 }
 ---
 
-<header class="glass-nav" id="site-header">
-  <nav class="header__inner">
-    <a href="/" class="header__logo">
-      {siteConfig.title}
-    </a>
+<header id="main-header" class="main-header">
+  <div class="header__inner">
+    {/* 左侧浮动药丸：Logo */}
+    <div class="header__pill header__pill--left">
+      <a href="/" class="header__logo">
+        {siteConfig.title}
+      </a>
+    </div>
 
-    <div class="header__links hide-mobile">
+    {/* 右侧浮动药丸：导航链接 + 操作 */}
+    <nav class="header__pill header__pill--right" aria-label="主导航">
+      <div class="header__links hide-mobile">
+        {navConfig.main.map((item) => (
+          <a
+            href={item.href}
+            class:list={["header__link", { "header__link--active": isActive(item.href) }]}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+
+      <div class="header__actions">
+        <ThemeToggle />
+        <button
+          id="mobile-menu-toggle"
+          class="header__menu-btn hide-desktop"
+          aria-label="打开菜单"
+          aria-expanded="false"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  {/* 移动端菜单 */}
+  <div id="mobile-menu" class="mobile-menu" hidden>
+    <div class="mobile-menu__backdrop"></div>
+    <div class="mobile-menu__panel">
       {navConfig.main.map((item) => (
         <a
           href={item.href}
-          class:list={["header__link", { "header__link--active": isActive(item.href) }]}
+          class:list={["mobile-menu__link", { "mobile-menu__link--active": isActive(item.href) }]}
         >
           {item.label}
         </a>
       ))}
     </div>
-
-    <div class="header__actions">
-      <ThemeToggle />
-      <button
-        id="mobile-menu-toggle"
-        class="header__menu-btn hide-desktop"
-        aria-label="打开菜单"
-        aria-expanded="false"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="4" y1="6" x2="20" y2="6"></line>
-          <line x1="4" y1="12" x2="20" y2="12"></line>
-          <line x1="4" y1="18" x2="20" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-  </nav>
-
-  <div id="mobile-menu" class="header__mobile-menu" hidden>
-    {navConfig.main.map((item) => (
-      <a
-        href={item.href}
-        class:list={["header__mobile-link", { "header__mobile-link--active": isActive(item.href) }]}
-      >
-        {item.label}
-      </a>
-    ))}
   </div>
 </header>
 
 <style>
+  /* ── Header container ── */
+  .main-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: var(--space-3) var(--space-4);
+    transition: background-color var(--duration-normal) var(--ease-standard);
+  }
+
   .header__inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: var(--header-height);
-    max-width: var(--page-width);
-    margin: 0 auto;
-    padding: 0 var(--space-4);
+    gap: var(--space-2);
   }
 
+  /* ── Floating pill base ── */
+  .header__pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    transition:
+      border-color var(--duration-normal) var(--ease-standard),
+      box-shadow var(--duration-normal) var(--ease-standard),
+      background var(--duration-normal) var(--ease-standard);
+  }
+
+  /* Glass background — pseudo element, revealed on scroll */
+  .header__pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--glass-bg);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: inset 0 0.5px 0 var(--glass-highlight);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-normal) var(--ease-standard);
+    z-index: -1;
+  }
+
+  /* ── Scrolled state — reveal glass ── */
+  :global(.header-scrolled) .header__pill {
+    border-color: var(--glass-border);
+    box-shadow: 0 16px 40px -24px oklch(0 0 0 / 0.45), 0 4px 14px -10px oklch(0 0 0 / 0.35);
+    transform: translateY(6px);
+  }
+
+  :global(.header-scrolled) .header__pill::before {
+    opacity: 1;
+  }
+
+  /* ── Logo ── */
   .header__logo {
     font-family: var(--font-display);
-    font-size: var(--text-md);
+    font-size: var(--text-base);
     font-weight: 700;
     color: var(--foreground);
     text-decoration: none;
     letter-spacing: -0.02em;
+    padding: 0 var(--space-2);
   }
 
   .header__logo:hover {
     color: var(--foreground);
   }
 
+  /* ── Nav links ── */
   .header__links {
     display: flex;
+    align-items: center;
     gap: var(--space-1);
   }
 
   .header__link {
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
+    padding: 6px 14px;
+    border-radius: 999px;
     font-size: var(--text-sm);
     font-weight: 500;
     color: var(--foreground-secondary);
     text-decoration: none;
+    border: 1px solid transparent;
     transition:
       color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
+      background var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
   }
 
   .header__link:hover {
-    color: var(--foreground);
+    color: var(--accent);
     background: var(--accent-subtle);
+    border-color: oklch(from var(--accent) l c h / 0.24);
   }
 
   .header__link--active {
     color: var(--accent);
     background: var(--accent-subtle);
+    border-color: oklch(from var(--accent) l c h / 0.24);
   }
 
+  /* ── Actions ── */
   .header__actions {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-1);
+    margin-left: var(--space-1);
   }
 
+  /* ── Mobile menu button ── */
   .header__menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    color: var(--foreground);
-    transition: background var(--duration-fast) var(--ease-standard);
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    color: var(--foreground-secondary);
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
   }
 
   .header__menu-btn:hover {
+    color: var(--foreground);
     background: var(--accent-subtle);
   }
 
-  .header__mobile-menu {
-    display: none;
-    flex-direction: column;
-    padding: var(--space-2) var(--space-4) var(--space-4);
-    max-width: var(--page-width);
-    margin: 0 auto;
-    animation: slide-down var(--duration-normal) var(--ease-entrance);
+  /* ── Mobile menu ── */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
   }
 
-  .header__mobile-menu[data-open="true"] {
+  .mobile-menu__backdrop {
+    position: absolute;
+    inset: 0;
+    background: oklch(0 0 0 / 0.5);
+    backdrop-filter: blur(6px) saturate(130%);
+    -webkit-backdrop-filter: blur(6px) saturate(130%);
+  }
+
+  .mobile-menu__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(82vw, 22rem);
+    background: var(--surface-0);
+    border-left: 1px solid var(--border-subtle);
+    padding: var(--space-8) var(--space-4);
     display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transform: translateX(100%);
+    transition: transform var(--duration-normal) var(--ease-physical);
   }
 
-  .header__mobile-link {
+  .mobile-menu[data-open="true"] .mobile-menu__panel {
+    transform: translateX(0);
+  }
+
+  .mobile-menu[data-open="true"] .mobile-menu__backdrop {
+    opacity: 1;
+  }
+
+  .mobile-menu__link {
     padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     font-size: var(--text-base);
     font-weight: 500;
     color: var(--foreground-secondary);
@@ -160,37 +263,67 @@ function isActive(href: string): boolean {
       background var(--duration-fast) var(--ease-standard);
   }
 
-  .header__mobile-link:hover {
+  .mobile-menu__link:hover {
     color: var(--foreground);
     background: var(--accent-subtle);
   }
 
-  .header__mobile-link--active {
+  .mobile-menu__link--active {
     color: var(--accent);
     background: var(--accent-subtle);
+  }
+
+  @media (max-width: 768px) {
+  .main-header {
+    padding: var(--space-2) var(--space-3);
+  }
   }
 </style>
 
 <script>
-  function initMobileMenu() {
+  function initHeader() {
+    const header = document.getElementById("main-header");
+    if (!header) return;
+
+    // 滚动检测 — 添加 header-scrolled 类
+    function updateScrollState() {
+      if (window.scrollY > 20) {
+        header.classList.add("header-scrolled");
+      } else {
+        header.classList.remove("header-scrolled");
+      }
+    }
+
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    updateScrollState();
+
+    // 移动端菜单
     const toggle = document.getElementById("mobile-menu-toggle");
     const menu = document.getElementById("mobile-menu");
-    if (!toggle || !menu) return;
+    if (toggle && menu) {
+      toggle.addEventListener("click", () => {
+        const isOpen = menu.getAttribute("data-open") === "true";
+        menu.setAttribute("data-open", String(!isOpen));
+        toggle.setAttribute("aria-expanded", String(!isOpen));
+      });
 
-    toggle.addEventListener("click", () => {
-      const isOpen = menu.getAttribute("data-open") === "true";
-      menu.setAttribute("data-open", String(!isOpen));
-      toggle.setAttribute("aria-expanded", String(!isOpen));
-    });
-
-    menu.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
+      // 点击遮罩关闭
+      const backdrop = menu.querySelector(".mobile-menu__backdrop");
+      backdrop?.addEventListener("click", () => {
         menu.setAttribute("data-open", "false");
         toggle.setAttribute("aria-expanded", "false");
       });
-    });
+
+      // 点击链接关闭
+      menu.querySelectorAll(".mobile-menu__link").forEach((link) => {
+        link.addEventListener("click", () => {
+          menu.setAttribute("data-open", "false");
+          toggle.setAttribute("aria-expanded", "false");
+        });
+      });
+    }
   }
 
-  document.addEventListener("DOMContentLoaded", initMobileMenu);
-  document.addEventListener("astro:page-load", initMobileMenu);
+  document.addEventListener("DOMContentLoaded", initHeader);
+  document.addEventListener("astro:page-load", initHeader);
 </script>
