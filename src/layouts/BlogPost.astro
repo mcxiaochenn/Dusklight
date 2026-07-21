@@ -1,120 +1,71 @@
 ---
 /**
- * 博客文章布局
- * 使用新组件：Header, Footer, TOC, TwikooComments, SEOHead, JsonLd
+ * 文章布局
+ * BaseLayout + .prose + TOC + ArticleMeta + Tag
  */
 import type { CollectionEntry } from "astro:content";
-import Header from "../components/common/Header.astro";
-import Footer from "../components/common/Footer.astro";
+import BaseLayout from "./BaseLayout.astro";
 import TOC from "../components/blog/TOC.astro";
+import ArticleMeta from "../components/blog/ArticleMeta.astro";
+import Tag from "../components/ui/Tag.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
-import SEOHead from "../components/seo/SEOHead.astro";
 import JsonLd from "../components/seo/JsonLd.astro";
-import FormattedDate from "../components/FormattedDate.astro";
 
-type Props = CollectionEntry<"blog">["data"] & {
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  heroImage?: { src: string };
+  cover?: string;
+  coverAlt?: string;
+  tags?: string[];
+  category?: string;
+  toc?: boolean;
+  comment?: boolean;
   headings?: { depth: number; slug: string; text: string }[];
-};
+}
 
 const { title, description, pubDate, updatedDate, heroImage, cover, coverAlt, tags, category, toc: showToc = true, comment: showComment = true, headings = [] } = Astro.props;
-
-// 兼容 heroImage 和 cover
 const coverImage = cover || (heroImage ? heroImage.src : undefined);
-
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <SEOHead
-      title={title}
-      description={description}
-      image={cover}
-      article={{
-        publishedTime: pubDate.toISOString(),
-        modifiedTime: updatedDate?.toISOString(),
-        authors: ["mcxiaochen"],
-        tags: tags || [],
-      }}
-    />
-    <JsonLd
-      type="article"
-      title={title}
-      description={description}
-      url={canonicalURL.href}
-      image={cover}
-      datePublished={pubDate.toISOString()}
-      dateModified={updatedDate?.toISOString()}
-    />
-  </head>
+<BaseLayout title={title} description={description} image={cover}>
+  <JsonLd type="article" title={title} description={description} url={canonicalURL.href} image={cover} datePublished={pubDate.toISOString()} dateModified={updatedDate?.toISOString()} />
 
-  <body>
-    <Header />
+  <div class="article-layout">
+    <article class="article">
+      {coverImage && (
+        <div class="article__cover">
+          <img src={coverImage} alt={coverAlt || title} loading="eager" decoding="async" />
+        </div>
+      )}
 
-    <main class="article-layout">
-      {/* 文章主内容 */}
-      <article class="article">
-        {/* 封面图 */}
-        {coverImage && (
-          <div class="article__cover">
-            <img
-              src={coverImage}
-              alt={coverAlt || title}
-              loading="eager"
-              decoding="async"
-            />
+      <header class="article__header">
+        {tags && tags.length > 0 && (
+          <div class="article__tags">
+            {tags.map((t) => <Tag>{t}</Tag>)}
           </div>
         )}
+        <h1 class="article__title">{title}</h1>
+        <ArticleMeta pubDate={pubDate} updatedDate={updatedDate} category={category} />
+      </header>
 
-        {/* 文章头部 */}
-        <header class="article__header">
-          {/* 标签 */}
-          {tags && tags.length > 0 && (
-            <div class="article__tags">
-              {tags.map((tag) => (
-                <span class="article__tag">{tag}</span>
-              ))}
-            </div>
-          )}
+      <div class="article__content prose">
+        <slot />
+      </div>
 
-          {/* 标题 */}
-          <h1 class="article__title">{title}</h1>
+      {showComment && <TwikooComments />}
+    </article>
 
-          {/* 元信息 */}
-          <div class="article__meta">
-            <FormattedDate date={pubDate} />
-            {updatedDate && (
-              <span class="article__updated">
-                (更新于 <FormattedDate date={updatedDate} />)
-              </span>
-            )}
-            {category && (
-              <span class="article__category">{category}</span>
-            )}
-          </div>
-        </header>
-
-        {/* 文章正文 */}
-        <div class="article__content prose">
-          <slot />
-        </div>
-
-        {/* 评论区 */}
-        {showComment && <TwikooComments />}
-      </article>
-
-      {/* 侧边栏目录 */}
-      {showToc && headings.length > 0 && (
-        <aside class="article-sidebar">
-          <TOC headings={headings} />
-        </aside>
-      )}
-    </main>
-
-    <Footer />
-  </body>
-</html>
+    {showToc && headings.length > 0 && (
+      <aside class="article__sidebar">
+        <TOC headings={headings} />
+      </aside>
+    )}
+  </div>
+</BaseLayout>
 
 <style>
   .article-layout {
@@ -126,92 +77,41 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     padding: var(--space-6) var(--space-4);
   }
 
-  .article {
-    max-width: var(--content-width);
-  }
+  .article { max-width: var(--content-width); }
 
   .article__cover {
     margin-bottom: var(--space-6);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-lg);
     overflow: hidden;
   }
 
-  .article__cover img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+  .article__cover img { width: 100%; height: auto; display: block; border-radius: 0; }
 
   .article__header {
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--border-subtle);
   }
 
-  .article__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
-  }
-
-  .article__tag {
-    padding: 4px 12px;
-    border-radius: 6px;
-    background: rgba(35, 55, 255, 0.08);
-    color: var(--accent);
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
+  .article__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-3); }
 
   .article__title {
-    margin: 0 0 var(--space-3) 0;
-    font-size: 2.5rem;
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-2xl);
     font-weight: 700;
-    line-height: 1.2;
-    color: var(--color-text);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: var(--foreground);
   }
 
-  .article__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-  }
+  .article__sidebar { position: relative; }
 
-  .article__updated {
-    font-style: italic;
-  }
-
-  .article__category {
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: var(--color-bg-tertiary);
-  }
-
-  .article__content {
-    line-height: 1.8;
-  }
-
-  .article-sidebar {
-    position: relative;
-  }
-
-  /* 响应式 */
   @media (max-width: 1024px) {
-    .article-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .article-sidebar {
-      display: none;
-    }
+    .article-layout { grid-template-columns: 1fr; }
+    .article__sidebar { display: none; }
   }
 
   @media (max-width: 768px) {
-    .article__title {
-      font-size: 1.75rem;
-    }
+    .article__title { font-size: var(--text-xl); }
   }
 </style>

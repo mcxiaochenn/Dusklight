@@ -1,45 +1,29 @@
 ---
 /**
  * 归档页面
- * 按时间展示所有文章
+ * 按年份分组展示所有文章
  */
 import { getCollection } from "astro:content";
-import Header from "../components/common/Header.astro";
-import Footer from "../components/common/Footer.astro";
-import SEOHead from "../components/seo/SEOHead.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 
-// 获取所有已发布文章
 const posts = (await getCollection("blog"))
-  .filter((post) => !post.data.draft)
+  .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-// 按年份分组
-const postsByYear = posts.reduce(
-  (acc, post) => {
-    const year = post.data.pubDate.getFullYear();
-    if (!acc[year]) acc[year] = [];
-    acc[year].push(post);
-    return acc;
-  },
-  {} as Record<number, typeof posts>
-);
+const postsByYear = posts.reduce((acc, post) => {
+  const year = post.data.pubDate.getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(post);
+  return acc;
+}, {} as Record<number, typeof posts>);
 
-const years = Object.keys(postsByYear)
-  .map(Number)
-  .sort((a, b) => b - a);
+const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <SEOHead title="归档 - Dusklight Blog" description="所有文章归档" />
-  </head>
-
-  <body>
-    <Header />
-
-    <main class="archive">
+<BaseLayout title="归档" description="所有文章归档">
+  <section class="archive section">
+    <div class="content-container">
       <h1 class="archive__title">文章归档</h1>
       <p class="archive__count">共 {posts.length} 篇文章</p>
 
@@ -50,9 +34,7 @@ const years = Object.keys(postsByYear)
             {postsByYear[year].map((post) => (
               <li class="archive__item">
                 <a href={`/blog/${post.id}/`} class="archive__link">
-                  <span class="archive__date">
-                    <FormattedDate date={post.data.pubDate} />
-                  </span>
+                  <span class="archive__date"><FormattedDate date={post.data.pubDate} /></span>
                   <span class="archive__post-title">{post.data.title}</span>
                 </a>
               </li>
@@ -60,82 +42,30 @@ const years = Object.keys(postsByYear)
           </ul>
         </section>
       ))}
-    </main>
-
-    <Footer />
-  </body>
-</html>
+    </div>
+  </section>
+</BaseLayout>
 
 <style>
-  .archive {
-    max-width: var(--content-width);
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-4);
-  }
-
-  .archive__title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 var(--space-2) 0;
-  }
-
-  .archive__count {
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-8) 0;
-  }
-
-  .archive__year {
-    margin-bottom: var(--space-8);
-  }
-
+  .archive__title { font-size: var(--text-xl); font-weight: 700; margin: 0 0 var(--space-2); }
+  .archive__count { color: var(--foreground-muted); margin: 0 0 var(--space-10); }
+  .archive__year { margin-bottom: var(--space-8); }
   .archive__year-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 var(--space-4) 0;
-    padding-bottom: var(--space-2);
-    border-bottom: 2px solid var(--accent);
-    display: inline-block;
+    font-size: var(--text-lg); font-weight: 600;
+    margin: 0 0 var(--space-4); padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--accent); display: inline-block;
   }
-
-  .archive__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
+  .archive__list { display: flex; flex-direction: column; gap: var(--space-1); }
   .archive__link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--border-radius-sm);
-    text-decoration: none;
-    color: var(--color-text);
-    transition: background var(--transition-fast);
+    display: flex; align-items: center; gap: var(--space-4);
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+    text-decoration: none; color: var(--foreground);
+    transition: background var(--duration-fast) var(--ease-standard);
   }
-
-  .archive__link:hover {
-    background: var(--glass-bg);
-  }
-
-  .archive__date {
-    color: var(--color-text-secondary);
-    font-size: 0.875rem;
-    min-width: 100px;
-  }
-
-  .archive__post-title {
-    font-weight: 500;
-  }
-
+  .archive__link:hover { background: var(--surface-2); }
+  .archive__date { color: var(--foreground-muted); font-size: var(--text-sm); min-width: 100px; }
+  .archive__post-title { font-weight: 500; font-size: var(--text-sm); }
   @media (max-width: 768px) {
-    .archive__link {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-1);
-    }
+    .archive__link { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
   }
 </style>

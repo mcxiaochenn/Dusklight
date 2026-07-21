@@ -1,143 +1,140 @@
 ---
 /**
- * 首页 - 博客列表
- * 使用全新设计系统
+ * 首页
+ * 不对称布局：Hero + Featured Post + PostCardList + PostCard 网格。
  */
 import { getCollection } from "astro:content";
-import Header from "../components/common/Header.astro";
-import Footer from "../components/common/Footer.astro";
-import SiteBackdrop from "../components/common/SiteBackdrop.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/blog/PostCard.astro";
-import SEOHead from "../components/seo/SEOHead.astro";
+import PostCardList from "../components/blog/PostCardList.astro";
+import Button from "../components/ui/Button.astro";
 import { siteConfig } from "../config/site";
 
 const posts = (await getCollection("blog"))
-  .filter((post) => !post.data.draft)
+  .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featured = posts[0];
+const recent = posts.slice(1, 5);
+const morePosts = posts.slice(5, 9);
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <SEOHead />
-  </head>
+<BaseLayout>
+  {/* Hero */}
+  <section class="hero section">
+    <div class="page-container">
+      <h1 class="hero__title">{siteConfig.title}</h1>
+      <p class="hero__subtitle">{siteConfig.description}</p>
+    </div>
+  </section>
 
-  <body>
-    <SiteBackdrop />
-    <Header />
-
-    <main class="blog-list">
-      {/* 页面标题 */}
-      <div class="blog-list__hero animate-on-load delay-100">
-        <h1 class="blog-list__title gradient-text">{siteConfig.title}</h1>
-        <p class="blog-list__subtitle">{siteConfig.description}</p>
-      </div>
-
-      {/* 文章列表 */}
-      <div class="blog-list__grid">
-        {posts.map((post, index) => (
-          <div class={`animate-on-load delay-${Math.min(200 + index * 50, 400)}`}>
-            <PostCard post={post} variant={index === 0 ? "featured" : "default"} />
+  {/* Latest Writing */}
+  {featured && (
+    <section class="latest section-sm">
+      <div class="page-container">
+        <h2 class="section-label">最新文章</h2>
+        <div class="latest__grid">
+          <div class="latest__featured">
+            <PostCard post={featured} variant="hero" />
           </div>
-        ))}
+          {recent.length > 0 && (
+            <aside class="latest__sidebar">
+              <PostCardList posts={recent} />
+            </aside>
+          )}
+        </div>
       </div>
-    </main>
+    </section>
+  )}
 
-    <Footer />
+  {/* More posts */}
+  {morePosts.length > 0 && (
+    <section class="more-posts section">
+      <div class="page-container">
+        <div class="more-posts__grid">
+          {morePosts.map((post) => <PostCard post={post} />)}
+        </div>
+      </div>
+    </section>
+  )}
 
-    {/* 滚动进度条 */}
-    <div class="scroll-progress" id="scroll-progress"></div>
-
-    {/* 返回顶部 */}
-    <button class="back-to-top" id="back-to-top" aria-label="返回顶部">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="18 15 12 9 6 15"></polyline>
-      </svg>
-    </button>
-  </body>
-</html>
+  {/* View all */}
+  <section class="view-all">
+    <div class="page-container" style="text-align: center;">
+      <Button href="/archive" variant="secondary">查看全部文章 →</Button>
+    </div>
+  </section>
+</BaseLayout>
 
 <style>
-  .blog-list {
-    max-width: var(--page-width);
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-4);
-  }
-
-  .blog-list__hero {
+  .hero {
     text-align: center;
-    margin-bottom: var(--space-10);
+    padding-top: var(--space-20);
+    padding-bottom: var(--space-16);
   }
 
-  .blog-list__title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin: 0 0 var(--space-3) 0;
-    letter-spacing: -0.02em;
+  .hero__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-3);
   }
 
-  .blog-list__subtitle {
+  .hero__subtitle {
+    font-size: var(--text-lg);
+    font-weight: 300;
     color: var(--foreground-secondary);
     margin: 0;
-    font-size: 1.125rem;
   }
 
-  .blog-list__grid {
+  .section-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--space-6);
+  }
+
+  .latest__grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .latest__sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .more-posts__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
   }
 
-  .blog-list__grid > :first-child {
-    grid-column: 1 / -1;
+  .view-all {
+    padding-bottom: var(--space-16);
+  }
+
+  @media (max-width: 1024px) {
+    .latest__grid {
+      grid-template-columns: 1fr;
+    }
+    .latest__sidebar {
+      position: static;
+    }
   }
 
   @media (max-width: 768px) {
-    .blog-list__title {
-      font-size: 2rem;
+    .hero {
+      padding-top: var(--space-12);
+      padding-bottom: var(--space-10);
     }
-
-    .blog-list__grid {
+    .more-posts__grid {
       grid-template-columns: 1fr;
     }
   }
 </style>
-
-<script>
-  // 滚动进度条
-  function updateScrollProgress() {
-    const progressBar = document.getElementById("scroll-progress");
-    if (!progressBar) return;
-
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    progressBar.style.width = `${progress}%`;
-  }
-
-  // 返回顶部按钮
-  function updateBackToTop() {
-    const btn = document.getElementById("back-to-top");
-    if (!btn) return;
-
-    if (window.scrollY > 300) {
-      btn.classList.add("visible");
-    } else {
-      btn.classList.remove("visible");
-    }
-  }
-
-  window.addEventListener("scroll", () => {
-    updateScrollProgress();
-    updateBackToTop();
-  });
-
-  document.getElementById("back-to-top")?.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-
-  document.addEventListener("DOMContentLoaded", () => {
-    updateScrollProgress();
-    updateBackToTop();
-  });
-</script>
