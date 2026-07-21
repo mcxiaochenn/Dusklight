@@ -130,7 +130,18 @@
     });
   }
 
-  function initAll() { initCodeCopy(); initLightbox(); initScrollReveal(); }
+  function initBackToTop() {
+    const btn = document.getElementById("back-to-top");
+    if (!btn) return;
+    function toggle() {
+      btn.classList.toggle("back-to-top--visible", window.scrollY > 300);
+    }
+    window.addEventListener("scroll", toggle, { passive: true });
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    toggle();
+  }
+
+  function initAll() { initCodeCopy(); initLightbox(); initScrollReveal(); initBackToTop(); }
   document.addEventListener("DOMContentLoaded", initAll);
   document.addEventListener("astro:page-load", initAll);
 </script>
