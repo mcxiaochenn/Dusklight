@@ -134,6 +134,50 @@
       });
     },
 
+    toggleWithAnimation(originX: number, originY: number) {
+      const current = this.getTheme();
+      const next = current === "light" ? "dark" : current === "dark" ? "auto" : "light";
+
+      // 计算从按钮位置到最远角落的距离
+      const maxR = Math.hypot(
+        Math.max(originX, window.innerWidth - originX),
+        Math.max(originY, window.innerHeight - originY)
+      );
+
+      // 克隆 documentElement 作为遮罩层
+      const overlay = document.documentElement.cloneNode(true) as HTMLElement;
+      overlay.style.position = "fixed";
+      overlay.style.inset = "0";
+      overlay.style.zIndex = "9999";
+      overlay.style.margin = "0";
+      overlay.style.clipPath = `circle(0px at ${originX}px ${originY}px)`;
+      overlay.style.transition = "clip-path 1s cubic-bezier(0.4, 0, 0.2, 1)";
+      // 遮罩层应用新主题
+      overlay.classList.remove("light", "dark", "auto");
+      if (next === "auto") {
+        overlay.classList.add("auto");
+        const sys = this.getSystemTheme();
+        overlay.classList.toggle("dark", sys === "dark");
+      } else {
+        overlay.classList.add(next);
+        overlay.classList.toggle("dark", next === "dark");
+      }
+      document.body.appendChild(overlay);
+
+      // 触发动画：圆形扩散
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          overlay.style.clipPath = `circle(${maxR}px at ${originX}px ${originY}px)`;
+        });
+      });
+
+      // 动画结束后切换真实主题并移除遮罩
+      overlay.addEventListener("transitionend", () => {
+        this.applyTheme(next);
+        overlay.remove();
+      }, { once: true });
+    },
+
     toggle() {
       const current = this.getTheme();
       const next = current === "light" ? "dark" : current === "dark" ? "auto" : "light";
@@ -145,7 +189,10 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     const toggle = document.getElementById("theme-toggle");
-    toggle?.addEventListener("click", () => ThemeManager.toggle());
+    toggle?.addEventListener("click", (e) => {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      ThemeManager.toggleWithAnimation(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    });
   });
 
   document.addEventListener("astro:after-swap", () => {
