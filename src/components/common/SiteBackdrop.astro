@@ -69,9 +69,20 @@
 </style>
 
 <script>
+  function isDarkMode(): boolean {
+    const root = document.documentElement;
+    if (root.classList.contains("dark")) return true;
+    if (root.classList.contains("light")) return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
   function loadBackdropImage() {
     const el = document.getElementById("backdrop-image");
     if (!el) return;
+
+    const src = isDarkMode()
+      ? "/images/bg/xiowo-bg-dark.webp"
+      : "/images/bg/xiowo-bg-light.webp";
 
     const img = new Image();
     img.onload = () => {
@@ -79,13 +90,41 @@
       el.classList.add("site-backdrop__image--loaded");
       el.parentElement?.classList.add("site-backdrop--has-image");
     };
-    img.src = "/images/bg/xiowo-bg-dark.webp";
+    img.src = src;
   }
 
-  // 页面加载完成后再开始下载背景图
+  // 主题切换时更换背景图
+  function switchBackdropImage() {
+    const el = document.getElementById("backdrop-image");
+    if (!el) return;
+
+    const src = isDarkMode()
+      ? "/images/bg/xiowo-bg-dark.webp"
+      : "/images/bg/xiowo-bg-light.webp";
+
+    const img = new Image();
+    img.onload = () => {
+      el.style.backgroundImage = `url(${img.src})`;
+    };
+    img.src = src;
+  }
+
+  // 页面加载完成后开始下载
   if (document.readyState === "complete") {
     loadBackdropImage();
   } else {
     window.addEventListener("load", loadBackdropImage);
   }
+
+  // 监听主题切换
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("theme-toggle");
+    toggle?.addEventListener("click", () => {
+      // 延迟等待 ThemeManager 切换完成
+      setTimeout(switchBackdropImage, 50);
+    });
+  });
+
+  // 监听系统主题变化（auto 模式）
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", switchBackdropImage);
 </script>
