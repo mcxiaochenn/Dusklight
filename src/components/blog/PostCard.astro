@@ -1,0 +1,212 @@
+---
+/**
+ * 文章卡片组件
+ * 液态玻璃效果 + 非对称布局变体
+ */
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "../FormattedDate.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  variant?: "default" | "featured" | "compact";
+}
+
+const { post, variant = "default" } = Astro.props;
+---
+
+<article class:list={["post-card", `post-card--${variant}`]}>
+  <a href={`/blog/${post.id}/`} class="post-card__link">
+    {/* 封面图 */}
+    {post.data.cover && (
+      <div class="post-card__cover">
+        <img
+          src={post.data.cover}
+          alt={post.data.coverAlt || post.data.title}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    )}
+
+    {/* 内容区域 */}
+    <div class="post-card__content">
+      {/* 标签 */}
+      {post.data.tags && post.data.tags.length > 0 && (
+        <div class="post-card__tags">
+          {post.data.tags.slice(0, 3).map((tag) => (
+            <span class="post-card__tag">{tag}</span>
+          ))}
+        </div>
+      )}
+
+      {/* 标题 */}
+      <h3 class="post-card__title">{post.data.title}</h3>
+
+      {/* 描述 */}
+      <p class="post-card__description">{post.data.description}</p>
+
+      {/* 元信息 */}
+      <div class="post-card__meta">
+        <FormattedDate date={post.data.pubDate} />
+        {post.data.category && (
+          <span class="post-card__category">{post.data.category}</span>
+        )}
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .post-card {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--glass-shadow), 0 12px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .post-card__link {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+
+  .post-card__cover {
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+  }
+
+  .post-card__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .post-card:hover .post-card__cover img {
+    transform: scale(1.05);
+  }
+
+  .post-card__content {
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+  }
+
+  .post-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .post-card__tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(35, 55, 255, 0.08);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .post-card__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--color-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-card__description {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-2);
+    font-size: 0.8125rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .post-card__category {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--color-bg-tertiary);
+  }
+
+  /* Featured 变体 - 大卡片 */
+  .post-card--featured .post-card__link {
+    flex-direction: row;
+  }
+
+  .post-card--featured .post-card__cover {
+    width: 45%;
+    aspect-ratio: auto;
+  }
+
+  .post-card--featured .post-card__title {
+    font-size: 1.5rem;
+  }
+
+  .post-card--featured .post-card__description {
+    -webkit-line-clamp: 3;
+  }
+
+  /* Compact 变体 - 紧凑卡片 */
+  .post-card--compact .post-card__link {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .post-card--compact .post-card__cover {
+    width: 120px;
+    min-width: 120px;
+    aspect-ratio: 1;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .post-card--compact .post-card__title {
+    font-size: 1rem;
+  }
+
+  .post-card--compact .post-card__description {
+    display: none;
+  }
+
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .post-card--featured .post-card__link {
+      flex-direction: column;
+    }
+
+    .post-card--featured .post-card__cover {
+      width: 100%;
+    }
+
+    .post-card--compact .post-card__cover {
+      width: 80px;
+      min-width: 80px;
+    }
+  }
+</style>
