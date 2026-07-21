@@ -1,12 +1,12 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
+import Header from '../components/common/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
@@ -15,33 +15,26 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		<main>
 			<h1>🧑‍🚀 Hello, Astronaut!</h1>
 			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
+				欢迎来到 <a href="https://astro.build/">Astro</a> 博客模板。这个模板
+				为想要构建个人网站、博客或作品集的人提供了一个轻量级、最小化的起点。
 			</p>
 			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
+				此模板已在你的 <code>astro.config.mjs</code> 文件中配置了一些集成。你可以使用
+				<a href="https://astro.build/integrations">Astro Integrations</a> 添加 Tailwind、
+				React 或 Vue 等工具来自定义你的设置。
 			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
+			<p>以下是一些入门建议：</p>
 			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
+				<li>在 <code>src/pages/index.astro</code> 中编辑此页面</li>
+				<li>在 <code>src/config/nav.ts</code> 中编辑导航菜单</li>
+				<li>在 <code>src/config/site.ts</code> 中修改站点配置</li>
+				<li>查看 <code>src/content/blog/</code> 中的示例文章</li>
+				<li>在 <code>src/layouts/BlogPost.astro</code> 中自定义文章布局</li>
 			</ul>
 			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
+				祝你使用愉快！如果遇到问题，记得
+				<a href="https://docs.astro.build/">阅读文档</a>
+				或 <a href="https://astro.build/chat">加入 Discord</a> 提问。
 			</p>
 		</main>
 		<Footer />
