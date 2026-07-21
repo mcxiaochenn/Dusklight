@@ -1,0 +1,161 @@
+/*
+ * Dusklight Base Styles
+ * ─────────────────────────────────────────────────────────
+ * Global element styles. Uses only design tokens.
+ * This is the "default look" of every HTML element.
+ */
+
+/* ── Inter Variable Font ── */
+@import "@fontsource-variable/inter/wght.css";
+
+body {
+  font-family: var(--font-body), var(--font-cjk);
+  font-size: var(--text-base);
+  line-height: 1.75;
+  color: var(--foreground);
+  background-color: var(--surface-0);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--foreground);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: var(--text-2xl);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: var(--text-xl);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: var(--text-lg);
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+h4 {
+  font-size: var(--text-md);
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--duration-instant) var(--ease-standard);
+}
+
+a:hover {
+  color: var(--accent-bright);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+img {
+  height: auto;
+  border-radius: var(--radius-md);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: 0.125em 0.375em;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  padding: var(--space-5);
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+pre > code {
+  all: unset;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: inherit;
+}
+
+blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-4);
+  color: var(--foreground-secondary);
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: var(--space-8) 0;
+}
+
+table {
+  width: 100%;
+}
+
+th, td {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+th {
+  background: var(--surface-1);
+  font-weight: 600;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-subtle);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+::selection {
+  background: var(--accent-subtle);
+  color: var(--foreground);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px;
+  }
+}

@@ -2,7 +2,7 @@
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import { defineConfig, fontProviders } from "astro/config";
+import { defineConfig } from "astro/config";
 
 // Markdown 插件
 import remarkMath from "remark-math";
@@ -20,31 +20,7 @@ export default defineConfig({
 
 	integrations: [mdx(), sitemap()],
 
-	// 字体配置
-	fonts: [
-		{
-			provider: fontProviders.local(),
-			name: "Atkinson",
-			cssVariable: "--font-atkinson",
-			fallbacks: ["sans-serif"],
-			options: {
-				variants: [
-					{
-						src: ["./src/assets/fonts/atkinson-regular.woff"],
-						weight: 400,
-						style: "normal",
-						display: "swap",
-					},
-					{
-						src: ["./src/assets/fonts/atkinson-bold.woff"],
-						weight: 700,
-						style: "normal",
-						display: "swap",
-					},
-				],
-			},
-		},
-	],
+	// 字体通过 @fontsource-variable/inter 在 CSS 中加载
 
 	// Markdown 配置
 	markdown: {

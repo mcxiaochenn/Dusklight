@@ -1,0 +1,101 @@
+/*
+ * Dusklight Animation System
+ * ─────────────────────────────────────────────────────────
+ * Calm, physical motion. No bounce. No spring. No drama.
+ * Motion serves spatial awareness, not attention-seeking.
+ */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-out-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.8; }
+}
+
+.animate-in {
+  animation: fade-in-up var(--duration-slow) var(--ease-entrance) forwards;
+  opacity: 0;
+}
+
+.delay-0 { animation-delay: 0ms; }
+.delay-1 { animation-delay: 60ms; }
+.delay-2 { animation-delay: 120ms; }
+.delay-3 { animation-delay: 180ms; }
+.delay-4 { animation-delay: 240ms; }
+
+.animate-fade {
+  animation: fade-in var(--duration-normal) var(--ease-standard) forwards;
+  opacity: 0;
+}
+
+.animate-skeleton {
+  background: var(--border);
+  border-radius: var(--radius-md);
+  animation: skeleton-pulse 1.5s var(--ease-standard) infinite;
+}
+
+.transition {
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.transition-color {
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.transition-shadow {
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.transition-opacity {
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
