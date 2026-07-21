@@ -1,0 +1,38 @@
+version: 2
+updates:
+  # npm 依赖
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps):"
+    groups:
+      astro:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+      markdown:
+        patterns:
+          - "remark-*"
+          - "rehype-*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci(deps):"

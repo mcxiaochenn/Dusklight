@@ -1,0 +1,102 @@
+/* ===== 液态玻璃效果 ===== */
+
+/* 基础玻璃效果 */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+  border-radius: var(--border-radius);
+}
+
+/* 折射效果（边缘光） */
+.glass--refractive {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass--refractive::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* 高光效果 */
+.glass--specular::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* 交互式玻璃（悬停态） */
+.glass--interactive {
+  transition:
+    background var(--transition-normal),
+    box-shadow var(--transition-normal),
+    transform var(--transition-normal);
+  cursor: pointer;
+}
+
+.glass--interactive:hover {
+  background: var(--glass-bg-hover);
+  box-shadow:
+    var(--glass-shadow),
+    var(--glass-highlight),
+    0 12px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* 提升层级（模态框、弹出层） */
+.glass--elevated {
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-blur: 40px;
+  --glass-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+:root.dark .glass--elevated {
+  --glass-bg: rgba(30, 30, 32, 0.85);
+}
+
+/* 浏览器兼容性回退 */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  :root.dark .glass {
+    background: rgba(30, 30, 32, 0.95);
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .glass--interactive {
+    transition: none;
+  }
+
+  .glass--interactive:hover {
+    transform: none;
+  }
+}

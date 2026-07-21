@@ -1,0 +1,27 @@
+# =====================================================
+# 此文件需要复制到内容仓库 (Dusklight-Content)
+# 路径: Dusklight-Content/.github/workflows/trigger-build.yml
+# =====================================================
+
+name: Trigger Framework Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "blog/**"
+      - "pages/**"
+      - "data/**"
+      - "images/**"
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.FRAMEWORK_REPO_TOKEN }}
+          repository: mcxiaochen/Dusklight
+          event-type: content-updated
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
