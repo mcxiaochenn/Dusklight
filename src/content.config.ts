@@ -24,7 +24,8 @@ const blog = defineCollection({
 			tags: z.array(z.string()).default([]),
 			category: z.string().optional(),
 
-			// 封面图（相对路径，如 ./cover.jpg）
+			// 封面图（支持 heroImage 和 cover 两种写法）
+			heroImage: image().optional(),
 			cover: z.string().optional(),
 			coverAlt: z.string().optional(),
 

@@ -16,7 +16,10 @@ type Props = CollectionEntry<"blog">["data"] & {
   headings?: { depth: number; slug: string; text: string }[];
 };
 
-const { title, description, pubDate, updatedDate, cover, coverAlt, tags, category, toc: showToc = true, comment: showComment = true, headings = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, cover, coverAlt, tags, category, toc: showToc = true, comment: showComment = true, headings = [] } = Astro.props;
+
+// 兼容 heroImage 和 cover
+const coverImage = cover || (heroImage ? heroImage.src : undefined);
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -53,10 +56,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       {/* 文章主内容 */}
       <article class="article">
         {/* 封面图 */}
-        {cover && (
+        {coverImage && (
           <div class="article__cover">
             <img
-              src={cover}
+              src={coverImage}
               alt={coverAlt || title}
               loading="eager"
               decoding="async"
