@@ -1,0 +1,148 @@
+---
+/**
+ * 主题切换组件
+ * 支持 light/dark/auto 三档切换
+ * 无闪烁主题恢复（内联脚本）
+ * View Transitions 兼容
+ */
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  aria-label="切换主题"
+  class="theme-toggle"
+  title="切换主题"
+>
+  {/* 太阳图标（亮色模式显示） */}
+  <svg class="icon icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+
+  {/* 月亮图标（暗色模式显示） */}
+  <svg class="icon icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+
+  {/* 自动图标（跟随系统显示） */}
+  <svg class="icon icon--auto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+    <line x1="8" y1="21" x2="16" y2="21"></line>
+    <line x1="12" y1="17" x2="12" y2="21"></line>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    position: relative;
+  }
+
+  .theme-toggle:hover {
+    background: var(--glass-bg);
+  }
+
+  .icon {
+    position: absolute;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  /* 默认显示太阳图标 */
+  .icon--sun { opacity: 1; transform: rotate(0); }
+  .icon--moon { opacity: 0; transform: rotate(-90deg); }
+  .icon--auto { opacity: 0; transform: rotate(90deg); }
+
+  /* 暗色模式显示月亮图标 */
+  :root.dark .icon--sun { opacity: 0; transform: rotate(90deg); }
+  :root.dark .icon--moon { opacity: 1; transform: rotate(0); }
+  :root.dark .icon--auto { opacity: 0; transform: rotate(-90deg); }
+
+  /* 自动模式显示自动图标 */
+  :root.auto .icon--sun { opacity: 0; transform: rotate(-90deg); }
+  :root.auto .icon--moon { opacity: 0; transform: rotate(90deg); }
+  :root.auto .icon--auto { opacity: 1; transform: rotate(0); }
+</style>
+
+<script>
+  // 主题管理器
+  const ThemeManager = {
+    getTheme(): string {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+        return localStorage.getItem("theme")!;
+      }
+      return "auto";
+    },
+
+    getSystemTheme(): "light" | "dark" {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    },
+
+    applyTheme(theme: string) {
+      const root = document.documentElement;
+      root.classList.remove("light", "dark", "auto");
+
+      if (theme === "auto") {
+        root.classList.add("auto");
+        const systemTheme = this.getSystemTheme();
+        root.classList.toggle("dark", systemTheme === "dark");
+        root.style.colorScheme = systemTheme;
+      } else {
+        root.classList.add(theme);
+        root.classList.toggle("dark", theme === "dark");
+        root.style.colorScheme = theme;
+      }
+
+      localStorage.setItem("theme", theme);
+    },
+
+    init() {
+      this.applyTheme(this.getTheme());
+
+      // 监听系统主题变化
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+        if (this.getTheme() === "auto") {
+          this.applyTheme("auto");
+        }
+      });
+    },
+
+    toggle() {
+      const current = this.getTheme();
+      const next = current === "light" ? "dark" : current === "dark" ? "auto" : "light";
+      this.applyTheme(next);
+    },
+  };
+
+  // 初始化
+  ThemeManager.init();
+
+  // 绑定点击事件
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("theme-toggle");
+    toggle?.addEventListener("click", () => ThemeManager.toggle());
+  });
+
+  // View Transitions 兼容
+  document.addEventListener("astro:after-swap", () => {
+    ThemeManager.applyTheme(ThemeManager.getTheme());
+  });
+</script>

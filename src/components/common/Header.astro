@@ -1,0 +1,216 @@
+---
+/**
+ * 导航栏组件
+ * 液态玻璃效果 + 响应式布局
+ */
+import { siteConfig } from "../../config/site";
+import { navConfig } from "../../config/nav";
+import ThemeToggle from "./ThemeToggle.astro";
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header glass">
+  <nav class="nav">
+    {/* Logo / 站点标题 */}
+    <a href="/" class="logo">
+      <span class="logo__text">{siteConfig.title}</span>
+    </a>
+
+    {/* 桌面端导航 */}
+    <div class="nav__links">
+      {navConfig.main.map((item) => (
+        <a
+          href={item.href}
+          class:list={["nav__link", { active: currentPath === item.href || currentPath.startsWith(item.href + "/") }]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+
+    {/* 右侧操作区 */}
+    <div class="nav__actions">
+      <ThemeToggle />
+
+      {/* 移动端菜单按钮 */}
+      <button
+        id="mobile-menu-toggle"
+        class="mobile-menu-toggle"
+        aria-label="打开菜单"
+        aria-expanded="false"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  {/* 移动端菜单 */}
+  <div id="mobile-menu" class="mobile-menu" hidden>
+    {navConfig.main.map((item) => (
+      <a
+        href={item.href}
+        class:list={["mobile-menu__link", { active: currentPath === item.href }]}
+      >
+        {item.label}
+      </a>
+    ))}
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    margin: 0;
+    padding: 0 var(--space-4);
+    padding-top: var(--safe-top);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    max-width: calc(var(--content-width) + var(--space-8));
+    margin: 0 auto;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+
+  .logo:hover {
+    color: var(--accent);
+  }
+
+  .nav__links {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .nav__link {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+
+  .nav__link:hover {
+    color: var(--color-text);
+    background: var(--glass-bg);
+  }
+
+  .nav__link.active {
+    color: var(--accent);
+    background: rgba(35, 55, 255, 0.08);
+  }
+
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .mobile-menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .mobile-menu-toggle:hover {
+    background: var(--glass-bg);
+  }
+
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: var(--space-2) var(--space-4) var(--space-4);
+    max-width: calc(var(--content-width) + var(--space-8));
+    margin: 0 auto;
+  }
+
+  .mobile-menu__link {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+
+  .mobile-menu__link:hover {
+    color: var(--color-text);
+    background: var(--glass-bg);
+  }
+
+  .mobile-menu__link.active {
+    color: var(--accent);
+    background: rgba(35, 55, 255, 0.08);
+  }
+
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .nav__links {
+      display: none;
+    }
+
+    .mobile-menu-toggle {
+      display: flex;
+    }
+
+    .mobile-menu[data-open="true"] {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  // 移动端菜单切换
+  function initMobileMenu() {
+    const toggle = document.getElementById("mobile-menu-toggle");
+    const menu = document.getElementById("mobile-menu");
+
+    if (!toggle || !menu) return;
+
+    toggle.addEventListener("click", () => {
+      const isOpen = menu.getAttribute("data-open") === "true";
+      menu.setAttribute("data-open", String(!isOpen));
+      toggle.setAttribute("aria-expanded", String(!isOpen));
+      toggle.setAttribute("aria-label", isOpen ? "打开菜单" : "关闭菜单");
+    });
+
+    // 点击链接后关闭菜单
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        menu.setAttribute("data-open", "false");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initMobileMenu);
+  document.addEventListener("astro:page-load", initMobileMenu);
+</script>
