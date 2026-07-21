@@ -172,7 +172,8 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
 
     const toggle = toc.querySelector(".toc__toggle");
     const links = toc.querySelectorAll(".toc__link");
-    const headings = document.querySelectorAll("h2, h3, h4");
+    // 只选择文章内的标题
+    const headings = document.querySelectorAll(".article h2, .article h3, .article h4");
 
     // 折叠/展开
     toggle?.addEventListener("click", () => {

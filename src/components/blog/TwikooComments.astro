@@ -67,7 +67,7 @@ import { cdnConfig } from "../../config/cdn";
     // 页面加载时初始化
     document.addEventListener("DOMContentLoaded", loadTwikoo);
 
-    // View Transitions 重新初始化
-    document.addEventListener("astro:page-load", initTwikoo);
+    // View Transitions 重新初始化（使用 loadTwikoo 而非 initTwikoo）
+    document.addEventListener("astro:page-load", loadTwikoo);
   </script>
 )}

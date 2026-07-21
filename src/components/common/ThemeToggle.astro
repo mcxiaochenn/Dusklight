@@ -7,6 +7,23 @@
  */
 ---
 
+{/* 防闪烁脚本 - 必须在 head 中执行 */}
+<script is:inline>
+  (function() {
+    const theme = localStorage.getItem("theme") || "auto";
+    const root = document.documentElement;
+    root.classList.remove("light", "dark", "auto");
+    root.classList.add(theme);
+    if (theme === "auto") {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.classList.toggle("dark", isDark);
+      root.style.colorScheme = isDark ? "dark" : "light";
+    } else {
+      root.style.colorScheme = theme;
+    }
+  })();
+</script>
+
 <button
   id="theme-toggle"
   type="button"
