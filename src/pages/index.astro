@@ -27,24 +27,22 @@ const showPagination = allPosts.length > perPage;
     </div>
   </section>
 
-  {/* 文章流 — 单列，玻璃外框 */}
+  {/* 文章流 — 单列，每张卡片独立液态玻璃 */}
   <section class="posts">
     <div class="content-container">
-      <div class="posts__frame">
-        <div class="posts__list">
-          {posts.map((post, i) => (
-            <div class="posts__item" style={`--i: ${i}`}>
-              <PostCard post={post} />
-            </div>
-          ))}
-        </div>
-
-        {showPagination && (
-          <div class="posts__more">
-            <Button href="/archive" variant="secondary">查看全部文章 →</Button>
+      <div class="posts__list">
+        {posts.map((post, i) => (
+          <div class="posts__item" style={`--i: ${i}`}>
+            <PostCard post={post} />
           </div>
-        )}
+        ))}
       </div>
+
+      {showPagination && (
+        <div class="posts__more">
+          <Button href="/archive" variant="secondary">查看全部文章 →</Button>
+        </div>
+      )}
     </div>
   </section>
 </BaseLayout>
@@ -71,22 +69,11 @@ const showPagination = allPosts.length > perPage;
     margin: 0;
   }
 
-  /* ── 玻璃外框 ── */
-  .posts__frame {
-    background: var(--glass-bg);
-    backdrop-filter: blur(32px) saturate(160%);
-    -webkit-backdrop-filter: blur(32px) saturate(160%);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    box-shadow: var(--shadow-lg), inset 0 0.5px 0 var(--glass-highlight);
-  }
-
   /* ── 单列文章流 ── */
   .posts__list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-5);
   }
 
   /* ── 交错入场动画 ── */

@@ -11,19 +11,16 @@
      ACCENT — Single hue drives the entire palette.
      Change this one value to shift the entire color identity.
      ═══════════════════════════════════════════════════════ */
-  --hue: 250;
+  --hue: 170;
 
   /* ═══════════════════════════════════════════════════════
      SURFACES — Layered depth system.
-     --surface-0: page background (deepest)
-     --surface-1: cards, content areas (elevated)
-     --surface-2: hover, active states (higher)
-     --surface-3: modals, dropdowns (highest)
+     Light mode: tinted with theme hue, not pure white.
      ═══════════════════════════════════════════════════════ */
-  --surface-0: oklch(0.97 0.005 var(--hue));
-  --surface-1: oklch(0.99 0.003 var(--hue));
-  --surface-2: oklch(0.96 0.006 var(--hue));
-  --surface-3: oklch(0.94 0.008 var(--hue));
+  --surface-0: oklch(0.96 0.012 var(--hue));
+  --surface-1: oklch(0.98 0.008 var(--hue));
+  --surface-2: oklch(0.945 0.015 var(--hue));
+  --surface-3: oklch(0.92 0.018 var(--hue));
 
   /* ═══════════════════════════════════════════════════════
      TEXT — Three-tier foreground hierarchy.
@@ -58,11 +55,12 @@
      GLASS — Reserved for overlay surfaces only.
      Nav, TOC, Search, BackToTop — never content surfaces.
      ═══════════════════════════════════════════════════════ */
-  --glass-bg: oklch(0.99 0.003 var(--hue) / 0.72);
-  --glass-border: oklch(0.00 0.000 var(--hue) / 0.06);
-  --glass-blur: 16px;
-  --glass-saturation: 160%;
-  --glass-highlight: inset 0 0.5px 0 oklch(1.00 0.000 var(--hue) / 0.5);
+  --glass-bg: oklch(1 0 0 / 0.06);
+  --glass-border: oklch(1 0 0 / 0.08);
+  --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.12);
+  --glass-blur: 24px;
+  --glass-saturation: 180%;
+  --glass-brightness: 1.05;
 
   /* ═══════════════════════════════════════════════════════
      RADIUS — Consistent rounding scale.
@@ -151,11 +149,11 @@
    Spacing, radius, timing, layout tokens are theme-agnostic.
    ═══════════════════════════════════════════════════════ */
 :root.dark {
-  /* Surfaces — deeper, more layered */
-  --surface-0: oklch(0.13  0.012 var(--hue));
-  --surface-1: oklch(0.155 0.013 var(--hue));
-  --surface-2: oklch(0.185 0.015 var(--hue));
-  --surface-3: oklch(0.22  0.016 var(--hue));
+  /* Surfaces — lighter, matching blog.liushen.fun style */
+  --surface-0: oklch(0.14  0.012 var(--hue));
+  --surface-1: oklch(0.18  0.014 var(--hue));
+  --surface-2: oklch(0.21  0.016 var(--hue));
+  --surface-3: oklch(0.24  0.018 var(--hue));
 
   /* Text — brighter on dark */
   --foreground: oklch(0.93 0.008 var(--hue));
@@ -178,8 +176,8 @@
   --shadow-lg: 0 8px 24px oklch(0.00 0.00 var(--hue) / 0.4);
   --shadow-xl: 0 16px 48px oklch(0.00 0.00 var(--hue) / 0.5);
 
-  /* Glass — adapted for dark surfaces */
-  --glass-bg: oklch(0.155 0.013 var(--hue) / 0.72);
-  --glass-border: oklch(1.00 0.000 var(--hue) / 0.08);
-  --glass-highlight: inset 0 0.5px 0 oklch(1.00 0.000 var(--hue) / 0.06);
+  /* Glass — liquid glass for dark surfaces */
+  --glass-bg: oklch(0.15 0.01 var(--hue) / 0.12);
+  --glass-border: oklch(1 0 0 / 0.06);
+  --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.06);
 }

@@ -1,34 +1,35 @@
 /*
- * Dusklight Typography System
+ * Dusklight Typography — Fuwari-inspired
  * ─────────────────────────────────────────────────────────
- * The .prose class wraps all long-form content — articles,
- * about page, any page that needs comfortable reading.
- * It is the single source of truth for content typography.
  */
 
 .prose {
   font-family: var(--font-body), var(--font-cjk);
   font-size: var(--text-base);
-  line-height: 1.75;
+  line-height: 1.8;
   color: var(--foreground);
   max-width: var(--content-width);
   word-break: break-word;
   overflow-wrap: break-word;
 }
 
+/* ── 段落 ── */
 .prose p {
   margin-bottom: 1.25em;
 }
 
+/* ── 标题 ── */
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4,
 .prose h5,
 .prose h6 {
-  margin-top: 2.5em;
+  margin-top: 2em;
   margin-bottom: 0.75em;
   color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .prose h1:first-child,
@@ -37,16 +38,22 @@
   margin-top: 0;
 }
 
+.prose h1 { font-size: var(--text-2xl); }
 .prose h2 {
+  font-size: var(--text-xl);
   padding-bottom: 0.5em;
   border-bottom: 1px solid var(--border-subtle);
 }
+.prose h3 { font-size: var(--text-lg); }
+.prose h4 { font-size: var(--text-md); }
 
+/* ── 链接 ── */
 .prose a {
   color: var(--accent);
   text-decoration: underline;
   text-decoration-color: var(--accent-subtle);
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
   transition:
     color var(--duration-instant) var(--ease-standard),
     text-decoration-color var(--duration-instant) var(--ease-standard);
@@ -57,8 +64,8 @@
   text-decoration-color: var(--accent);
 }
 
-.prose strong,
-.prose b {
+/* ── 强调 ── */
+.prose strong, .prose b {
   font-weight: 600;
   color: var(--foreground);
 }
@@ -67,13 +74,16 @@
   font-style: italic;
 }
 
+/* ── 图片 ── */
 .prose img {
-  border-radius: var(--radius-md);
-  margin: 2.5rem 0;
+  border-radius: var(--radius-lg);
+  margin: 1.5rem 0;
+  max-width: 100%;
+  height: auto;
 }
 
 .prose figure {
-  margin: 2.5rem 0;
+  margin: 1.5rem 0;
 }
 
 .prose figcaption {
@@ -83,73 +93,83 @@
   text-align: center;
 }
 
-.prose ul,
-.prose ol {
+/* ── 列表 ── */
+.prose ul, .prose ol {
   margin-bottom: 1.25em;
-  padding-left: 1.5em;
+  padding-left: 1.75em;
 }
 
-.prose ul {
-  list-style: disc;
-}
-
-.prose ol {
-  list-style: decimal;
-}
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
 
 .prose li {
-  margin-bottom: 0.375em;
-  padding-left: 0.375em;
+  margin-bottom: 0.4em;
+  padding-left: 0.25em;
 }
 
 .prose li::marker {
   color: var(--foreground-muted);
 }
 
-.prose li > ul,
-.prose li > ol {
-  margin-top: 0.375em;
+.prose li > ul, .prose li > ol {
+  margin-top: 0.4em;
   margin-bottom: 0;
 }
 
+/* 任务列表 */
+.prose ul li {
+  list-style: disc;
+}
+
+/* ── 引用块 — Fuwari 风格：左侧色条 + 淡色背景 ── */
 .prose blockquote {
-  margin: 2rem 0;
-  padding-left: var(--space-5);
-  border-left: 2px solid var(--accent);
+  margin: 1.5rem 0;
+  padding: var(--space-4) var(--space-5);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--accent-subtle);
   color: var(--foreground-secondary);
-  font-style: italic;
-  font-size: 1.05em;
+  font-style: normal;
 }
 
 .prose blockquote p:last-child {
   margin-bottom: 0;
 }
 
+.prose blockquote code {
+  background: oklch(from var(--surface-2) l c h / 0.6);
+}
+
+/* ── 分割线 ── */
 .prose hr {
-  margin: 3rem 0;
+  margin: 2.5rem 0;
   border: none;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border), transparent);
 }
 
-.prose code {
+/* ── 行内代码 ── */
+.prose :not(pre) > code {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: 0.85em;
   font-weight: 500;
-  padding: 0.125em 0.375em;
+  padding: 0.15em 0.4em;
   background: var(--surface-2);
   border-radius: var(--radius-sm);
+  word-break: break-word;
 }
 
+/* ── 代码块 — 圆角 + 内嵌标题栏风格 ── */
 .prose pre {
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   padding: var(--space-5);
   background: var(--surface-1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   overflow-x: auto;
   font-size: var(--text-sm);
-  line-height: 1.6;
+  line-height: 1.7;
+  position: relative;
 }
 
 .prose pre > code {
@@ -160,38 +180,58 @@
   font-size: inherit;
 }
 
-.prose table {
-  width: 100%;
-  margin: 2rem 0;
-  font-size: var(--text-sm);
+/* Shiki 双主题：.dark 时切换到暗色 token */
+:root.dark .astro-code,
+:root.dark .astro-code span {
+  background-color: var(--shiki-dark-bg, transparent) !important;
+  color: var(--shiki-dark, inherit) !important;
+  font-style: var(--shiki-dark-font-style, inherit) !important;
+  font-weight: var(--shiki-dark-font-weight, inherit) !important;
+  text-decoration: var(--shiki-dark-text-decoration, inherit) !important;
 }
 
-.prose th,
-.prose td {
-  padding: var(--space-2) var(--space-3);
+/* ── 表格 — 斑马纹 + 圆角 ── */
+.prose table {
+  width: 100%;
+  margin: 1.5rem 0;
+  font-size: var(--text-sm);
+  border-collapse: collapse;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
+}
+
+.prose th, .prose td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
   text-align: left;
 }
 
 .prose th {
-  background: var(--surface-1);
+  background: var(--surface-2);
   font-weight: 600;
 }
 
 .prose tr:nth-child(even) {
-  background: var(--surface-2);
+  background: var(--surface-1);
 }
 
+.prose tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── 键盘按键 ── */
 .prose kbd {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: 0.125em 0.375em;
+  padding: 0.1em 0.4em;
   background: var(--surface-2);
   border: 1px solid var(--border);
+  border-bottom-width: 2px;
   border-radius: var(--radius-sm);
-  box-shadow: 0 1px 0 var(--border);
 }
 
+/* ── 定义列表 ── */
 .prose dl {
   margin-bottom: 1.25em;
 }
@@ -207,11 +247,13 @@
   color: var(--foreground-secondary);
 }
 
+/* ── 缩写 ── */
 .prose abbr[title] {
   text-decoration: underline dotted var(--foreground-muted);
   cursor: help;
 }
 
+/* ── 高亮 ── */
 .prose mark {
   background: oklch(0.75 0.16 85 / 0.3);
   color: inherit;
@@ -219,8 +261,8 @@
   border-radius: 2px;
 }
 
-.prose sup,
-.prose sub {
+/* ── 上下标 ── */
+.prose sup, .prose sub {
   font-size: 0.75em;
   line-height: 0;
 }

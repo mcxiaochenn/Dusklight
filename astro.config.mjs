@@ -2,6 +2,7 @@
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import icons from "astro-icon";
 import { defineConfig } from "astro/config";
 
 // Markdown 插件
@@ -17,8 +18,9 @@ const SITE_URL = "https://blog.mcxiaochen.top";
 // https://astro.build/config
 export default defineConfig({
 	site: SITE_URL,
+	trailingSlash: "always",
 
-	integrations: [mdx(), sitemap()],
+	integrations: [mdx(), sitemap(), icons()],
 
 	// 字体通过 @fontsource-variable/inter 在 CSS 中加载
 

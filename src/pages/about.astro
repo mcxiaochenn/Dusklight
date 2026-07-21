@@ -1,84 +1,202 @@
 ---
 /**
- * 关于页面
- * 编辑式排版：Hero 名字 + .prose 内容 + 侧边信息
+ * 关于页面 — liushen 风格：头像行 + 信息卡片网格 + Markdown
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Tag from "../components/ui/Tag.astro";
+import { Icon } from "astro-icon/components";
 import { profileConfig } from "../config/profile";
+import { getEntry, render } from "astro:content";
+
+const aboutEntry = await getEntry("spec", "about");
+const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
+
+const socialIconMap: Record<string, string> = {
+  GitHub: "simple-icons:github",
+  Bilibili: "simple-icons:bilibili",
+  "酷安": "ph:device-mobile",
+  Email: "ph:envelope",
+  Twitter: "simple-icons:x",
+};
 ---
 
-<BaseLayout title="关于" description="关于我">
+<BaseLayout title="关于" description={`关于 ${profileConfig.name}`}>
   <section class="about section">
     <div class="page-container">
+
+      {/* ── Hero：头像 + 名字 + bio ── */}
       <div class="about__hero">
-        <h1 class="about__name">{profileConfig.name}</h1>
-        <p class="about__bio">{profileConfig.bio}</p>
+        <div class="about__avatar-wrap">
+          <img src={profileConfig.avatar} alt={profileConfig.name} class="about__avatar" />
+        </div>
+        <div class="about__hero-text">
+          <h1 class="about__name">{profileConfig.name}</h1>
+          <p class="about__motto">{profileConfig.bio}</p>
+        </div>
       </div>
 
-      <div class="about__layout">
-        <div class="about__content prose">
-          <h2>关于我</h2>
-          <p>{profileConfig.description}</p>
+      {/* ── 卡片网格 ── */}
+      <div class="about__grid">
+        {/* 基础信息 */}
+        <div class="about__card about__card--info">
+          <h2 class="about__card-title">
+            <Icon name="ph:user" /> 基础信息
+          </h2>
+          <div class="about__info-list">
+            <div class="about__info-row">
+              <span class="about__info-label">位置</span>
+              <span class="about__info-value">{profileConfig.location}</span>
+            </div>
+            <div class="about__info-row">
+              <span class="about__info-label">邮箱</span>
+              <span class="about__info-value">{profileConfig.email}</span>
+            </div>
+          </div>
         </div>
 
-        <aside class="about__sidebar">
-          {profileConfig.avatar && (
-            <img src={profileConfig.avatar} alt={profileConfig.name} class="about__avatar" />
-          )}
-          {profileConfig.skills && profileConfig.skills.length > 0 && (
-            <div class="about__skills">
-              <h3 class="about__skills-label">技能</h3>
-              <div class="about__skill-tags">
-                {profileConfig.skills.map((s) => <Tag>{s}</Tag>)}
-              </div>
-            </div>
-          )}
-        </aside>
+        {/* 性格侧写 */}
+        <div class="about__card about__card--personality">
+          <h2 class="about__card-title">
+            <Icon name="ph:brain" /> 性格侧写
+          </h2>
+          <p class="about__mbti">{profileConfig.mbti}</p>
+          <p class="about__mbti-desc">逻辑、好奇、独立思考</p>
+        </div>
+
+        {/* 技能与工具 */}
+        <div class="about__card about__card--skills">
+          <h2 class="about__card-title">
+            <Icon name="ph:code" /> 技能与工具
+          </h2>
+          <div class="about__skill-tags">
+            {profileConfig.skills.map((s) => <Tag>{s}</Tag>)}
+          </div>
+        </div>
+
+        {/* 联系与兴趣 */}
+        <div class="about__card about__card--connect">
+          <h2 class="about__card-title">
+            <Icon name="ph:link" /> 联系与兴趣
+          </h2>
+          <div class="about__social-links">
+            {profileConfig.socials.map((s) => (
+              <a href={s.url} target="_blank" rel="noopener noreferrer" class="about__social-link">
+                <Icon name={socialIconMap[s.label] || "ph:link"} class="about__social-icon" />
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* 个人简介 */}
+        <div class="about__card about__card--wide about__card--intro">
+          <h2 class="about__card-title">
+            <Icon name="ph:notebook" /> 个人简介
+          </h2>
+          <p class="about__intro-text">{profileConfig.intro}</p>
+        </div>
       </div>
+
+      {/* ── Markdown 内容区 ── */}
+      {Content && (
+        <div class="about__md prose">
+          <Content />
+        </div>
+      )}
+
+      {!Content && (
+        <div class="about__sections">
+          {profileConfig.sections.map((sec) => (
+            <article class="about__section">
+              <h2 class="about__section-title">{sec.title}</h2>
+              <p class="about__section-content">{sec.content}</p>
+            </article>
+          ))}
+        </div>
+      )}
+
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .about__hero { padding-bottom: var(--space-12); }
+  /* ── Hero ── */
+  .about__hero {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-16) 0 var(--space-10);
+  }
+
+  .about__avatar-wrap {
+    flex-shrink: 0;
+    padding: 3px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, oklch(0.7 0.18 var(--hue)), oklch(0.7 0.15 calc(var(--hue) + 60)));
+  }
+
+  .about__avatar {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: var(--radius-full);
+    border: 3px solid var(--surface-0);
+    display: block;
+  }
+
+  .about__hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
 
   .about__name {
     font-size: var(--text-2xl);
     font-weight: 700;
     letter-spacing: -0.03em;
     color: var(--foreground);
-    margin: 0 0 var(--space-3);
+    margin: 0;
   }
 
-  .about__bio {
-    font-size: var(--text-lg);
-    font-weight: 300;
+  .about__motto {
+    font-size: var(--text-base);
     color: var(--foreground-secondary);
     margin: 0;
   }
 
-  .about__layout {
+  /* ── 卡片网格 ── */
+  .about__grid {
     display: grid;
-    grid-template-columns: 1fr 240px;
-    gap: var(--space-10);
-    align-items: start;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-10);
   }
 
-  .about__sidebar {
-    position: sticky;
-    top: calc(var(--header-height) + var(--space-4));
-  }
-
-  .about__avatar {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
+  /* 直接在元素上做液态玻璃 */
+  .about__card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    margin-bottom: var(--space-6);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    transition: all 0.3s var(--ease-out);
   }
 
-  .about__skills-label {
+  .about__card:hover {
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+    transform: translateY(-2px);
+  }
+
+  .about__card--wide {
+    grid-column: 1 / -1;
+  }
+
+  .about__card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--foreground-muted);
@@ -87,20 +205,136 @@ import { profileConfig } from "../config/profile";
     margin: 0 0 var(--space-3);
   }
 
+  .about__card-title svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }
+
+  /* ── 基础信息 ── */
+  .about__info-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .about__info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+  }
+
+  .about__info-label {
+    color: var(--foreground-muted);
+  }
+
+  .about__info-value {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+
+  /* ── 性格 ── */
+  .about__mbti {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 var(--space-1);
+  }
+
+  .about__mbti-desc {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0;
+  }
+
+  /* ── 技能 ── */
   .about__skill-tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
 
-  @media (max-width: 768px) {
-    .about__layout { grid-template-columns: 1fr; }
-    .about__sidebar {
-      position: static;
-      display: flex;
+  /* ── 社交 ── */
+  .about__social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .about__social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    border: 1px solid oklch(from var(--accent) l c h / 0.25);
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+
+  .about__social-link:hover {
+    background: oklch(from var(--accent) l c h / 0.1);
+    border-color: oklch(from var(--accent) l c h / 0.4);
+  }
+
+  .about__social-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ── 简介 ── */
+  .about__intro-text {
+    font-size: var(--text-base);
+    color: var(--foreground-secondary);
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  /* ── Markdown ── */
+  .about__md {
+    margin-bottom: var(--space-16);
+  }
+
+  /* ── Fallback ── */
+  .about__sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding-bottom: var(--space-16);
+  }
+
+  .about__section-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 0 0 var(--space-2);
+  }
+
+  .about__section-content {
+    font-size: var(--text-base);
+    color: var(--foreground-secondary);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .about__hero {
+      padding: var(--space-10) 0 var(--space-6);
+      flex-direction: column;
       align-items: center;
-      gap: var(--space-6);
+      text-align: center;
     }
-    .about__avatar { width: 120px; height: 120px; margin-bottom: 0; }
+
+    .about__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about__avatar {
+      width: 72px;
+      height: 72px;
+    }
   }
 </style>

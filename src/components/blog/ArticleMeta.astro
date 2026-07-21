@@ -1,9 +1,9 @@
 ---
 /**
  * 文章元信息组件
- * 发布日期、更新日期、分类。
  */
 import FormattedDate from "../FormattedDate.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
   pubDate: Date;
@@ -17,25 +17,51 @@ const { pubDate, updatedDate, category, readingTime, class: className } = Astro.
 ---
 
 <div class:list={["article-meta", className]}>
-  <time datetime={pubDate.toISOString()}>
+  <time datetime={pubDate.toISOString()} class="article-meta__item">
+    <Icon name="ph:calendar" class="article-meta__icon" />
     <FormattedDate date={pubDate} />
   </time>
   {updatedDate && (
-    <span class="article-meta__updated">
-      (更新于 <time datetime={updatedDate.toISOString()}><FormattedDate date={updatedDate} /></time>)
+    <span class="article-meta__item article-meta__updated">
+      <Icon name="ph:pencil-simple" class="article-meta__icon" />
+      更新于 <time datetime={updatedDate.toISOString()}><FormattedDate date={updatedDate} /></time>
     </span>
   )}
-  {category && <span class="article-meta__category">{category}</span>}
-  {readingTime && <span class="article-meta__reading">{readingTime} 分钟阅读</span>}
+  {category && (
+    <span class="article-meta__item article-meta__category">
+      <Icon name="ph:folder" class="article-meta__icon" />
+      {category}
+    </span>
+  )}
+  {readingTime && (
+    <span class="article-meta__item">
+      <Icon name="ph:clock" class="article-meta__icon" />
+      {readingTime} 分钟
+    </span>
+  )}
 </div>
 
 <style>
   .article-meta {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: var(--space-3);
     font-size: var(--text-sm);
     color: var(--foreground-muted);
+  }
+
+  .article-meta__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .article-meta__icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.7;
   }
 
   .article-meta__updated {
@@ -47,10 +73,5 @@ const { pubDate, updatedDate, category, readingTime, class: className } = Astro.
     background: var(--surface-2);
     border-radius: var(--radius-sm);
     font-size: var(--text-xs);
-  }
-
-  .article-meta__reading::before {
-    content: "·";
-    margin-right: var(--space-2);
   }
 </style>

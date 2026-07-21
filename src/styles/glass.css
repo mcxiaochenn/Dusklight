@@ -1,17 +1,12 @@
 /*
- * Dusklight Glass System
- * ─────────────────────────────────────────────────────────
- * Liquid glass effect for overlay surfaces ONLY.
- * Nav, TOC, Search, BackToTop — never content surfaces.
- *
- * Glass should feel like a physical pane hovering above content,
- * not a blurred screenshot. The 0.5px highlight is the key detail.
+ * Dusklight Liquid Glass — 统一 token 驱动
  */
 
-.glass {
+.glass,
+.glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
-  -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md), var(--glass-highlight);
@@ -22,28 +17,19 @@
   top: 0;
   z-index: 50;
   background: var(--glass-bg);
-  backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
-  -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border-bottom: 1px solid var(--glass-border);
   box-shadow: var(--glass-highlight);
 }
 
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
-  -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md), var(--glass-highlight);
-}
-
 .glass-overlay {
   background: var(--glass-bg);
-  backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
-  -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl), var(--glass-highlight);
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
 }
 
 .glass-interactive {
@@ -54,16 +40,12 @@
 }
 
 .glass-interactive:hover {
-  background: var(--glass-bg-hover, var(--glass-bg));
-  border-color: var(--border);
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
 }
 
 @media (max-width: 768px) {
-  .glass,
-  .glass-nav,
-  .glass-panel,
-  .glass-overlay {
-    backdrop-filter: saturate(var(--glass-saturation)) blur(12px);
-    -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(12px);
+  .glass, .glass-nav, .glass-panel, .glass-overlay {
+    backdrop-filter: blur(16px) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturation));
   }
 }

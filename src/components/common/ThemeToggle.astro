@@ -96,7 +96,7 @@
 
 <script>
   const ThemeManager = {
-    getTheme(): string {
+    getStored(): string {
       if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
         return localStorage.getItem("theme")!;
       }
@@ -105,6 +105,13 @@
 
     getSystemTheme(): "light" | "dark" {
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    },
+
+    /** 返回实际生效的主题（auto 解析为 light/dark） */
+    getEffective(): "light" | "dark" {
+      const stored = this.getStored();
+      if (stored === "light" || stored === "dark") return stored;
+      return this.getSystemTheme();
     },
 
     applyTheme(theme: string) {
@@ -126,70 +133,68 @@
     },
 
     init() {
-      this.applyTheme(this.getTheme());
+      this.applyTheme(this.getStored());
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-        if (this.getTheme() === "auto") {
+        if (this.getStored() === "auto") {
           this.applyTheme("auto");
         }
       });
     },
 
     toggleWithAnimation(originX: number, originY: number) {
-      const current = this.getTheme();
-      const next = current === "light" ? "dark" : current === "dark" ? "auto" : "light";
+      const stored = this.getStored();
+      const next = stored === "light" ? "dark" : stored === "dark" ? "auto" : "light";
 
-      // 计算从按钮位置到最远角落的距离
       const maxR = Math.hypot(
         Math.max(originX, window.innerWidth - originX),
         Math.max(originY, window.innerHeight - originY)
       );
 
-      // 克隆 documentElement 作为遮罩层
-      const overlay = document.documentElement.cloneNode(true) as HTMLElement;
-      overlay.style.position = "fixed";
-      overlay.style.inset = "0";
-      overlay.style.zIndex = "9999";
-      overlay.style.margin = "0";
-      overlay.style.clipPath = `circle(0px at ${originX}px ${originY}px)`;
-      overlay.style.transition = "clip-path 1s cubic-bezier(0.4, 0, 0.2, 1)";
-      // 遮罩层应用新主题
-      overlay.classList.remove("light", "dark", "auto");
-      if (next === "auto") {
-        overlay.classList.add("auto");
-        const sys = this.getSystemTheme();
-        overlay.classList.toggle("dark", sys === "dark");
-      } else {
-        overlay.classList.add(next);
-        overlay.classList.toggle("dark", next === "dark");
-      }
+      // 遮罩用新主题的目标表面色（提前计算）
+      const root = document.documentElement;
+      const isNextDark = next === "dark" || (next === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      // 新主题的 surface-0 预估色
+      const nextBg = isNextDark ? "oklch(0.14 0.012 170)" : "oklch(0.96 0.012 170)";
+
+      const overlay = document.createElement("div");
+      overlay.style.cssText = `
+        position:fixed; inset:0; z-index:9999; margin:0;
+        background: ${nextBg};
+        clip-path: circle(0px at ${originX}px ${originY}px);
+        transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+      `;
       document.body.appendChild(overlay);
 
-      // 触发动画：圆形扩散
+      // 第一步：从按钮扩散到全屏（遮罩铺满）
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           overlay.style.clipPath = `circle(${maxR}px at ${originX}px ${originY}px)`;
         });
       });
 
-      // 动画结束后切换真实主题并移除遮罩
-      overlay.addEventListener("transitionend", () => {
+      // 第二步：扩散完成后切换真实主题（被遮罩盖住，用户看不到）
+      setTimeout(() => {
         this.applyTheme(next);
-        overlay.remove();
-      }, { once: true });
-    },
+      }, 620);
 
-    toggle() {
-      const current = this.getTheme();
-      const next = current === "light" ? "dark" : current === "dark" ? "auto" : "light";
-      this.applyTheme(next);
+      // 第三步：收回遮罩到按钮位置（露出新主题）
+      setTimeout(() => {
+        overlay.style.transition = "clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+        overlay.style.clipPath = `circle(0px at ${originX}px ${originY}px)`;
+        overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
+      }, 700);
     },
   };
 
   ThemeManager.init();
 
+  let bound = false;
   function bindToggle() {
+    if (bound) return;
     const toggle = document.getElementById("theme-toggle");
     if (!toggle) return;
+    bound = true;
     toggle.addEventListener("click", (e) => {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       ThemeManager.toggleWithAnimation(rect.left + rect.width / 2, rect.top + rect.height / 2);
@@ -198,9 +203,9 @@
 
   bindToggle();
 
-  // View Transitions: 页面切换后重新绑定
   document.addEventListener("astro:after-swap", () => {
-    ThemeManager.applyTheme(ThemeManager.getTheme());
+    ThemeManager.applyTheme(ThemeManager.getStored());
+    bound = false;
     bindToggle();
   });
 </script>

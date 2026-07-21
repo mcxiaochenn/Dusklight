@@ -1,0 +1,101 @@
+---
+/**
+ * 404 页面
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="404 - 页面未找到" description="你访问的页面不存在">
+  <section class="not-found section">
+    <div class="page-container">
+      <div class="not-found__inner">
+        <div class="not-found__code" aria-hidden="true">404</div>
+        <h1 class="not-found__title">页面走丢了</h1>
+        <p class="not-found__desc">
+          你访问的页面不存在，可能已被移动或删除。
+        </p>
+        <a href="/" class="not-found__btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
+          </svg>
+          返回首页
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - var(--header-height) - 200px);
+    text-align: center;
+  }
+
+  .not-found__inner {
+    position: relative;
+  }
+
+  .not-found__code {
+    font-size: clamp(120px, 20vw, 240px);
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--border);
+    user-select: none;
+    margin-bottom: var(--space-4);
+    animation: pulse-stroke 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-stroke {
+    0%, 100% { -webkit-text-stroke-color: var(--border); }
+    50%      { -webkit-text-stroke-color: oklch(from var(--accent) l c h / 0.4); }
+  }
+
+  .not-found__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0 0 var(--space-3);
+    letter-spacing: -0.02em;
+  }
+
+  .not-found__desc {
+    font-size: var(--text-base);
+    color: var(--foreground-secondary);
+    margin: 0 0 var(--space-8);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .not-found__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--foreground);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--surface-1);
+    transition: all var(--duration-fast) var(--ease-standard);
+  }
+
+  .not-found__btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .not-found__btn svg {
+    width: 16px;
+    height: 16px;
+  }
+</style>

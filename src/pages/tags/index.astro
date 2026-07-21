@@ -1,0 +1,76 @@
+---
+/**
+ * 标签索引页 — 展示所有标签及文章数量
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Tag from "../../components/ui/Tag.astro";
+
+const posts = await getCollection("blog");
+const tagMap = new Map<string, number>();
+posts.forEach((post) => {
+  (post.data.tags || []).forEach((tag) => {
+    tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+  });
+});
+const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout title="标签" description="所有文章标签">
+  <section class="tags-index section">
+    <div class="content-container">
+      <div class="tags-index__header">
+        <h1 class="tags-index__title">标签</h1>
+        <p class="tags-index__count">共 {sortedTags.length} 个标签</p>
+      </div>
+      <div class="tags-index__cloud">
+        {sortedTags.map(([tag, count]) => (
+          <a href={`/tags/${tag}/`} class="tags-index__item">
+            <Tag>{tag}</Tag>
+            <span class="tags-index__num">{count}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tags-index__header {
+    margin-bottom: var(--space-8);
+  }
+
+  .tags-index__title {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin: 0 0 var(--space-2);
+  }
+
+  .tags-index__count {
+    color: var(--foreground-muted);
+    margin: 0;
+  }
+
+  .tags-index__cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .tags-index__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    text-decoration: none;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .tags-index__item:hover {
+    transform: translateY(-2px);
+  }
+
+  .tags-index__num {
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+  }
+</style>

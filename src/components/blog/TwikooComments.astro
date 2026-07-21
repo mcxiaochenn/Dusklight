@@ -1,7 +1,7 @@
 ---
 /**
  * Twikoo 评论组件
- * CDN 加载 + View Transitions 兼容
+ * CDN 加载 + 主题跟随 + View Transitions 兼容
  */
 import { commentConfig } from "../../config/comment";
 import { cdnConfig } from "../../config/cdn";
@@ -9,7 +9,7 @@ import { cdnConfig } from "../../config/cdn";
 
 {commentConfig.enabled && (
   <div class="comments-section">
-    <div id="tcomment" class="comments__container glass"></div>
+    <div id="tcomment" class="comments__container"></div>
   </div>
 )}
 
@@ -17,12 +17,34 @@ import { cdnConfig } from "../../config/cdn";
   .comments-section {
     margin-top: var(--space-8);
     padding-top: var(--space-6);
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--border-subtle);
   }
 
   .comments__container {
     padding: var(--space-4);
     min-height: 200px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Twikoo 深色模式覆盖 */
+  :root.dark .comments__container .tk-content,
+  :root.dark .comments__container .tk-comment,
+  :root.dark .comments__container .tk-submit {
+    color: var(--foreground) !important;
+  }
+
+  :root.dark .comments__container .tk-input,
+  :root.dark .comments__container .tk-preview,
+  :root.dark .comments__container textarea,
+  :root.dark .comments__container input {
+    background: var(--surface-2) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
+  }
+
+  :root.dark .comments__container .tk-submit-action-btn {
+    background: var(--accent) !important;
+    color: #fff !important;
   }
 </style>
 
@@ -31,43 +53,43 @@ import { cdnConfig } from "../../config/cdn";
     envId: commentConfig.twikoo.envId,
     cdnUrl: cdnConfig.resources.twikoo,
   }}>
+    function getTwikooTheme() {
+      return document.documentElement.classList.contains("dark") ? "dark" : "light";
+    }
+
     function initTwikoo() {
       const container = document.getElementById("tcomment");
       if (!container) return;
+      if (typeof twikoo === "undefined") return;
 
-      // 检查 twikoo 是否已加载
-      if (typeof twikoo !== "undefined") {
-        twikoo.init({
-          envId: envId,
-          el: "#tcomment",
-          onCommentLoaded: function () {
-            // 评论加载完成后的回调
-          },
-        });
-      }
+      twikoo.init({
+        envId: envId,
+        el: "#tcomment",
+        theme: getTwikooTheme(),
+        onCommentLoaded: function () {},
+      });
     }
 
-    // 动态加载 Twikoo 脚本
     function loadTwikoo() {
       if (document.querySelector(`script[src="${cdnUrl}"]`)) {
-        // 脚本已存在，直接初始化
         initTwikoo();
         return;
       }
-
       const script = document.createElement("script");
       script.src = cdnUrl;
       script.onload = initTwikoo;
-      script.onerror = function () {
-        console.error("Failed to load Twikoo from CDN");
-      };
+      script.onerror = () => console.error("Failed to load Twikoo CDN");
       document.head.appendChild(script);
     }
 
-    // 页面加载时初始化
     document.addEventListener("DOMContentLoaded", loadTwikoo);
-
-    // View Transitions 重新初始化（使用 loadTwikoo 而非 initTwikoo）
     document.addEventListener("astro:page-load", loadTwikoo);
+
+    // 主题切换时更新 Twikoo 主题
+    new MutationObserver(() => {
+      if (typeof twikoo !== "undefined") {
+        try { twikoo.setTheme(getTwikooTheme()); } catch {}
+      }
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
   </script>
 )}

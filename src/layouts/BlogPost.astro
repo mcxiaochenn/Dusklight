@@ -11,6 +11,7 @@ import ArticleMeta from "../components/blog/ArticleMeta.astro";
 import Tag from "../components/ui/Tag.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
 import JsonLd from "../components/seo/JsonLd.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
   title: string;
@@ -73,9 +74,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   {/* 评论跳转按钮 — 固定定位，在 grid 外部 */}
   {showComment && (
     <button class="jump-comments" id="jump-comments" aria-label="跳转到评论">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
+      <Icon name="ph:chat-circle-text" />
     </button>
   )}
 </BaseLayout>
@@ -133,7 +132,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     position: fixed;
     bottom: calc(var(--space-10) + 20px + 44px + var(--space-2));
     right: var(--space-4);
-    z-index: 50;
+    z-index: 80;
     width: 44px;
     height: 44px;
     display: flex;
@@ -143,18 +142,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     color: var(--foreground-secondary);
     cursor: pointer;
     opacity: 0;
-    transform: translateY(var(--space-4));
+    transform: translateY(12px);
     pointer-events: none;
     background: var(--glass-bg);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-md), inset 0 0.5px 0 var(--glass-highlight);
+    box-shadow: var(--shadow-md), var(--glass-highlight);
     transition:
-      opacity var(--duration-normal) var(--ease-entrance),
-      transform var(--duration-normal) var(--ease-entrance),
-      color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
+      opacity var(--duration-normal) var(--ease-standard),
+      transform var(--duration-normal) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard);
   }
 
   .jump-comments--visible {
@@ -165,6 +163,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
   .jump-comments:hover {
     color: var(--foreground);
+  }
+
+  .jump-comments svg {
+    width: 18px;
+    height: 18px;
   }
 </style>
 

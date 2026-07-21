@@ -1,63 +1,91 @@
-# Astro Starter Kit: Blog
+# Dusklight
 
-```sh
-pnpm create astro@latest -- --template blog
+> **⚠️ 早期开发阶段 — 请勿用于生产环境**
+>
+> 本项目正在积极开发中，API、文件结构、配置格式可能随时变更。
+> 不保证数据兼容性，升级可能导致内容丢失。欢迎体验和反馈，但请勿在正式环境部署。
+
+---
+
+A personal blog theme built with [Astro](https://astro.build), featuring a liquid glass design system, dark/light/auto theme switching, and a clean editorial layout.
+
+## Features
+
+- 🪟 **Liquid Glass UI** — backdrop-filter based glass effect with edge refraction highlights
+- 🌗 **Theme Switching** — light / dark / auto with circular clip-path transition animation
+- 📝 **MDX Support** — Markdown + MDX content with syntax highlighting (Shiki dual themes)
+- 🏷️ **Content Collections** — typed blog posts with tags, categories, reading time
+- 💬 **Comments** — Twikoo integration with theme-aware styling
+- 📱 **Responsive** — mobile-first layout with floating pill navigation
+- ⚡ **Performance** — static site generation, lazy-loaded backdrop images
+- 🔍 **SEO** — sitemap, RSS feed, Open Graph, JSON-LD structured data
+- 🎨 **Icon System** — Phosphor Icons + Simple Icons via astro-icon (tree-shaken)
+
+## Tech Stack
+
+- [Astro 7.x](https://astro.build) — static site generator
+- [astro-icon](https://www.astroicon.dev/) + [Iconify](https://iconify.design/) — icon system
+- [Twikoo](https://twikoo.js.org/) — comment system
+- [Inter Variable](https://rsms.me/inter/) — typography
+- oklch color system — single `--hue` variable drives the entire palette
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start dev server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Project Structure
 
 ```text
-├── public/
+├── public/              # Static assets (images, fonts, favicon)
 ├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+│   ├── components/      # UI components (common/, blog/, ui/)
+│   ├── config/          # Site, profile, nav, comment configuration
+│   ├── content/
+│   │   ├── posts/       # Blog posts (Markdown/MDX)
+│   │   └── spec/        # Standalone pages (about.md, etc.)
+│   ├── layouts/         # BaseLayout, BlogPost
+│   ├── pages/           # Routes (index, about, archive, tags, blog)
+│   └── styles/          # Design tokens, glass, typography, animations
+├── DESIGN.md            # Design system documentation
+├── astro.config.mjs     # Astro configuration
+└── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Configuration
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+All site content is managed through config files in `src/config/`:
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+| File | Purpose |
+|------|---------|
+| `site.ts` | Site title, description, features |
+| `profile.ts` | Personal info, avatar, skills, social links |
+| `nav.ts` | Navigation menu (supports dropdown children) |
+| `comment.ts` | Twikoo comment system settings |
+| `cdn.ts` | CDN resource URLs |
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Design System
 
-## 🧞 Commands
+See [DESIGN.md](./DESIGN.md) for the complete design specification.
 
-All commands are run from the root of the project, from a terminal:
+Key design tokens are defined in `src/styles/tokens.css`:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+- `--hue` — single value drives the entire color palette
+- `--glass-*` — liquid glass effect parameters
+- `--surface-0` through `--surface-3` — layered depth system
+- `--foreground` / `--foreground-secondary` / `--foreground-muted` — text hierarchy
 
-## 👀 Want to learn more?
+## License
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+MIT

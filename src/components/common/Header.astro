@@ -1,43 +1,78 @@
 ---
 /**
- * 全局导航栏 — 浮动药丸设计
- * ─────────────────────────────────────────────────
- * 参考 blog.liushen.fun 的视觉风格：
- * - Logo 和导航链接分别在独立的药丸容器中
- * - 初始透明，滚动后显现玻璃效果
- * - 所有元素 border-radius: 999px
+ * 全局导航栏 — 浮动药丸设计 + 二级下拉菜单
  */
 import { siteConfig } from "../../config/site";
 import { navConfig } from "../../config/nav";
+import type { NavItem } from "../../config/nav";
 import ThemeToggle from "./ThemeToggle.astro";
+import { Icon } from "astro-icon/components";
 
 const currentPath = Astro.url.pathname;
 
 function isActive(href: string): boolean {
   if (href === "/") return currentPath === "/";
-  return currentPath.startsWith(href);
+  return currentPath === href || currentPath === href.slice(0, -1);
 }
+
+function isParentActive(item: NavItem): boolean {
+  if (isActive(item.href)) return true;
+  return item.children?.some((c) => isActive(c.href)) ?? false;
+}
+
+const navIcons: Record<string, string> = {
+  "首页": "ph:house",
+  "博客": "ph:notebook",
+  "归档": "ph:archive",
+  "关于": "ph:user",
+};
 ---
 
 <header id="main-header" class="main-header">
   <div class="header__inner">
-    {/* 左侧浮动药丸：Logo */}
     <div class="header__pill header__pill--left">
       <a href="/" class="header__logo">
         {siteConfig.title}
       </a>
     </div>
 
-    {/* 右侧浮动药丸：导航链接 + 操作 */}
     <nav class="header__pill header__pill--right" aria-label="主导航">
       <div class="header__links hide-mobile">
         {navConfig.main.map((item) => (
-          <a
-            href={item.href}
-            class:list={["header__link", { "header__link--active": isActive(item.href) }]}
-          >
-            {item.label}
-          </a>
+          item.children ? (
+            <div class="header__dropdown">
+              <a
+                href={item.href}
+                class:list={["header__link header__dropdown-trigger", { "header__link--active": isParentActive(item) }]}
+              >
+                {navIcons[item.label] && (
+                  <Icon name={navIcons[item.label]} class="header__link-icon" />
+                )}
+                {item.label}
+                <Icon name="ph:caret-down" class="header__caret" />
+              </a>
+              <div class="header__dropdown-menu">
+                {item.children.map((child) => (
+                  <a
+                    href={child.href}
+                    class:list={["header__dropdown-item", { "header__dropdown-item--active": isActive(child.href) }]}
+                  >
+                    {child.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <a
+              href={item.href}
+              class:list={["header__link", { "header__link--active": isActive(item.href) }]}
+            >
+              {navIcons[item.label] && (
+                <Icon name={navIcons[item.label]} class="header__link-icon" />
+              )}
+              {item.label}
+            </a>
+          )
         ))}
       </div>
 
@@ -49,11 +84,7 @@ function isActive(href: string): boolean {
           aria-label="打开菜单"
           aria-expanded="false"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <line x1="4" y1="6" x2="20" y2="6"></line>
-            <line x1="4" y1="12" x2="20" y2="12"></line>
-            <line x1="4" y1="18" x2="20" y2="18"></line>
-          </svg>
+          <Icon name="ph:list" class="header__menu-icon" />
         </button>
       </div>
     </nav>
@@ -63,13 +94,41 @@ function isActive(href: string): boolean {
   <div id="mobile-menu" class="mobile-menu" hidden>
     <div class="mobile-menu__backdrop"></div>
     <div class="mobile-menu__panel">
+      <div class="mobile-menu__header">
+        <span class="mobile-menu__title">菜单</span>
+        <button id="mobile-menu-close" class="mobile-menu__close" aria-label="关闭菜单">
+          <Icon name="ph:x" />
+        </button>
+      </div>
       {navConfig.main.map((item) => (
-        <a
-          href={item.href}
-          class:list={["mobile-menu__link", { "mobile-menu__link--active": isActive(item.href) }]}
-        >
-          {item.label}
-        </a>
+        item.children ? (
+          <div class="mobile-menu__group">
+            <span class="mobile-menu__group-label">
+              {navIcons[item.label] && (
+                <Icon name={navIcons[item.label]} class="mobile-menu__link-icon" />
+              )}
+              {item.label}
+            </span>
+            {item.children.map((child) => (
+              <a
+                href={child.href}
+                class:list={["mobile-menu__link mobile-menu__link--sub", { "mobile-menu__link--active": isActive(child.href) }]}
+              >
+                {child.label}
+              </a>
+            ))}
+          </div>
+        ) : (
+          <a
+            href={item.href}
+            class:list={["mobile-menu__link", { "mobile-menu__link--active": isActive(item.href) }]}
+          >
+            {navIcons[item.label] && (
+              <Icon name={navIcons[item.label]} class="mobile-menu__link-icon" />
+            )}
+            {item.label}
+          </a>
+        )
       ))}
     </div>
   </div>
@@ -94,7 +153,7 @@ function isActive(href: string): boolean {
     gap: var(--space-2);
   }
 
-  /* ── Floating pill base ── */
+  /* ── Floating pill — 液态玻璃（统一 token） ── */
   .header__pill {
     position: relative;
     display: flex;
@@ -104,40 +163,56 @@ function isActive(href: string): boolean {
     border-radius: 999px;
     border: 1px solid transparent;
     background: transparent;
-    transition:
-      border-color var(--duration-normal) var(--ease-standard),
-      box-shadow var(--duration-normal) var(--ease-standard),
-      background var(--duration-normal) var(--ease-standard);
+    transition: all 0.3s var(--ease-standard);
   }
 
-  /* Glass background — pseudo element, revealed on scroll */
   .header__pill::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
     background: var(--glass-bg);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    box-shadow: inset 0 0.5px 0 var(--glass-highlight);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    box-shadow: var(--glass-highlight);
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--duration-normal) var(--ease-standard);
+    transition: opacity 0.3s var(--ease-standard);
     z-index: -1;
   }
 
-  /* ── Scrolled state — reveal glass ── */
+  /* 边缘折射光 */
+  .header__pill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-standard);
+    z-index: -1;
+    background:
+      linear-gradient(135deg, oklch(1 0 0 / 0.12) 0%, transparent 40%),
+      linear-gradient(315deg, oklch(1 0 0 / 0.08) 0%, transparent 30%);
+    mask-image: radial-gradient(ellipse at center, transparent 60%, black 100%);
+    -webkit-mask-image: radial-gradient(ellipse at center, transparent 60%, black 100%);
+  }
+
+  :root.dark .header__pill::before {
+    background: oklch(0.2 0.01 var(--hue) / 0.15);
+  }
+
   :global(.header-scrolled) .header__pill {
     border-color: var(--glass-border);
-    box-shadow: 0 16px 40px -24px oklch(0 0 0 / 0.45), 0 4px 14px -10px oklch(0 0 0 / 0.35);
+    box-shadow: var(--shadow-lg), var(--glass-highlight);
     transform: translateY(6px);
   }
 
-  :global(.header-scrolled) .header__pill::before {
+  :global(.header-scrolled) .header__pill::before,
+  :global(.header-scrolled) .header__pill::after {
     opacity: 1;
   }
 
-  /* ── Logo ── */
   .header__logo {
     font-family: var(--font-display);
     font-size: var(--text-base);
@@ -148,10 +223,6 @@ function isActive(href: string): boolean {
     padding: 0 var(--space-2);
   }
 
-  .header__logo:hover {
-    color: var(--foreground);
-  }
-
   /* ── Nav links ── */
   .header__links {
     display: flex;
@@ -160,6 +231,9 @@ function isActive(href: string): boolean {
   }
 
   .header__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
     padding: 6px 14px;
     border-radius: 999px;
     font-size: var(--text-sm);
@@ -185,6 +259,100 @@ function isActive(href: string): boolean {
     border-color: oklch(from var(--accent) l c h / 0.24);
   }
 
+  .header__link-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .header__caret {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  /* ── Dropdown ── */
+  .header__dropdown {
+    position: relative;
+  }
+
+  .header__dropdown-trigger {
+    cursor: pointer;
+  }
+
+  /* 桥接 pseudo-element：填补 trigger 和 menu 之间的间隙，避免 hover 丢失 */
+  .header__dropdown::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: var(--space-3);
+  }
+
+  .header__dropdown.open .header__caret {
+    transform: rotate(180deg);
+  }
+
+  .header__dropdown-menu {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    min-width: 140px;
+    padding: var(--space-1);
+    background: var(--glass-bg);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard),
+      visibility var(--duration-fast) var(--ease-standard);
+  }
+
+  .header__dropdown.open .header__dropdown-menu,
+  .header__dropdown:hover .header__dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .header__dropdown.open .header__caret,
+  .header__dropdown:hover .header__caret {
+    transform: rotate(180deg);
+  }
+
+  .header__dropdown-item {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--foreground-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
+  }
+
+  .header__dropdown-item:hover {
+    color: var(--accent);
+    background: var(--accent-subtle);
+  }
+
+  .header__dropdown-item--active {
+    color: var(--accent);
+  }
+
   /* ── Actions ── */
   .header__actions {
     display: flex;
@@ -193,7 +361,6 @@ function isActive(href: string): boolean {
     margin-left: var(--space-1);
   }
 
-  /* ── Mobile menu button ── */
   .header__menu-btn {
     display: flex;
     align-items: center;
@@ -210,6 +377,11 @@ function isActive(href: string): boolean {
   .header__menu-btn:hover {
     color: var(--foreground);
     background: var(--accent-subtle);
+  }
+
+  .header__menu-icon {
+    width: 18px;
+    height: 18px;
   }
 
   /* ── Mobile menu ── */
@@ -235,10 +407,11 @@ function isActive(href: string): boolean {
     width: min(82vw, 22rem);
     background: var(--surface-0);
     border-left: 1px solid var(--border-subtle);
-    padding: var(--space-8) var(--space-4);
+    padding: var(--space-6) var(--space-4);
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-1);
+    overflow-y: auto;
     transform: translateX(100%);
     transition: transform var(--duration-normal) var(--ease-physical);
   }
@@ -247,11 +420,60 @@ function isActive(href: string): boolean {
     transform: translateX(0);
   }
 
-  .mobile-menu[data-open="true"] .mobile-menu__backdrop {
-    opacity: 1;
+  .mobile-menu__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+
+  .mobile-menu__title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .mobile-menu__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    color: var(--foreground-muted);
+    transition: color var(--duration-fast) var(--ease-standard),
+                background var(--duration-fast) var(--ease-standard);
+  }
+
+  .mobile-menu__close:hover {
+    color: var(--foreground);
+    background: var(--accent-subtle);
+  }
+
+  .mobile-menu__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .mobile-menu__group-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-1);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--foreground-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .mobile-menu__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-lg);
     font-size: var(--text-base);
@@ -261,6 +483,11 @@ function isActive(href: string): boolean {
     transition:
       color var(--duration-fast) var(--ease-standard),
       background var(--duration-fast) var(--ease-standard);
+  }
+
+  .mobile-menu__link--sub {
+    padding-left: calc(var(--space-4) + var(--space-6));
+    font-size: var(--text-sm);
   }
 
   .mobile-menu__link:hover {
@@ -273,10 +500,21 @@ function isActive(href: string): boolean {
     background: var(--accent-subtle);
   }
 
-  @media (max-width: 768px) {
-  .main-header {
-    padding: var(--space-2) var(--space-3);
+  .mobile-menu__link-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--foreground-muted);
   }
+
+  .mobile-menu__link--active .mobile-menu__link-icon {
+    color: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .main-header {
+      padding: var(--space-2) var(--space-3);
+    }
   }
 </style>
 
@@ -285,41 +523,59 @@ function isActive(href: string): boolean {
     const header = document.getElementById("main-header");
     if (!header) return;
 
-    // 滚动检测 — 添加 header-scrolled 类
+    // ── 滚动检测 ──
     function updateScrollState() {
-      if (window.scrollY > 20) {
-        header.classList.add("header-scrolled");
-      } else {
-        header.classList.remove("header-scrolled");
-      }
+      header.classList.toggle("header-scrolled", window.scrollY > 20);
     }
-
     window.addEventListener("scroll", updateScrollState, { passive: true });
     updateScrollState();
 
-    // 移动端菜单
+    // ── 桌面端下拉菜单（点击切换，点外部关闭） ──
+    const dropdowns = header.querySelectorAll<HTMLElement>(".header__dropdown");
+    dropdowns.forEach((dd) => {
+      const trigger = dd.querySelector<HTMLElement>(".header__dropdown-trigger");
+      if (!trigger) return;
+
+      trigger.addEventListener("click", (e) => {
+        e.preventDefault(); // 阻止 <a> 跳转
+        const isOpen = dd.classList.contains("open");
+        // 先关闭所有其他下拉
+        dropdowns.forEach((d) => d.classList.remove("open"));
+        if (!isOpen) dd.classList.add("open");
+      });
+    });
+
+    // 点击页面空白处关闭所有下拉
+    document.addEventListener("click", (e) => {
+      if (!(e.target instanceof Element)) return;
+      if (!e.target.closest(".header__dropdown")) {
+        dropdowns.forEach((d) => d.classList.remove("open"));
+      }
+    });
+
+    // ── 移动端菜单 ──
     const toggle = document.getElementById("mobile-menu-toggle");
+    const closeBtn = document.getElementById("mobile-menu-close");
     const menu = document.getElementById("mobile-menu");
     if (toggle && menu) {
-      toggle.addEventListener("click", () => {
-        const isOpen = menu.getAttribute("data-open") === "true";
-        menu.setAttribute("data-open", String(!isOpen));
-        toggle.setAttribute("aria-expanded", String(!isOpen));
-      });
-
-      // 点击遮罩关闭
-      const backdrop = menu.querySelector(".mobile-menu__backdrop");
-      backdrop?.addEventListener("click", () => {
+      function openMenu() {
+        menu.setAttribute("data-open", "true");
+        toggle.setAttribute("aria-expanded", "true");
+      }
+      function closeMenu() {
         menu.setAttribute("data-open", "false");
         toggle.setAttribute("aria-expanded", "false");
+      }
+
+      toggle.addEventListener("click", () => {
+        const isOpen = menu.getAttribute("data-open") === "true";
+        isOpen ? closeMenu() : openMenu();
       });
 
-      // 点击链接关闭
+      closeBtn?.addEventListener("click", closeMenu);
+      menu.querySelector(".mobile-menu__backdrop")?.addEventListener("click", closeMenu);
       menu.querySelectorAll(".mobile-menu__link").forEach((link) => {
-        link.addEventListener("click", () => {
-          menu.setAttribute("data-open", "false");
-          toggle.setAttribute("aria-expanded", "false");
-        });
+        link.addEventListener("click", closeMenu);
       });
     }
   }

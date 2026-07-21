@@ -3,6 +3,8 @@
  * 目录组件
  * 玻璃面板，粘性定位，滚动高亮。
  */
+import { Icon } from "astro-icon/components";
+
 interface Heading { depth: number; slug: string; text: string }
 interface Props { headings: Heading[]; title?: string }
 const { headings, title = "目录" } = Astro.props;
@@ -14,9 +16,7 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
     <div class="toc__header">
       <h2 class="toc__title">{title}</h2>
       <button class="toc__toggle" aria-label="折叠目录" aria-expanded="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
+        <Icon name="ph:caret-down" />
       </button>
     </div>
     <ul class="toc__list">
@@ -67,6 +67,11 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
 
   .toc__toggle:hover {
     background: var(--accent-subtle);
+  }
+
+  .toc__toggle svg {
+    width: 16px;
+    height: 16px;
   }
 
   .toc__toggle[aria-expanded="false"] {

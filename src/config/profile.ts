@@ -1,19 +1,42 @@
 /**
- * 个人信息配置
+ * 个人信息配置 — 所有文案集中在此
  */
 export const profileConfig = {
-  // 基本信息
+  // ─── 基本信息 ───
   name: "mcxiaochen",
-  avatar: "/images/avatar.jpg",  // 头像路径
+  avatar: "/img/congyu/touxiang.webp",
   bio: "热爱技术，热爱生活",
+  location: "浙江·嘉兴",
+  email: "mcxiaochenn_yyds@163.com",
 
-  // 详细介绍（支持 Markdown）
-  description: `
-    👋 你好，我是 mcxiaochen
-    🌱 热爱编程、开源、技术分享
-    💬 欢迎交流与讨论
-  `,
+  // ─── MBTI ───
+  mbti: "INTP-T",
 
-  // 技能标签
-  skills: ["TypeScript", "React", "Vue", "Astro", "Node.js"],
+  // ─── 社交链接 ───
+  socials: [
+    { label: "GitHub", url: "https://github.com/mcxiaochenn" },
+    { label: "Bilibili", url: "https://space.bilibili.com/123757127" },
+    { label: "酷安", url: "https://www.coolapk.com/u/21508887" },
+    { label: "Email", url: "mailto:mcxiaochenn_yyds@163.com" },
+  ] as ReadonlyArray<{ label: string; url: string }>,
+
+  // ─── 个人简介（Hero 区短文） ───
+  intro: "一个热爱技术与生活的开发者，喜欢折腾新工具，用代码解决问题。博客记录学习笔记、项目心得与日常思考。",
+
+  // ─── 技能标签 ───
+  skills: ["TypeScript", "React", "Vue", "Astro", "Node.js", "Docker"],
+
+  // ─── 详细介绍（config 内的后备内容，about.md 存在时优先用 md） ───
+  sections: [
+    {
+      title: "关于我",
+      content:
+        "你好，我是 mcxiaochen，一名前端开发者。热爱开源与技术分享，喜欢通过博客记录自己的学习和成长。",
+    },
+    {
+      title: "博客",
+      content:
+        "本博客使用 Astro 构建，采用自研 Dusklight 主题。追求简洁、优雅、高性能的阅读体验。",
+    },
+  ] as ReadonlyArray<{ title: string; content: string }>,
 } as const;

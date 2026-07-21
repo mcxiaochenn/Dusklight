@@ -117,15 +117,21 @@
     window.addEventListener("load", loadBackdropImage);
   }
 
-  // 监听主题切换
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById("theme-toggle");
-    toggle?.addEventListener("click", () => {
-      // 延迟等待 ThemeManager 切换完成
-      setTimeout(switchBackdropImage, 50);
-    });
-  });
+  // 用 MutationObserver 监听 <html> class 变化（比 click 更可靠）
+  let lastDark = isDarkMode();
+  new MutationObserver(() => {
+    const nowDark = isDarkMode();
+    if (nowDark !== lastDark) {
+      lastDark = nowDark;
+      switchBackdropImage();
+    }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
-  // 监听系统主题变化（auto 模式）
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", switchBackdropImage);
+  // 监听系统主题变化（auto 模式下跟随系统）
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (!document.documentElement.classList.contains("light") &&
+        !document.documentElement.classList.contains("dark")) {
+      switchBackdropImage();
+    }
+  });
 </script>
