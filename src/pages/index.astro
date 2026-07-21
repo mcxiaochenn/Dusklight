@@ -1,42 +1,83 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/common/Footer.astro";
+/**
+ * 首页 - 博客列表
+ */
+import { getCollection } from "astro:content";
 import Header from "../components/common/Header.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import Footer from "../components/common/Footer.astro";
+import PostCard from "../components/blog/PostCard.astro";
+import SEOHead from "../components/seo/SEOHead.astro";
+import { siteConfig } from "../config/site";
+
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				欢迎来到 <a href="https://astro.build/">Astro</a> 博客模板。这个模板
-				为想要构建个人网站、博客或作品集的人提供了一个轻量级、最小化的起点。
-			</p>
-			<p>
-				此模板已在你的 <code>astro.config.mjs</code> 文件中配置了一些集成。你可以使用
-				<a href="https://astro.build/integrations">Astro Integrations</a> 添加 Tailwind、
-				React 或 Vue 等工具来自定义你的设置。
-			</p>
-			<p>以下是一些入门建议：</p>
-			<ul>
-				<li>在 <code>src/pages/index.astro</code> 中编辑此页面</li>
-				<li>在 <code>src/config/nav.ts</code> 中编辑导航菜单</li>
-				<li>在 <code>src/config/site.ts</code> 中修改站点配置</li>
-				<li>查看 <code>src/content/blog/</code> 中的示例文章</li>
-				<li>在 <code>src/layouts/BlogPost.astro</code> 中自定义文章布局</li>
-			</ul>
-			<p>
-				祝你使用愉快！如果遇到问题，记得
-				<a href="https://docs.astro.build/">阅读文档</a>
-				或 <a href="https://astro.build/chat">加入 Discord</a> 提问。
-			</p>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <SEOHead />
+  </head>
+
+  <body>
+    <Header />
+
+    <main class="blog-list">
+      <div class="blog-list__header">
+        <h1 class="blog-list__title">{siteConfig.title}</h1>
+        <p class="blog-list__subtitle">{siteConfig.description}</p>
+      </div>
+
+      <div class="blog-list__grid">
+        {posts.map((post, index) => (
+          <PostCard post={post} variant={index === 0 ? "featured" : "default"} />
+        ))}
+      </div>
+    </main>
+
+    <Footer />
+  </body>
 </html>
+
+<style>
+  .blog-list {
+    max-width: calc(var(--content-width) + var(--space-8));
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .blog-list__header {
+    margin-bottom: var(--space-8);
+    text-align: center;
+  }
+
+  .blog-list__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-2) 0;
+  }
+
+  .blog-list__subtitle {
+    color: var(--color-text-secondary);
+    margin: 0;
+    font-size: 1.125rem;
+  }
+
+  .blog-list__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  /* 第一篇文章占满宽度 */
+  .blog-list__grid > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 768px) {
+    .blog-list__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
