@@ -1,0 +1,87 @@
+---
+/**
+ * 标签页面
+ * 按标签筛选文章
+ */
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import Header from "../../components/common/Header.astro";
+import Footer from "../../components/common/Footer.astro";
+import PostCard from "../../components/blog/PostCard.astro";
+import SEOHead from "../../components/seo/SEOHead.astro";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getCollection("blog");
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((post) => post.data.tags?.includes(tag))
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+    },
+  }));
+};
+
+const { tag, posts } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <SEOHead
+      title={`${tag} - 标签`}
+      description={`标签 ${tag} 下的 ${posts.length} 篇文章`}
+    />
+  </head>
+
+  <body>
+    <Header />
+
+    <main class="tags-page">
+      <div class="tags-page__header">
+        <h1 class="tags-page__title">标签: {tag}</h1>
+        <p class="tags-page__count">共 {posts.length} 篇文章</p>
+      </div>
+
+      <div class="tags-page__list">
+        {posts.map((post) => (
+          <PostCard post={post} variant="compact" />
+        ))}
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .tags-page {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .tags-page__header {
+    margin-bottom: var(--space-6);
+  }
+
+  .tags-page__title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-2) 0;
+  }
+
+  .tags-page__count {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .tags-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+</style>
