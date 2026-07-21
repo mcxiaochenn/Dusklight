@@ -1,0 +1,18 @@
+---
+interface Props { class?: string }
+const { class: className } = Astro.props;
+---
+<blockquote class:list={["quote", className]}>
+  <slot />
+</blockquote>
+
+<style>
+  .quote {
+    margin: 2rem 0;
+    padding-left: var(--space-5);
+    border-left: 2px solid var(--accent);
+    color: var(--foreground-secondary);
+    font-style: italic;
+  }
+  .quote p:last-child { margin-bottom: 0; }
+</style>

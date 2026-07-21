@@ -1,22 +1,24 @@
 ---
 /**
  * 文章卡片组件
- * 液态玻璃效果 + 非对称布局变体
+ * 扩展 Card，添加封面、标题、描述、元信息。
+ * 两种变体：default（纵向）和 hero（横向）。
  */
 import type { CollectionEntry } from "astro:content";
+import Tag from "../ui/Tag.astro";
 import FormattedDate from "../FormattedDate.astro";
 
 interface Props {
   post: CollectionEntry<"blog">;
-  variant?: "default" | "featured" | "compact";
+  variant?: "default" | "hero";
+  class?: string;
 }
 
-const { post, variant = "default" } = Astro.props;
+const { post, variant = "default", class: className } = Astro.props;
 ---
 
-<article class:list={["post-card", `post-card--${variant}`]}>
+<article class:list={["post-card", `post-card--${variant}`, className]}>
   <a href={`/blog/${post.id}/`} class="post-card__link">
-    {/* 封面图 */}
     {post.data.cover && (
       <div class="post-card__cover">
         <img
@@ -28,24 +30,19 @@ const { post, variant = "default" } = Astro.props;
       </div>
     )}
 
-    {/* 内容区域 */}
-    <div class="post-card__content">
-      {/* 标签 */}
+    <div class="post-card__body">
       {post.data.tags && post.data.tags.length > 0 && (
         <div class="post-card__tags">
-          {post.data.tags.slice(0, 3).map((tag) => (
-            <span class="post-card__tag">{tag}</span>
-          ))}
+          {post.data.tags.slice(0, 3).map((t) => <Tag>{t}</Tag>)}
         </div>
       )}
 
-      {/* 标题 */}
       <h3 class="post-card__title">{post.data.title}</h3>
 
-      {/* 描述 */}
-      <p class="post-card__description">{post.data.description}</p>
+      {post.data.description && (
+        <p class="post-card__desc">{post.data.description}</p>
+      )}
 
-      {/* 元信息 */}
       <div class="post-card__meta">
         <FormattedDate date={post.data.pubDate} />
         {post.data.category && (
@@ -58,14 +55,18 @@ const { post, variant = "default" } = Astro.props;
 
 <style>
   .post-card {
-    border-radius: var(--border-radius);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    transition:
+      box-shadow var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
   }
 
   .post-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--glass-shadow), 0 12px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border);
   }
 
   .post-card__link {
@@ -85,18 +86,19 @@ const { post, variant = "default" } = Astro.props;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform var(--transition-slow);
+    border-radius: 0;
+    transition: transform var(--duration-slow) var(--ease-standard);
   }
 
   .post-card:hover .post-card__cover img {
-    transform: scale(1.05);
+    transform: scale(1.03);
   }
 
-  .post-card__content {
-    padding: var(--space-4);
+  .post-card__body {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    padding: var(--space-5);
     flex: 1;
   }
 
@@ -106,32 +108,22 @@ const { post, variant = "default" } = Astro.props;
     gap: var(--space-1);
   }
 
-  .post-card__tag {
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(35, 55, 255, 0.08);
-    color: var(--accent);
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
   .post-card__title {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: var(--color-text);
+    font-size: var(--text-md);
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--foreground);
+    letter-spacing: -0.01em;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .post-card__description {
-    margin: 0;
-    font-size: 0.875rem;
+  .post-card__desc {
+    font-size: var(--text-sm);
     line-height: 1.6;
-    color: var(--color-text-secondary);
+    color: var(--foreground-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -144,69 +136,42 @@ const { post, variant = "default" } = Astro.props;
     gap: var(--space-2);
     margin-top: auto;
     padding-top: var(--space-2);
-    font-size: 0.8125rem;
-    color: var(--color-text-tertiary);
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
   }
 
   .post-card__category {
     padding: 2px 8px;
-    border-radius: 4px;
-    background: var(--color-bg-tertiary);
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
   }
 
-  /* Featured 变体 - 大卡片 */
-  .post-card--featured .post-card__link {
+  /* Hero variant — horizontal */
+  .post-card--hero .post-card__link {
     flex-direction: row;
   }
 
-  .post-card--featured .post-card__cover {
+  .post-card--hero .post-card__cover {
     width: 45%;
     aspect-ratio: auto;
+    min-height: 200px;
   }
 
-  .post-card--featured .post-card__title {
-    font-size: 1.5rem;
+  .post-card--hero .post-card__title {
+    font-size: var(--text-lg);
   }
 
-  .post-card--featured .post-card__description {
+  .post-card--hero .post-card__desc {
     -webkit-line-clamp: 3;
   }
 
-  /* Compact 变体 - 紧凑卡片 */
-  .post-card--compact .post-card__link {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-4);
-  }
-
-  .post-card--compact .post-card__cover {
-    width: 120px;
-    min-width: 120px;
-    aspect-ratio: 1;
-    border-radius: var(--border-radius-sm);
-  }
-
-  .post-card--compact .post-card__title {
-    font-size: 1rem;
-  }
-
-  .post-card--compact .post-card__description {
-    display: none;
-  }
-
-  /* 响应式 */
   @media (max-width: 768px) {
-    .post-card--featured .post-card__link {
+    .post-card--hero .post-card__link {
       flex-direction: column;
     }
 
-    .post-card--featured .post-card__cover {
+    .post-card--hero .post-card__cover {
       width: 100%;
-    }
-
-    .post-card--compact .post-card__cover {
-      width: 80px;
-      min-width: 80px;
     }
   }
 </style>

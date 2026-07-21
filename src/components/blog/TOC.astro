@@ -1,48 +1,28 @@
 ---
 /**
  * 目录组件
- * 基于 headings 生成目录
- * 滚动高亮 + 折叠/展开
+ * 玻璃面板，粘性定位，滚动高亮。
  */
-
-interface Heading {
-  depth: number;
-  slug: string;
-  text: string;
-}
-
-interface Props {
-  headings: Heading[];
-  title?: string;
-}
-
+interface Heading { depth: number; slug: string; text: string }
+interface Props { headings: Heading[]; title?: string }
 const { headings, title = "目录" } = Astro.props;
-
-// 过滤 h2-h4 级别的标题
 const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
 ---
 
 {toc.length > 0 && (
-  <nav class="toc glass" aria-label="文章目录">
+  <nav class="toc glass-panel" aria-label="文章目录">
     <div class="toc__header">
       <h2 class="toc__title">{title}</h2>
-      <button
-        class="toc__toggle"
-        aria-label="折叠目录"
-        aria-expanded="true"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button class="toc__toggle" aria-label="折叠目录" aria-expanded="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
       </button>
     </div>
-
     <ul class="toc__list">
-      {toc.map((heading) => (
-        <li class:list={["toc__item", `toc__item--h${heading.depth}`]}>
-          <a href={`#${heading.slug}`} class="toc__link">
-            {heading.text}
-          </a>
+      {toc.map((h) => (
+        <li class:list={["toc__item", `toc__item--h${h.depth}`]}>
+          <a href={`#${h.slug}`} class="toc__link">{h.text}</a>
         </li>
       ))}
     </ul>
@@ -67,9 +47,9 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
 
   .toc__title {
     margin: 0;
-    font-size: 1rem;
+    font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--color-text);
+    color: var(--foreground);
   }
 
   .toc__toggle {
@@ -78,17 +58,15 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
     justify-content: center;
     width: 24px;
     height: 24px;
-    padding: 0;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    transition: background var(--transition-fast), transform var(--transition-fast);
+    border-radius: var(--radius-sm);
+    color: var(--foreground-muted);
+    transition:
+      background var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
   }
 
   .toc__toggle:hover {
-    background: var(--glass-bg);
+    background: var(--accent-subtle);
   }
 
   .toc__toggle[aria-expanded="false"] {
@@ -96,73 +74,45 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
   }
 
   .toc__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
   }
 
-  .toc__item {
-    margin: 0;
-  }
-
   .toc__link {
     display: block;
     padding: var(--space-1) var(--space-2);
-    border-radius: 4px;
-    text-decoration: none;
-    color: var(--color-text-secondary);
-    font-size: 0.875rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
     line-height: 1.5;
-    transition: color var(--transition-fast), background var(--transition-fast);
+    color: var(--foreground-muted);
+    text-decoration: none;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
   }
 
   .toc__link:hover {
-    color: var(--color-text);
-    background: var(--glass-bg);
+    color: var(--foreground);
+    background: var(--accent-subtle);
   }
 
+  .toc__link--active,
   .toc__link.active {
     color: var(--accent);
-    background: rgba(35, 55, 255, 0.08);
+    background: var(--accent-subtle);
+    border-left: 2px solid var(--accent);
+    padding-left: calc(var(--space-2) - 2px);
   }
 
-  /* 缩进 */
-  .toc__item--h3 {
-    padding-left: var(--space-4);
-  }
+  .toc__item--h3 { padding-left: var(--space-4); }
+  .toc__item--h4 { padding-left: var(--space-8); }
 
-  .toc__item--h4 {
-    padding-left: var(--space-8);
-  }
+  .toc.collapsed .toc__list { display: none; }
 
-  /* 折叠状态 */
-  .toc.collapsed .toc__list {
-    display: none;
-  }
-
-  /* 滚动条样式 */
-  .toc::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .toc::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .toc::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 2px;
-  }
-
-  @media (max-width: 1200px) {
-    .toc {
-      position: static;
-      max-height: none;
-    }
-  }
+  .toc::-webkit-scrollbar { width: 4px; }
+  .toc::-webkit-scrollbar-track { background: transparent; }
+  .toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
 
 <script>
@@ -172,17 +122,14 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
 
     const toggle = toc.querySelector(".toc__toggle");
     const links = toc.querySelectorAll(".toc__link");
-    // 只选择文章内的标题
     const headings = document.querySelectorAll(".article h2, .article h3, .article h4");
 
-    // 折叠/展开
     toggle?.addEventListener("click", () => {
-      const isExpanded = toggle.getAttribute("aria-expanded") === "true";
-      toggle.setAttribute("aria-expanded", String(!isExpanded));
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!expanded));
       toc.classList.toggle("collapsed");
     });
 
-    // 滚动高亮
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -194,25 +141,16 @@ const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
           }
         });
       },
-      {
-        rootMargin: "-80px 0px -80% 0px",
-        threshold: 0,
-      }
+      { rootMargin: "-80px 0px -80% 0px", threshold: 0 }
     );
 
-    headings.forEach((heading) => {
-      if (heading.id) observer.observe(heading);
-    });
+    headings.forEach((h) => { if (h.id) observer.observe(h); });
 
-    // 平滑滚动
     links.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        const targetId = link.getAttribute("href")?.slice(1);
-        const target = document.getElementById(targetId || "");
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        const target = document.getElementById(link.getAttribute("href")?.slice(1) || "");
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
   }

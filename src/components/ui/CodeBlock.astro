@@ -1,0 +1,51 @@
+---
+/**
+ * 代码块包装组件
+ * surface-1 背景 + 圆角 + 边框。
+ */
+interface Props {
+  lang?: string;
+  title?: string;
+  class?: string;
+}
+
+const { lang, title, class: className } = Astro.props;
+---
+
+<figure class:list={["code-block", className]}>
+  {title && <figcaption class="code-block__title">{title}</figcaption>}
+  <pre class:list={["code-block__pre", lang && `language-${lang}`]}>
+    <slot />
+  </pre>
+</figure>
+
+<style>
+  .code-block {
+    margin: 2rem 0;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .code-block__title {
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .code-block__pre {
+    margin: 0;
+    padding: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    overflow-x: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+</style>

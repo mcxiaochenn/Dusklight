@@ -1,0 +1,49 @@
+---
+/**
+ * 文章元信息组件
+ * 发布日期、更新日期、分类。
+ */
+import FormattedDate from "../FormattedDate.astro";
+
+interface Props {
+  pubDate: Date;
+  updatedDate?: Date;
+  category?: string;
+  class?: string;
+}
+
+const { pubDate, updatedDate, category, class: className } = Astro.props;
+---
+
+<div class:list={["article-meta", className]}>
+  <time datetime={pubDate.toISOString()}>
+    <FormattedDate date={pubDate} />
+  </time>
+  {updatedDate && (
+    <span class="article-meta__updated">
+      (更新于 <time datetime={updatedDate.toISOString()}><FormattedDate date={updatedDate} /></time>)
+    </span>
+  )}
+  {category && <span class="article-meta__category">{category}</span>}
+</div>
+
+<style>
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--foreground-muted);
+  }
+
+  .article-meta__updated {
+    font-style: italic;
+  }
+
+  .article-meta__category {
+    padding: 2px 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+/**
+ * 基础卡片组件
+ * surface-1 背景 + 边框 + 圆角。PostCard 等扩展此组件。
+ */
+interface Props {
+  href?: string;
+  class?: string;
+}
+
+const { href, class: className } = Astro.props;
+const Tag = href ? "a" : "div";
+---
+
+<Tag href={href} class:list={["card", className]}>
+  <slot />
+</Tag>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      box-shadow var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border);
+  }
+</style>

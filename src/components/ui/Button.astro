@@ -1,0 +1,80 @@
+---
+/**
+ * 按钮组件
+ * 两种变体：primary（accent 填充）和 secondary（ghost 边框）。
+ */
+interface Props {
+  variant?: "primary" | "secondary";
+  href?: string;
+  size?: "sm" | "md";
+  class?: string;
+}
+
+const { variant = "primary", href, size = "md", class: className } = Astro.props;
+const Tag = href ? "a" : "button";
+---
+
+<Tag
+  href={href}
+  class:list={["btn", `btn--${variant}`, `btn--${size}`, className]}
+>
+  <slot />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-family: var(--font-body);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .btn--md {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-md);
+  }
+
+  .btn--sm {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    border-radius: var(--radius-sm);
+  }
+
+  .btn--primary {
+    background: var(--accent);
+    color: var(--surface-0);
+    border: none;
+  }
+
+  .btn--primary:hover {
+    background: var(--accent-dim);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--foreground-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn--secondary:hover {
+    color: var(--foreground);
+    border-color: var(--foreground-muted);
+    background: var(--surface-2);
+  }
+</style>

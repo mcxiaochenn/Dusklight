@@ -1,0 +1,75 @@
+---
+/**
+ * 紧凑文章列表
+ * 仅显示标题 + 日期，无封面、无描述。
+ */
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "../FormattedDate.astro";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  class?: string;
+}
+
+const { posts, class: className } = Astro.props;
+---
+
+<div class:list={["post-list", className]}>
+  {posts.map((post) => (
+    <a href={`/blog/${post.id}/`} class="post-list__item">
+      <span class="post-list__title">{post.data.title}</span>
+      <span class="post-list__date"><FormattedDate date={post.data.pubDate} /></span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .post-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-list__item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border-subtle);
+    text-decoration: none;
+    color: inherit;
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+
+  .post-list__item:first-child {
+    padding-top: 0;
+  }
+
+  .post-list__item:last-child {
+    border-bottom: none;
+  }
+
+  .post-list__item:hover {
+    color: var(--accent);
+  }
+
+  .post-list__title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--foreground);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+
+  .post-list__item:hover .post-list__title {
+    color: var(--accent);
+  }
+
+  .post-list__date {
+    flex-shrink: 0;
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+  }
+</style>
