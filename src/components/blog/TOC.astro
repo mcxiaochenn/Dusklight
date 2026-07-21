@@ -1,0 +1,221 @@
+---
+/**
+ * 目录组件
+ * 基于 headings 生成目录
+ * 滚动高亮 + 折叠/展开
+ */
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  title?: string;
+}
+
+const { headings, title = "目录" } = Astro.props;
+
+// 过滤 h2-h4 级别的标题
+const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
+---
+
+{toc.length > 0 && (
+  <nav class="toc glass" aria-label="文章目录">
+    <div class="toc__header">
+      <h2 class="toc__title">{title}</h2>
+      <button
+        class="toc__toggle"
+        aria-label="折叠目录"
+        aria-expanded="true"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <ul class="toc__list">
+      {toc.map((heading) => (
+        <li class:list={["toc__item", `toc__item--h${heading.depth}`]}>
+          <a href={`#${heading.slug}`} class="toc__link">
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    max-height: calc(100vh - var(--header-height) - var(--space-8));
+    overflow-y: auto;
+    padding: var(--space-4);
+  }
+
+  .toc__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+  }
+
+  .toc__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .toc__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .toc__toggle:hover {
+    background: var(--glass-bg);
+  }
+
+  .toc__toggle[aria-expanded="false"] {
+    transform: rotate(-90deg);
+  }
+
+  .toc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .toc__item {
+    margin: 0;
+  }
+
+  .toc__link {
+    display: block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+
+  .toc__link:hover {
+    color: var(--color-text);
+    background: var(--glass-bg);
+  }
+
+  .toc__link.active {
+    color: var(--accent);
+    background: rgba(35, 55, 255, 0.08);
+  }
+
+  /* 缩进 */
+  .toc__item--h3 {
+    padding-left: var(--space-4);
+  }
+
+  .toc__item--h4 {
+    padding-left: var(--space-8);
+  }
+
+  /* 折叠状态 */
+  .toc.collapsed .toc__list {
+    display: none;
+  }
+
+  /* 滚动条样式 */
+  .toc::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .toc::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .toc::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+
+  @media (max-width: 1200px) {
+    .toc {
+      position: static;
+      max-height: none;
+    }
+  }
+</style>
+
+<script>
+  function initTOC() {
+    const toc = document.querySelector(".toc");
+    if (!toc) return;
+
+    const toggle = toc.querySelector(".toc__toggle");
+    const links = toc.querySelectorAll(".toc__link");
+    const headings = document.querySelectorAll("h2, h3, h4");
+
+    // 折叠/展开
+    toggle?.addEventListener("click", () => {
+      const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!isExpanded));
+      toc.classList.toggle("collapsed");
+    });
+
+    // 滚动高亮
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            links.forEach((link) => {
+              link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
+            });
+          }
+        });
+      },
+      {
+        rootMargin: "-80px 0px -80% 0px",
+        threshold: 0,
+      }
+    );
+
+    headings.forEach((heading) => {
+      if (heading.id) observer.observe(heading);
+    });
+
+    // 平滑滚动
+    links.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute("href")?.slice(1);
+        const target = document.getElementById(targetId || "");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initTOC);
+  document.addEventListener("astro:page-load", initTOC);
+</script>
