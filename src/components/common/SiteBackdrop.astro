@@ -2,14 +2,15 @@
 /**
  * 站点背景装饰
  * ─────────────────────────────────────────────────
- * 微妙的网格纹理 + 噪点叠加，增加视觉层次。
- * 固定定位，不响应交互。
+ * 网格纹理 + 噪点 + 缓加载背景图。
+ * 背景图在页面加载完成后才开始下载，不阻断首屏渲染。
  */
 ---
 
 <div class="site-backdrop" aria-hidden="true">
   <div class="site-backdrop__grid"></div>
   <div class="site-backdrop__grain"></div>
+  <div class="site-backdrop__image" id="backdrop-image"></div>
 </div>
 
 <style>
@@ -41,4 +42,40 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
     opacity: 0.5;
   }
+
+  /* ── 背景图 — 默认隐藏，JS 加载后淡入 ── */
+  .site-backdrop__image {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .site-backdrop__image--loaded {
+    opacity: 1;
+  }
 </style>
+
+<script>
+  function loadBackdropImage() {
+    const el = document.getElementById("backdrop-image");
+    if (!el) return;
+
+    const img = new Image();
+    img.onload = () => {
+      el.style.backgroundImage = `url(${img.src})`;
+      el.classList.add("site-backdrop__image--loaded");
+    };
+    img.src = "/images/bg/xiowo-bg-dark.webp";
+  }
+
+  // 页面加载完成后再开始下载背景图
+  if (document.readyState === "complete") {
+    loadBackdropImage();
+  } else {
+    window.addEventListener("load", loadBackdropImage);
+  }
+</script>
