@@ -164,6 +164,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 
 - **Commit messages**: Use standard [Conventional Commits](https://www.conventionalcommits.org/) format — `feat:`, `fix:`, `docs:`, `refactor:`, etc. No custom prefixes like `@`.
 - **No auto-push**: Never `git push` unless the user explicitly asks. Commit locally only.
+- **Confirm before coding**: After receiving a new task, restate your understanding back to the user before writing any code. Avoid cognitive bias — if the interpretation is wrong, the user will correct you before you waste effort.
 
 ## Gotchas
 
