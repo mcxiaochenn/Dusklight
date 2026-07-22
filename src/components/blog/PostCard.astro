@@ -24,7 +24,7 @@ const { post, variant = "default", class: className } = Astro.props;
       <div class="post-card__cover">
         <img
           src={post.data.cover}
-          alt={post.data.coverAlt || post.data.title}
+          alt={post.data.title}
           loading="lazy"
           decoding="async"
         />
@@ -46,7 +46,7 @@ const { post, variant = "default", class: className } = Astro.props;
 
       <div class="post-card__meta">
         <Icon name="ph:calendar" class="post-card__meta-icon" />
-        <FormattedDate date={post.data.pubDate} />
+        <FormattedDate date={post.data.date} />
         {post.data.category && (
           <span class="post-card__category">{post.data.category}</span>
         )}

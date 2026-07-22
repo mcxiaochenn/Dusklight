@@ -9,10 +9,10 @@ import FormattedDate from "../components/FormattedDate.astro";
 
 const posts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const postsByYear = posts.reduce((acc, post) => {
-  const year = post.data.pubDate.getFullYear();
+  const year = post.data.date.getFullYear();
   if (!acc[year]) acc[year] = [];
   acc[year].push(post);
   return acc;
@@ -34,7 +34,7 @@ const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
             {postsByYear[year].map((post) => (
               <li class="archive__item">
                 <a href={`/blog/${post.id}/`} class="archive__link">
-                  <span class="archive__date"><FormattedDate date={post.data.pubDate} /></span>
+                  <span class="archive__date"><FormattedDate date={post.data.date} /></span>
                   <span class="archive__post-title">{post.data.title}</span>
                 </a>
               </li>

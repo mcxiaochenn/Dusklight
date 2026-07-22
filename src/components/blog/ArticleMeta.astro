@@ -6,25 +6,25 @@ import FormattedDate from "../FormattedDate.astro";
 import { Icon } from "astro-icon/components";
 
 interface Props {
-  pubDate: Date;
-  updatedDate?: Date;
+  date: Date;
+  updated?: Date;
   category?: string;
   readingTime?: number;
   class?: string;
 }
 
-const { pubDate, updatedDate, category, readingTime, class: className } = Astro.props;
+const { date, updated, category, readingTime, class: className } = Astro.props;
 ---
 
 <div class:list={["article-meta", className]}>
-  <time datetime={pubDate.toISOString()} class="article-meta__item">
+  <time datetime={date.toISOString()} class="article-meta__item">
     <Icon name="ph:calendar" class="article-meta__icon" />
-    <FormattedDate date={pubDate} />
+    <FormattedDate date={date} />
   </time>
-  {updatedDate && (
+  {updated && (
     <span class="article-meta__item article-meta__updated">
       <Icon name="ph:pencil-simple" class="article-meta__icon" />
-      更新于 <time datetime={updatedDate.toISOString()}><FormattedDate date={updatedDate} /></time>
+      更新于 <time datetime={updated.toISOString()}><FormattedDate date={updated} /></time>
     </span>
   )}
   {category && (

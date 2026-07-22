@@ -11,7 +11,7 @@ import { siteConfig } from "../config/site";
 
 const allPosts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const perPage = siteConfig.postsPerPage;
 const posts = allPosts.slice(0, perPage);

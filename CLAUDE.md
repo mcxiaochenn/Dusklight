@@ -9,11 +9,17 @@ pnpm install          # Install dependencies
 pnpm dev              # Start dev server (localhost:4321)
 pnpm build            # Build for production → dist/
 pnpm preview          # Preview production build
+pnpm sync-content     # Manually sync content repository
 ```
 
+**Package manager**: pnpm (not npm/yarn). Lockfile is `pnpm-lock.yaml`.
 **Node requirement**: `>=22.12.0`
 
 **After editing `.astro` or CSS files**: rebuild and visually verify. Astro caches aggressively in `.astro/` — if changes don't appear, delete `.astro/` and `dist/` before rebuilding.
+
+**Content sync**: `pnpm dev` and `pnpm build` automatically run `scripts/sync-content.js` via `predev`/`prebuild` hooks. This clones/updates a separate content repository and creates symlinks into `src/content/`. If no `.env` exists, the sync is skipped and local `src/content/` is used.
+
+**Deployment**: GitHub Actions deploys to GitHub Pages. The build step installs Playwright (Chromium) because Mermaid diagram rendering requires it at build time.
 
 ## Architecture
 
@@ -45,6 +51,33 @@ The Header pill uses a specific `::before` pseudo-element pattern for the glass 
 
 **Critical**: `backdrop-filter` only works on elements floating OVER content (Header pill, BackToTop, TOC panel). It does NOT produce visible results on in-flow elements like article cards — there's nothing interesting behind them to blur.
 
+### Content Sync Architecture
+
+Blog content lives in a **separate repository** (`Dusklight-Content`), not in this repo. The sync script (`scripts/sync-content.js`) clones/updates that repo and creates symlinks:
+
+| Content repo path | Symlink target |
+|---|---|
+| `content/blog/` | `src/content/` (posts) |
+| `content/pages/` | `src/content/pages/` |
+| `content/data/` | `src/data/` |
+| `content/images/` | `public/images/` |
+
+Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, the local `src/content/` directory is used directly. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`.
+
+### Import Aliases
+
+`@/` maps to `src/` — configured in both `astro.config.mjs` (Vite resolve alias) and `tsconfig.json` (path mapping). Use `@/config`, `@/components`, etc. in imports.
+
+### Markdown Pipeline
+
+Configured in `astro.config.mjs`:
+- **remark-math** → parse `$...$` and `$$...$$` math expressions
+- **rehype-katex** → render math with KaTeX (CSS loaded from CDN in `cdn.ts`)
+- **rehype-slug** → add `id` attributes to headings
+- **rehype-autolink-headings** → wrap headings in anchor links
+- **rehype-external-links** → open external links in new tab with `noopener noreferrer`
+- **Shiki** → syntax highlighting with dual themes (`github-light` / `github-dark`)
+
 ### Component Architecture
 
 ```
@@ -62,7 +95,20 @@ src/components/
 
 Defined in `src/content.config.ts`:
 
-- **`blog`**: `src/content/posts/` — typed frontmatter (title, description, pubDate, tags, cover, etc.)
+- **`blog`**: `src/content/posts/` — typed frontmatter:
+  - `title` (string, required)
+  - `date` (date, required) — preferred format: `yyyy/mm/dd hh:mm:ss`
+  - `updated` (date, optional) — falls back to `date` at render time
+  - `description` (string, required)
+  - `tags` (string[], default `[]`)
+  - `category` (string, optional)
+  - `cover` (string, optional)
+  - `pinned` (boolean, default `false`)
+  - `author` (string, optional)
+  - `draft` (boolean, default `false`)
+  - `abbrlink` (string, optional)
+  - `comment` (boolean, default `true`) — hidden, always-on unless explicitly set
+  - `toc` (boolean, default `true`) — hidden, always-on unless explicitly set
 - **`spec`**: `src/content/spec/` — untyped markdown pages (about.md, etc.) rendered via `getEntry()` + `render()`
 
 ### Theme Switching
@@ -87,7 +133,14 @@ Uses `getEffective()` (not `getStored()`) to determine toggle cycle — `auto` r
 | `src/config/profile.ts` | Name, avatar, bio, location, MBTI, socials, skills, intro |
 | `src/config/nav.ts` | Navigation menu structure + social links |
 | `src/config/comment.ts` | Twikoo comment system envId |
-| `src/config/cdn.ts` | CDN resource URLs |
+| `src/config/cdn.ts` | CDN resource URLs (Twikoo, KaTeX, Mermaid) |
+| `src/config/seo.ts` | SEO defaults, JSON-LD, search engine verification |
+| `src/config/theme.ts` | Default theme, glass params, typography settings |
+| `src/config/index.ts` | Barrel export for all config modules |
+
+All config is re-exported from `src/config/index.ts` — import via `import { siteConfig, themeConfig } from "@/config"`.
+
+**Note**: `src/consts.ts` exists but is a leftover from the Astro starter template. The actual site constants are in `src/config/site.ts`.
 
 ## Styling Conventions
 
@@ -97,6 +150,21 @@ Uses `getEffective()` (not `getStored()`) to determine toggle cycle — `auto` r
 - `.prose` class in `typography.css` handles all long-form content typography
 - Responsive: `@media (max-width: 768px)` and `@media (max-width: 640px)` breakpoints
 
+## CI/CD
+
+`.github/workflows/deploy.yml` handles deployment:
+- Triggers on push to `main` and `repository_dispatch` (content repo updates)
+- Installs pnpm 9, Node 22, Playwright Chromium
+- Runs `pnpm sync-content` to fetch content, then `pnpm build`
+- Deploys `dist/` to GitHub Pages
+
+`.github/content-repo-trigger.yml` is a template to copy into the content repo — it sends `repository_dispatch` events when content changes.
+
+## Conventions
+
+- **Commit messages**: Use standard [Conventional Commits](https://www.conventionalcommits.org/) format — `feat:`, `fix:`, `docs:`, `refactor:`, etc. No custom prefixes like `@`.
+- **No auto-push**: Never `git push` unless the user explicitly asks. Commit locally only.
+
 ## Gotchas
 
 - **Build cache**: If CSS changes don't appear, delete `.astro/` and `dist/` directories before rebuilding
@@ -104,3 +172,5 @@ Uses `getEffective()` (not `getStored()`) to determine toggle cycle — `auto` r
 - **BackToTop visibility**: Logic is in GlobalScripts.astro, not in BackToTop.astro (Astro scoped scripts don't work reliably for global state)
 - **trailingSlash**: Set to `"always"` — all internal links must end with `/`
 - **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands). Use `<Icon name="ph:icon-name" />` in templates
+- **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
+- **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.

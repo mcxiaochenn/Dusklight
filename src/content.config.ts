@@ -9,23 +9,21 @@ import { z } from "astro/zod";
 // 博客文章
 const blog = defineCollection({
 	loader: glob({ base: "./src/content/posts", pattern: "**/*.{md,mdx}" }),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			pubDate: z.coerce.date(),
-			updatedDate: z.coerce.date().optional(),
-			tags: z.array(z.string()).default([]),
-			category: z.string().optional(),
-			heroImage: image().optional(),
-			cover: z.string().optional(),
-			coverAlt: z.string().optional(),
-			abbrlink: z.string().optional(),
-			draft: z.boolean().default(false),
-			pinned: z.boolean().default(false),
-			comment: z.boolean().default(true),
-			toc: z.boolean().default(true),
-		}),
+	schema: z.object({
+		title: z.string(),
+		date: z.coerce.date(),
+		updated: z.coerce.date().optional(),
+		description: z.string(),
+		tags: z.array(z.string()).default([]),
+		category: z.string().optional(),
+		cover: z.string().optional(),
+		pinned: z.boolean().default(false),
+		author: z.string().optional(),
+		draft: z.boolean().default(false),
+		abbrlink: z.string().optional(),
+		comment: z.boolean().default(true),
+		toc: z.boolean().default(true),
+	}),
 });
 
 // 独立页面（about / friends / ...）— 无 frontmatter 约束
