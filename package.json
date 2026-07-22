@@ -9,7 +9,7 @@
     "sync-content": "node scripts/sync-content.js",
     "init-content": "cp .env.example .env && echo '请编辑 .env 文件配置 CONTENT_REPO_URL'",
     "predev": "node scripts/sync-content.js || true",
-    "prebuild": "node scripts/sync-content.js || true",
+    "prebuild": "node scripts/sync-content.js || true && node scripts/generate-anti-mirror.js",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

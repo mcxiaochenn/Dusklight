@@ -2,51 +2,47 @@
 /**
  * 防镜像站组件
  * ─────────────────────────────────────────────────
- * 检测当前域名是否为官方站点，非官方域名自动重定向到提醒页。
- * 排除本地地址（localhost、127.0.0.1 等）以兼容本地开发。
+ * 开发模式：可读的 define:vars 脚本，便于调试。
+ * 构建模式：Vite 插件将下方标记替换为高度混淆的版本
+ *          （随机变量名 + 编码字符串 + 反调试，每次构建不同）。
+ *
  * 通过 siteConfig.antiMirror.enabled 控制开关。
  */
 import { siteConfig } from "../../config/site";
 
-// 从 site URL 提取官方主机名
 const officialHost = new URL(siteConfig.site).host;
+const enabled = siteConfig.antiMirror.enabled;
 ---
 
-<script is:inline define:vars={{ officialHost, enabled: siteConfig.antiMirror.enabled }}>
-  (function () {
-    if (!enabled) return;
+<!-- __ANTI_MIRROR_OBFUSCATED__ -->
 
-    var host = location.host;
+{enabled && (
+  <script is:inline define:vars={{ officialHost }}>
+    (function () {
+      var host = location.host;
 
-    // 跳过本地/回环地址（开发环境）
-    if (
-      host === "" ||
-      host === "localhost" ||
-      host.startsWith("127.") ||
-      host === "[::1]" ||
-      host === "0.0.0.0"
-    ) return;
+      if (
+        host === "" ||
+        host === "localhost" ||
+        host.indexOf("127.") === 0 ||
+        host === "[::1]" ||
+        host === "0.0.0.0"
+      ) return;
 
-    // 官方域名，放行
-    if (host === officialHost) return;
+      if (host === officialHost) return;
 
-    // 非官方域名 → 提醒并重定向
-    document.documentElement.innerHTML =
-      '<head><meta charset="utf-8"><title>站点提醒</title>' +
-      '<style>' +
-      'body{margin:0;min-height:100dvh;display:flex;align-items:center;justify-content:center;' +
-      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;' +
-      'background:#0a0a0a;color:#e0e0e0;}' +
-      '.box{text-align:center;max-width:480px;padding:2rem;}' +
-      'h1{font-size:1.5rem;margin-bottom:.75rem;color:#fff;}' +
-      'p{line-height:1.7;color:#999;margin-bottom:1.5rem;}' +
-      'a{display:inline-block;padding:.6rem 1.8rem;border-radius:999px;' +
-      'background:#3b82f6;color:#fff;text-decoration:none;font-weight:500;}' +
-      'a:hover{background:#2563eb;}' +
-      '</style></head><body><div class="box">' +
-      '<h1>⚠️ 非官方镜像站点</h1>' +
-      '<p>当前页面并非来自官方站点，请访问原始内容以获得完整体验和最新更新。</p>' +
-      '<a href="https://' + officialHost + '">前往官方站点</a>' +
-      '</div></body>';
-  })();
-</script>
+      document.documentElement.innerHTML =
+        '<head><meta charset="utf-8"><title>站点提醒</title>' +
+        '<style>body{margin:0;min-height:100dvh;display:flex;align-items:center;justify-content:center;' +
+        'font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0a0a;color:#e0e0e0}' +
+        '.c{text-align:center;max-width:480px;padding:2rem}h1{font-size:1.5rem;margin-bottom:.75rem;color:#fff}' +
+        'p{line-height:1.7;color:#999;margin-bottom:1.5rem}a{display:inline-block;padding:.6rem 1.8rem;' +
+        'border-radius:999px;background:#3b82f6;color:#fff;text-decoration:none;font-weight:500}' +
+        'a:hover{background:#2563eb}</style></head><body><div class="c">' +
+        '<h1>⚠️ 非官方镜像站点</h1>' +
+        '<p>当前页面并非来自官方站点，' +
+        '请访问原始内容以获得完整体验和最新更新。</p>' +
+        '<a href="https://' + officialHost + '">前往官方站点</a></div></body>';
+    })();
+  </script>
+)}

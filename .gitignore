@@ -20,6 +20,9 @@ pnpm-debug.log*
 /content/
 *.backup
 
+# 构建时生成的混淆防镜像组件
+src/components/common/AntiMirror.gen.astro
+
 # macOS-specific files
 .DS_Store
 
