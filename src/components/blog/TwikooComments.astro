@@ -9,6 +9,7 @@ import { cdnConfig } from "../../config/cdn";
 
 {commentConfig.enabled && (
   <div class="comments-section">
+    <h2 class="comments__heading">评论</h2>
     <div id="tcomment" class="comments__container"></div>
   </div>
 )}
@@ -18,6 +19,13 @@ import { cdnConfig } from "../../config/cdn";
     margin-top: var(--space-8);
     padding-top: var(--space-6);
     border-top: 1px solid var(--border-subtle);
+  }
+
+  .comments__heading {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 0 0 var(--space-4);
+    color: var(--foreground);
   }
 
   .comments__container {
@@ -44,7 +52,7 @@ import { cdnConfig } from "../../config/cdn";
 
   :root.dark .comments__container .tk-submit-action-btn {
     background: var(--accent) !important;
-    color: #fff !important;
+    color: var(--surface-0) !important;
   }
 </style>
 
@@ -61,6 +69,7 @@ import { cdnConfig } from "../../config/cdn";
       const container = document.getElementById("tcomment");
       if (!container) return;
       if (typeof twikoo === "undefined") return;
+      try { twikoo.destroy(); } catch {}
 
       twikoo.init({
         envId: envId,

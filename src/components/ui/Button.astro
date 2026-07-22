@@ -16,6 +16,7 @@ const Tag = href ? "a" : "button";
 
 <Tag
   href={href}
+  type={href ? undefined : "button"}
   class:list={["btn", `btn--${variant}`, `btn--${size}`, className]}
 >
   <slot />

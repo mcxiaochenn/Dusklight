@@ -76,16 +76,11 @@ const showPagination = allPosts.length > perPage;
     gap: var(--space-5);
   }
 
-  /* ── 交错入场动画 ── */
+  /* ── 交错入场动画（使用全局动画系统） ── */
   .posts__item {
     opacity: 0;
-    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: fade-in-up var(--duration-slow) var(--ease-entrance) forwards;
     animation-delay: calc(var(--i) * 60ms);
-  }
-
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
   }
 
   /* ── 翻页区域 ── */

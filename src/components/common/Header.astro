@@ -160,10 +160,10 @@ const navIcons: Record<string, string> = {
     align-items: center;
     min-height: 44px;
     padding: 6px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     border: 1px solid transparent;
     background: transparent;
-    transition: all 0.3s var(--ease-standard);
+    transition: all var(--duration-normal) var(--ease-standard);
   }
 
   .header__pill::before {
@@ -235,7 +235,7 @@ const navIcons: Record<string, string> = {
     align-items: center;
     gap: var(--space-1);
     padding: 6px 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: var(--text-sm);
     font-weight: 500;
     color: var(--foreground-secondary);
@@ -303,8 +303,8 @@ const navIcons: Record<string, string> = {
     min-width: 140px;
     padding: var(--space-1);
     background: var(--glass-bg);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -367,7 +367,7 @@ const navIcons: Record<string, string> = {
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     color: var(--foreground-secondary);
     transition:
       color var(--duration-fast) var(--ease-standard),
@@ -395,8 +395,8 @@ const navIcons: Record<string, string> = {
     position: absolute;
     inset: 0;
     background: oklch(0 0 0 / 0.5);
-    backdrop-filter: blur(6px) saturate(130%);
-    -webkit-backdrop-filter: blur(6px) saturate(130%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   }
 
   .mobile-menu__panel {

@@ -29,10 +29,11 @@ const { title, description, image } = Astro.props;
   </head>
 
   <body>
+    <a href="#main-content" class="skip-link">跳转到主要内容</a>
     <SiteBackdrop />
     <Header />
 
-    <main>
+    <main id="main-content">
       <slot />
     </main>
 
@@ -46,5 +47,24 @@ const { title, description, image } = Astro.props;
 <style>
   main {
     min-height: calc(100dvh - var(--header-height));
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-4);
+    z-index: 200;
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent);
+    color: var(--surface-0);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: top var(--duration-fast) var(--ease-standard);
+  }
+
+  .skip-link:focus {
+    top: var(--space-4);
   }
 </style>

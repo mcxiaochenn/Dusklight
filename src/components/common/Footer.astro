@@ -30,7 +30,7 @@ const socialIcons: Record<string, string> = {
       <!-- 左：站点信息 -->
       <div class="footer__brand">
         <div class="footer__logo">
-          <img src="/favicon/favicon.ico" alt="Logo" class="footer__logo-img" />
+          <img src="/favicon/favicon.ico" alt="" aria-hidden="true" class="footer__logo-img" />
           <span class="footer__logo-text">{siteConfig.title}</span>
         </div>
         <p class="footer__slogan">{siteConfig.description}</p>
@@ -40,7 +40,7 @@ const socialIcons: Record<string, string> = {
       <nav class="footer__nav" aria-label="页脚导航">
         <h3 class="footer__nav-title">导航</h3>
         <div class="footer__nav-links">
-          {navConfig.main.map((item) => (
+          {navConfig.main.filter((item) => !item.children).map((item) => (
             <a href={item.href} class="footer__nav-link">{item.label}</a>
           ))}
         </div>
@@ -58,7 +58,7 @@ const socialIcons: Record<string, string> = {
               rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
               title={item.label}
             >
-              <Icon name={socialIcons[item.icon] || "ph:link"} />
+              <Icon name={socialIcons[item.icon] || "ph:link"} aria-hidden="true" />
               <span>{item.label}</span>
             </a>
           ))}

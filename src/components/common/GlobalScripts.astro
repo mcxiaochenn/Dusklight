@@ -5,7 +5,7 @@
  */
 ---
 
-<div id="lightbox" class="lightbox" hidden>
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="图片预览" hidden>
   <img id="lightbox-img" class="lightbox__img" alt="" />
 </div>
 
@@ -82,7 +82,11 @@
       pre.appendChild(btn);
       btn.addEventListener("click", async () => {
         const code = pre.querySelector("code")?.textContent || "";
-        await navigator.clipboard.writeText(code);
+        try { await navigator.clipboard.writeText(code); } catch {
+          const ta = document.createElement("textarea"); ta.value = code;
+          document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
         btn.textContent = "已复制";
         btn.classList.add("code-copy-btn--copied");
         setTimeout(() => { btn.textContent = "复制"; btn.classList.remove("code-copy-btn--copied"); }, 2000);
@@ -109,14 +113,18 @@
     });
   }
 
+  let backToTopBound = false;
   function initBackToTop() {
     const btn = document.getElementById("back-to-top");
     if (!btn) return;
     function toggle() {
       btn.classList.toggle("back-to-top--visible", window.scrollY > 1);
     }
-    window.addEventListener("scroll", toggle, { passive: true });
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    if (!backToTopBound) {
+      window.addEventListener("scroll", toggle, { passive: true });
+      btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+      backToTopBound = true;
+    }
     toggle();
   }
 

@@ -14,19 +14,28 @@ interface Props {
 const { posts, class: className } = Astro.props;
 ---
 
-<div class:list={["post-list", className]}>
+<ul class:list={["post-list", className]}>
   {posts.map((post) => (
-    <a href={`/blog/${post.id}/`} class="post-list__item">
-      <span class="post-list__title">{post.data.title}</span>
-      <span class="post-list__date"><FormattedDate date={post.data.date} /></span>
-    </a>
+    <li>
+      <a href={`/blog/${post.id}/`} class="post-list__item">
+        <span class="post-list__title">{post.data.title}</span>
+        <span class="post-list__date"><FormattedDate date={post.data.date} /></span>
+      </a>
+    </li>
   ))}
-</div>
+</ul>
 
 <style>
   .post-list {
     display: flex;
     flex-direction: column;
+    list-style: none;
+    padding: 0;
+  }
+
+  .post-list li {
+    margin: 0;
+    padding: 0;
   }
 
   .post-list__item {
@@ -41,11 +50,11 @@ const { posts, class: className } = Astro.props;
     transition: color var(--duration-fast) var(--ease-standard);
   }
 
-  .post-list__item:first-child {
+  .post-list li:first-child .post-list__item {
     padding-top: 0;
   }
 
-  .post-list__item:last-child {
+  .post-list li:last-child .post-list__item {
     border-bottom: none;
   }
 

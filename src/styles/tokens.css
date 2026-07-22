@@ -27,7 +27,7 @@
      ═══════════════════════════════════════════════════════ */
   --foreground: oklch(0.18 0.015 var(--hue));
   --foreground-secondary: oklch(0.42 0.020 var(--hue));
-  --foreground-muted: oklch(0.60 0.015 var(--hue));
+  --foreground-muted: oklch(0.52 0.015 var(--hue));
 
   /* ═══════════════════════════════════════════════════════
      ACCENT COLORS — Muted blue-violet. Chroma never exceeds 0.18.

@@ -1,15 +1,15 @@
 /**
- * 随机 abbrlink 生成器
- * 用于 SEO 友好的 URL
+ * 确定性 abbrlink 生成器
+ * 相同的 title + date 总是产生相同的 abbrlink，保证 URL 稳定性。
  */
 import { createHash } from "crypto";
 
 /**
- * 生成随机 abbrlink
+ * 生成确定性 abbrlink
  * 格式：8位16进制字符串
  */
 export function generateAbbrlink(title: string, date: Date): string {
-  const input = `${title}${date.toISOString()}${Math.random()}`;
+  const input = `${title}${date.toISOString()}`;
   return createHash("md5").update(input).digest("hex").slice(0, 8);
 }
 
