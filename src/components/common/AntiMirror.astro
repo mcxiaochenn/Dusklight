@@ -2,47 +2,12 @@
 /**
  * 防镜像站组件
  * ─────────────────────────────────────────────────
- * 开发模式：可读的 define:vars 脚本，便于调试。
- * 构建模式：Vite 插件将下方标记替换为高度混淆的版本
- *          （随机变量名 + 编码字符串 + 反调试，每次构建不同）。
- *
+ * 源码始终可读。构建时 Vite 插件将 <!-- __ANTI_MIRROR__ -->
+ * 替换为高度混淆的版本（随机变量名 + XOR 编码 + 死代码）。
  * 通过 siteConfig.antiMirror.enabled 控制开关。
  */
 import { siteConfig } from "../../config/site";
-
-const officialHost = new URL(siteConfig.site).host;
 const enabled = siteConfig.antiMirror.enabled;
 ---
 
-<!-- __ANTI_MIRROR_OBFUSCATED__ -->
-
-{enabled && (
-  <script is:inline define:vars={{ officialHost }}>
-    (function () {
-      var host = location.host;
-
-      if (
-        host === "" ||
-        host === "localhost" ||
-        host.indexOf("127.") === 0 ||
-        host === "[::1]" ||
-        host === "0.0.0.0"
-      ) return;
-
-      if (host === officialHost) return;
-
-      document.documentElement.innerHTML =
-        '<head><meta charset="utf-8"><title>站点提醒</title>' +
-        '<style>body{margin:0;min-height:100dvh;display:flex;align-items:center;justify-content:center;' +
-        'font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0a0a;color:#e0e0e0}' +
-        '.c{text-align:center;max-width:480px;padding:2rem}h1{font-size:1.5rem;margin-bottom:.75rem;color:#fff}' +
-        'p{line-height:1.7;color:#999;margin-bottom:1.5rem}a{display:inline-block;padding:.6rem 1.8rem;' +
-        'border-radius:999px;background:#3b82f6;color:#fff;text-decoration:none;font-weight:500}' +
-        'a:hover{background:#2563eb}</style></head><body><div class="c">' +
-        '<h1>⚠️ 非官方镜像站点</h1>' +
-        '<p>当前页面并非来自官方站点，' +
-        '请访问原始内容以获得完整体验和最新更新。</p>' +
-        '<a href="https://' + officialHost + '">前往官方站点</a></div></body>';
-    })();
-  </script>
-)}
+<!-- __ANTI_MIRROR__ -->
