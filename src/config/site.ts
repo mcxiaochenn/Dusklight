@@ -16,6 +16,11 @@ export const siteConfig = {
   // 分页
   postsPerPage: 8,
 
+  // 防镜像站 — 检测到非官方域名时重定向到提醒页
+  antiMirror: {
+    enabled: true,
+  },
+
   // 功能开关
   features: {
     comments: true,
