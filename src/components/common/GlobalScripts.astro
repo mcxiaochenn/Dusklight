@@ -1,7 +1,7 @@
 ---
 /**
  * 全局脚本
- * 代码块复制按钮 + 图片灯箱 + 滚动入场动画
+ * 代码块复制按钮 + 图片灯箱 + 返回顶部
  */
 ---
 
@@ -68,12 +68,6 @@
   }
 
   .lightbox--open .lightbox__img { transform: scale(1); }
-
-  /* 滚动入场隐藏状态 */
-  .reveal-hidden {
-    opacity: 0;
-    transform: translateY(12px);
-  }
 </style>
 
 <script>
@@ -115,21 +109,6 @@
     });
   }
 
-  function initScrollReveal() {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("animate-in");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    document.querySelectorAll(".post-card, .posts__item").forEach((el) => {
-      el.classList.add("reveal-hidden");
-      observer.observe(el);
-    });
-  }
-
   function initBackToTop() {
     const btn = document.getElementById("back-to-top");
     if (!btn) return;
@@ -141,7 +120,12 @@
     toggle();
   }
 
-  function initAll() { initCodeCopy(); initLightbox(); initScrollReveal(); initBackToTop(); }
+  function initAll() { initCodeCopy(); initLightbox(); initBackToTop(); }
   document.addEventListener("DOMContentLoaded", initAll);
   document.addEventListener("astro:page-load", initAll);
+
+  // Vite HMR: re-init scripts when component modules update
+  if (import.meta.hot) {
+    import.meta.hot.on("vite:afterUpdate", () => initAll());
+  }
 </script>
