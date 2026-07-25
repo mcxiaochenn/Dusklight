@@ -47,8 +47,8 @@ const baseUrl = "/";
   <section class="posts">
     <div class="content-container">
       <div class="posts__list">
-        {page.data.map((post, i) => (
-          <div class="posts__item" style={`--i: ${i}`}>
+        {page.data.map((post) => (
+          <div class="posts__item">
             <PostCard post={post} excerpt={excerpts[post.id]} />
           </div>
         ))}
@@ -94,9 +94,7 @@ const baseUrl = "/";
   }
 
   .posts__item {
-    opacity: 0;
-    animation: fade-in-up var(--duration-slow) var(--ease-decelerate) forwards;
-    animation-delay: calc(var(--i) * 60ms);
+    /* reveal 动画由 IntersectionObserver 驱动 */
   }
 
   @media (max-width: 768px) {

@@ -122,6 +122,18 @@
   transition: transform var(--duration-normal) var(--ease-material);
 }
 
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-decelerate), transform 0.5s var(--ease-decelerate);
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ── Accessibility — reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -131,5 +143,10 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -5,7 +5,13 @@ export function rehypeImageWidth() {
 
 	return (tree) => {
 		visit(tree, "element", (node, index, parent) => {
-			if (node.tagName === "img" && node.properties && node.properties.alt) {
+			if (node.tagName === "img" && node.properties) {
+				// 懒加载：非首图一律 lazy
+				if (!node.properties.loading) {
+					node.properties.loading = "lazy";
+					node.properties.decoding = "async";
+				}
+				if (!node.properties.alt) return;
 				const alt = node.properties.alt;
 				const match = alt.match(regex);
 

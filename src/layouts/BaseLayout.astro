@@ -13,6 +13,7 @@ import SiteBackdrop from "../components/common/SiteBackdrop.astro";
 import GlobalScripts from "../components/common/GlobalScripts.astro";
 import AntiMirror from "../components/common/AntiMirror.astro";
 import SEOHead from "../components/seo/SEOHead.astro";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title?: string;
@@ -28,6 +29,7 @@ const { title, description, image } = Astro.props;
   <head>
     <SEOHead title={title} description={description} image={image} />
     <AntiMirror />
+    <ClientRouter />
   </head>
 
   <body>
