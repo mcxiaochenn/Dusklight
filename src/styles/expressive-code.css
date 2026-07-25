@@ -1,0 +1,240 @@
+/*
+ * Expressive Code 样式 — 基于 Mizuki 实现
+ * ─────────────────────────────────────────────────────────
+ * 使用内置 .copy 按钮，通过 CSS 样式化
+ */
+
+.expressive-code {
+  position: relative;
+}
+
+/* ── 液态玻璃代码框 ── */
+/* 策略：覆盖 EC 的 CSS 变量，从根源替换不透明背景 */
+.expressive-code {
+  --ec-codeBg: transparent;
+  --ec-brdCol: var(--glass-border);
+  --ec-brdRad: var(--radius-lg);
+  --ec-frm-edBg: transparent;
+  --ec-frm-trmBg: transparent;
+  --ec-frm-frameBoxShdCssVal: var(--shadow-sm), var(--glass-highlight);
+}
+
+.expressive-code .frame {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-sm), var(--glass-highlight) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* pre 必须透明，否则会遮挡 .frame 的 backdrop-filter */
+.expressive-code .frame pre {
+  background: transparent !important;
+  border: none !important;
+}
+
+.expressive-code .title {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* 隐藏自定义插件残留按钮 */
+.expressive-code .copy-btn,
+.expressive-code .ec-copy-btn {
+  display: none !important;
+}
+
+/* ── 内置复制按钮样式 ── */
+.expressive-code .copy {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.expressive-code .frame:hover .copy {
+  opacity: 1;
+}
+
+.expressive-code .copy button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+.expressive-code .copy button:hover {
+  background: oklch(from var(--glass-bg) l c h / 0.3);
+}
+
+.expressive-code .copy button:active {
+  transform: scale(0.9);
+}
+
+/* ── 代码块折叠功能 ── */
+.expressive-code.collapsible .frame {
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.expressive-code .frame pre,
+.expressive-code .frame code {
+  user-select: text;
+}
+
+.expressive-code code span.line::before {
+  user-select: none;
+}
+
+.expressive-code.collapsible .frame:hover {
+  background-color: oklch(from var(--accent) l c h / 0.03);
+}
+
+/* 折叠切换按钮 */
+.expressive-code.collapsible .collapse-toggle-btn {
+  all: initial;
+  opacity: 0;
+  position: absolute;
+  top: 0.75rem;
+  right: 3.5rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border: 1px solid var(--glass-border);
+  color: var(--foreground-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+.expressive-code.collapsible .collapse-toggle-btn:hover {
+  background: oklch(from var(--glass-bg) l c h / 0.3);
+}
+
+.expressive-code.collapsible .collapse-toggle-btn:active {
+  transform: scale(0.9);
+}
+
+.expressive-code.collapsible .frame:hover .collapse-toggle-btn {
+  opacity: 1;
+}
+
+.expressive-code.collapsible .collapse-toggle-btn svg {
+  width: 1rem;
+  height: 1rem;
+  fill: var(--foreground-secondary);
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.expressive-code.collapsed .collapse-toggle-btn svg {
+  transform: rotate(180deg);
+}
+
+.expressive-code.collapsed .frame pre {
+  max-height: 5rem;
+  overflow: hidden;
+}
+
+.expressive-code.collapsed .frame pre::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  background: linear-gradient(to bottom, transparent 0%, var(--glass-bg) 90%);
+  pointer-events: none;
+}
+
+.expressive-code.expanded .frame pre {
+  max-height: none;
+}
+
+.expressive-code.collapsible .frame pre {
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* ── Mermaid 全屏按钮 ── */
+.expressive-code .mermaid-fullscreen-btn {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  color: var(--foreground-secondary);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  border: 1px solid var(--glass-border);
+}
+
+.expressive-code .mermaid-fullscreen-btn:hover {
+  background: oklch(from var(--glass-bg) l c h / 0.3);
+}
+
+/* ── 移动端适配 ── */
+@media (max-width: 768px) {
+  .expressive-code .copy {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .expressive-code .copy button {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .expressive-code.collapsible .collapse-toggle-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    top: 0.5rem;
+    right: 3rem;
+  }
+
+  .expressive-code.collapsible .collapse-toggle-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .expressive-code.collapsed .frame pre {
+    max-height: 4.5rem;
+  }
+}
+
+/* ── 主题适配 ── */
+:root:not(.dark) .expressive-code.collapsible .collapse-toggle-btn,
+:root:not(.dark) .expressive-code .copy button {
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ── 打印 ── */
+@media print {
+  .expressive-code.collapsed .frame pre {
+    max-height: none !important;
+  }
+
+  .expressive-code.collapsed .frame pre::after {
+    display: none !important;
+  }
+
+  .expressive-code.collapsible .collapse-toggle-btn,
+  .expressive-code .copy {
+    display: none !important;
+  }
+}

@@ -23,6 +23,8 @@ const blog = defineCollection({
 		abbrlink: z.string().optional(),
 		comment: z.boolean().default(true),
 		toc: z.boolean().default(true),
+		password: z.string().optional(),
+		hint: z.string().optional(),
 	}),
 });
 

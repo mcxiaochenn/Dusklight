@@ -15,10 +15,12 @@ type Props = CollectionEntry<"blog">;
 const post = Astro.props;
 const { Content, headings } = await render(post);
 
-const words = post.body?.length || 0;
-const readingTime = Math.max(1, Math.ceil(words / 400));
+// remark-content 插件注入的字数和阅读时间
+const remarkFrontmatter = (post as any).rendered?.metadata?.frontmatter || {};
+const readingTime = remarkFrontmatter.minutes || Math.max(1, Math.ceil((post.body?.length || 0) / 400));
+const wordCount = remarkFrontmatter.words || post.body?.length || 0;
 ---
 
-<BlogPost {...post.data} headings={headings} readingTime={readingTime}>
+<BlogPost {...post.data} headings={headings} readingTime={readingTime} wordCount={wordCount} slug={post.id}>
   <Content />
 </BlogPost>

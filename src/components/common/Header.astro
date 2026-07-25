@@ -141,7 +141,7 @@ const navIcons: Record<string, string> = {
     top: 0;
     z-index: 50;
     padding: var(--space-3) var(--space-4);
-    transition: background-color var(--duration-normal) var(--ease-standard);
+    transition: background-color var(--duration-normal) var(--ease-material);
   }
 
   .header__inner {
@@ -163,7 +163,7 @@ const navIcons: Record<string, string> = {
     border-radius: var(--radius-full);
     border: 1px solid transparent;
     background: transparent;
-    transition: all var(--duration-normal) var(--ease-standard);
+    transition: all var(--duration-normal) var(--ease-material);
   }
 
   .header__pill::before {
@@ -177,11 +177,11 @@ const navIcons: Record<string, string> = {
     box-shadow: var(--glass-highlight);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s var(--ease-standard);
+    transition: opacity var(--duration-normal) var(--ease-material);
     z-index: -1;
   }
 
-  /* 边缘折射光 */
+  /* Apple-style edge refraction — light catching the glass edge */
   .header__pill::after {
     content: "";
     position: absolute;
@@ -189,7 +189,7 @@ const navIcons: Record<string, string> = {
     border-radius: inherit;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s var(--ease-standard);
+    transition: opacity var(--duration-normal) var(--ease-material);
     z-index: -1;
     background:
       linear-gradient(135deg, oklch(1 0 0 / 0.12) 0%, transparent 40%),
@@ -242,9 +242,9 @@ const navIcons: Record<string, string> = {
     text-decoration: none;
     border: 1px solid transparent;
     transition:
-      color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard);
+      color var(--duration-fast) var(--ease-material),
+      background var(--duration-fast) var(--ease-material),
+      border-color var(--duration-fast) var(--ease-material);
   }
 
   .header__link:hover {
@@ -269,7 +269,7 @@ const navIcons: Record<string, string> = {
     width: 14px;
     height: 14px;
     flex-shrink: 0;
-    transition: transform var(--duration-fast) var(--ease-standard);
+    transition: transform var(--duration-fast) var(--ease-material);
   }
 
   /* ── Dropdown ── */
@@ -312,9 +312,9 @@ const navIcons: Record<string, string> = {
     visibility: hidden;
     pointer-events: none;
     transition:
-      opacity var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard),
-      visibility var(--duration-fast) var(--ease-standard);
+      opacity var(--duration-fast) var(--ease-decelerate),
+      transform var(--duration-fast) var(--ease-decelerate),
+      visibility var(--duration-fast) var(--ease-decelerate);
   }
 
   .header__dropdown.open .header__dropdown-menu,
@@ -340,8 +340,8 @@ const navIcons: Record<string, string> = {
     text-decoration: none;
     white-space: nowrap;
     transition:
-      color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
+      color var(--duration-fast) var(--ease-material),
+      background var(--duration-fast) var(--ease-material);
   }
 
   .header__dropdown-item:hover {
@@ -370,8 +370,8 @@ const navIcons: Record<string, string> = {
     border-radius: var(--radius-full);
     color: var(--foreground-secondary);
     transition:
-      color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
+      color var(--duration-fast) var(--ease-material),
+      background var(--duration-fast) var(--ease-material);
   }
 
   .header__menu-btn:hover {
@@ -413,7 +413,7 @@ const navIcons: Record<string, string> = {
     gap: var(--space-1);
     overflow-y: auto;
     transform: translateX(100%);
-    transition: transform var(--duration-normal) var(--ease-physical);
+    transition: transform var(--duration-normal) var(--ease-material);
   }
 
   .mobile-menu[data-open="true"] .mobile-menu__panel {
@@ -443,8 +443,8 @@ const navIcons: Record<string, string> = {
     height: 32px;
     border-radius: var(--radius-md);
     color: var(--foreground-muted);
-    transition: color var(--duration-fast) var(--ease-standard),
-                background var(--duration-fast) var(--ease-standard);
+    transition: color var(--duration-fast) var(--ease-material),
+                background var(--duration-fast) var(--ease-material);
   }
 
   .mobile-menu__close:hover {
@@ -481,8 +481,8 @@ const navIcons: Record<string, string> = {
     color: var(--foreground-secondary);
     text-decoration: none;
     transition:
-      color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
+      color var(--duration-fast) var(--ease-material),
+      background var(--duration-fast) var(--ease-material);
   }
 
   .mobile-menu__link--sub {

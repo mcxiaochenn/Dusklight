@@ -60,9 +60,9 @@ const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
     display: flex; align-items: center; gap: var(--space-4);
     padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
     text-decoration: none; color: var(--foreground);
-    transition: background var(--duration-fast) var(--ease-standard);
+    transition: background var(--duration-fast) var(--ease-material);
   }
-  .archive__link:hover { background: var(--surface-2); }
+  .archive__link:hover { background: var(--glass-bg); }
   .archive__date { color: var(--foreground-muted); font-size: var(--text-sm); min-width: 100px; }
   .archive__post-title { font-weight: 500; font-size: var(--text-sm); }
   @media (max-width: 768px) {

@@ -3,7 +3,7 @@
  * 首页
  * 单列文章流 + 交错入场动画 + 分页
  */
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/blog/PostCard.astro";
 import Button from "../components/ui/Button.astro";
@@ -13,8 +13,19 @@ const allPosts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
+// 预渲染获取 remark-content 插件注入的自动摘录
+const postsWithExcerpt = await Promise.all(
+  allPosts.map(async (post) => {
+    const { remarkPluginFrontmatter } = await render(post);
+    return {
+      post,
+      excerpt: remarkPluginFrontmatter?.excerpt || "",
+    };
+  })
+);
+
 const perPage = siteConfig.postsPerPage;
-const posts = allPosts.slice(0, perPage);
+const posts = postsWithExcerpt.slice(0, perPage);
 const showPagination = allPosts.length > perPage;
 ---
 
@@ -31,16 +42,16 @@ const showPagination = allPosts.length > perPage;
   <section class="posts">
     <div class="content-container">
       <div class="posts__list">
-        {posts.map((post, i) => (
+        {posts.map(({ post, excerpt }, i) => (
           <div class="posts__item" style={`--i: ${i}`}>
-            <PostCard post={post} />
+            <PostCard post={post} excerpt={excerpt} />
           </div>
         ))}
       </div>
 
       {showPagination && (
         <div class="posts__more">
-          <Button href="/archive" variant="secondary">查看全部文章 →</Button>
+          <Button href="/archive/" variant="secondary">查看全部文章 →</Button>
         </div>
       )}
     </div>
@@ -79,7 +90,7 @@ const showPagination = allPosts.length > perPage;
   /* ── 交错入场动画（使用全局动画系统） ── */
   .posts__item {
     opacity: 0;
-    animation: fade-in-up var(--duration-slow) var(--ease-entrance) forwards;
+    animation: fade-in-up var(--duration-slow) var(--ease-decelerate) forwards;
     animation-delay: calc(var(--i) * 60ms);
   }
 

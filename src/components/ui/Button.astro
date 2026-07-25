@@ -33,15 +33,17 @@ const Tag = href ? "a" : "button";
     text-decoration: none;
     cursor: pointer;
     transition:
-      background var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard);
+      background var(--duration-fast) var(--ease-material),
+      color var(--duration-fast) var(--ease-material),
+      border-color var(--duration-fast) var(--ease-material),
+      transform 100ms ease-out,
+      box-shadow var(--duration-fast) var(--ease-material);
   }
 
+  /* Apple: respond on pointer-down, not on release */
   .btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
+    transition: transform 80ms ease-out;
   }
 
   .btn--md {
@@ -76,6 +78,8 @@ const Tag = href ? "a" : "button";
   .btn--secondary:hover {
     color: var(--foreground);
     border-color: var(--foreground-muted);
-    background: var(--surface-2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   }
 </style>

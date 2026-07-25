@@ -64,6 +64,38 @@ Blog content lives in a **separate repository** (`Dusklight-Content`), not in th
 
 Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, the local `src/content/` directory is used directly. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`.
 
+### Anti-Mirror System
+
+The site includes a build-time anti-mirror mechanism to redirect visitors on unauthorized domains:
+
+- `src/components/common/AntiMirror.astro` — inline `<script>` injected in `<head>` that checks `location.hostname` against the canonical domain
+- `scripts/obfuscate-anti-mirror.js` — runs as `postbuild`, obfuscates the anti-mirror script in `dist/` with random variable names to deter bypassing
+- Controlled by `siteConfig.antiMirror.enabled` in `src/config/site.ts`
+
+### Encrypted Posts
+
+Articles can be password-encrypted via frontmatter (`password`, `hint` fields). The `Encryptor.astro` component renders a password prompt and decrypts content client-side using `src/utils/crypto-utils.ts`. Encrypted posts use a separate stylesheet (`src/styles/encrypted-content.css`).
+
+### Remark/Rehype Plugin Architecture
+
+Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These are **project-specific transforms**, not third-party packages:
+
+| Plugin | Purpose |
+|---|---|
+| `remark-content.mjs` | Injects reading time and word count into frontmatter |
+| `remark-mermaid.js` | Extracts Mermaid code blocks for build-time rendering |
+| `remark-fix-github-admonitions.js` | Normalizes GitHub-style `> [!NOTE]` syntax |
+| `remark-directive-rehype.js` | Bridges remark-directive to rehype custom components |
+| `remark-escape-numeric-colons.mjs` | Fixes colon parsing in certain contexts |
+| `rehype-mermaid.mjs` | Renders Mermaid diagrams to SVG via Playwright (SSR) |
+| `rehype-wrap-table.mjs` | Wraps `<table>` in scrollable container |
+| `rehype-image-width.mjs` | Injects intrinsic image dimensions |
+| `rehype-component-admonition.mjs` | Custom admonition component (`:::note`, `:::tip`, etc.) |
+| `rehype-component-github-card.mjs` | `<github repo="owner/repo">` embed cards |
+| `rehype-component-image-grid.mjs` | `<grid>` image grid layout |
+
+**Mermaid rendering** requires Playwright (Chromium) at build time — this is why the CI workflow installs `npx playwright install --with-deps chromium`.
+
 ### Import Aliases
 
 `@/` maps to `src/` — configured in both `astro.config.mjs` (Vite resolve alias) and `tsconfig.json` (path mapping). Use `@/config`, `@/components`, etc. in imports.
@@ -175,3 +207,5 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands). Use `<Icon name="ph:icon-name" />` in templates
 - **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
+- **Mermaid requires Playwright**: Building with Mermaid diagrams needs Chromium installed (`npx playwright install --with-deps chromium`). The `rehype-mermaid.mjs` plugin launches a headless browser to render diagrams to SVG at build time. Without Playwright, the build will fail on posts containing Mermaid code blocks.
+- **Encrypted post slugs**: The `Encryptor` component needs the `slug` prop passed explicitly from the page — it's not available from context inside the layout.

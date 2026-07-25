@@ -13,9 +13,9 @@ export const navConfig = {
     { label: "首页", href: "/" },
     {
       label: "博客",
-      href: "/blog/",
+      href: "/archive/",
       children: [
-        { label: "全部文章", href: "/blog/" },
+        { label: "全部文章", href: "/archive/" },
         { label: "归档", href: "/archive/" },
         { label: "标签", href: "/tags/" },
       ],

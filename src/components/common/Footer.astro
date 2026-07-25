@@ -21,7 +21,7 @@ const socialIcons: Record<string, string> = {
 <footer class="footer">
   <div class="footer__wave" aria-hidden="true">
     <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-      <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="var(--surface-1)" />
+      <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="var(--glass-bg)" />
     </svg>
   </div>
 
@@ -100,7 +100,9 @@ const socialIcons: Record<string, string> = {
 
   /* 主体 */
   .footer__body {
-    background: var(--surface-1);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border-top: 1px solid var(--border-subtle);
     padding: var(--space-10) var(--space-4) var(--space-6);
   }
@@ -162,7 +164,7 @@ const socialIcons: Record<string, string> = {
     font-size: var(--text-sm);
     color: var(--foreground-secondary);
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-standard);
+    transition: color var(--duration-fast) var(--ease-material);
     width: fit-content;
   }
 
@@ -184,7 +186,7 @@ const socialIcons: Record<string, string> = {
     font-size: var(--text-sm);
     color: var(--foreground-secondary);
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-standard);
+    transition: color var(--duration-fast) var(--ease-material);
     width: fit-content;
   }
 

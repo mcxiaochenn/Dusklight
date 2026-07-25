@@ -1,7 +1,7 @@
 ---
 /**
  * 文章布局
- * BaseLayout + .prose + TOC + ArticleMeta + Tag
+ * BaseLayout + .prose + TOC + ArticleMeta + Tag + 加密支持
  */
 import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
@@ -11,7 +11,11 @@ import ArticleMeta from "../components/blog/ArticleMeta.astro";
 import Tag from "../components/ui/Tag.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
 import JsonLd from "../components/seo/JsonLd.astro";
+import Encryptor from "../components/blog/Encryptor.astro";
 import { Icon } from "astro-icon/components";
+
+import "../styles/expressive-code.css";
+import "../styles/encrypted-content.css";
 
 interface Props {
   title: string;
@@ -28,12 +32,17 @@ interface Props {
   toc?: boolean;
   comment?: boolean;
   readingTime?: number;
+  wordCount?: number;
   headings?: { depth: number; slug: string; text: string }[];
+  password?: string;
+  hint?: string;
+  slug?: string;
 }
 
-const { title, date, updated, description, tags, category, cover, author, toc: showToc = true, comment: showComment = true, readingTime, headings = [] } = Astro.props;
+const { title, date, updated, description, tags, category, cover, author, toc: showToc = true, comment: showComment = true, readingTime, wordCount, headings = [], password, hint, slug } = Astro.props;
 const displayUpdated = updated || date;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const isEncrypted = !!password;
 ---
 
 <BaseLayout title={title} description={description} image={cover}>
@@ -54,12 +63,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           </div>
         )}
         <h1 class="article__title">{title}</h1>
-        <ArticleMeta date={date} updated={displayUpdated} category={category} readingTime={readingTime} />
+        <ArticleMeta date={date} updated={displayUpdated} category={category} readingTime={readingTime} wordCount={wordCount} />
       </header>
 
-      <div class="article__content prose">
-        <slot />
-      </div>
+      {isEncrypted ? (
+        <Encryptor password={password} slug={slug || ""} hint={hint}>
+          <slot />
+        </Encryptor>
+      ) : (
+        <div class="article__content prose custom-md">
+          <slot />
+        </div>
+      )}
 
       {/* 评论区锚点 — 始终渲染，用于跳转定位 */}
       <div id="comments-anchor" style="height: 0; overflow: hidden;"></div>
@@ -152,9 +167,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-md), var(--glass-highlight);
     transition:
-      opacity var(--duration-normal) var(--ease-standard),
-      transform var(--duration-normal) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
+      opacity var(--duration-normal) var(--ease-material),
+      transform var(--duration-normal) var(--ease-decelerate),
+      color var(--duration-fast) var(--ease-material);
   }
 
   .jump-comments--visible {

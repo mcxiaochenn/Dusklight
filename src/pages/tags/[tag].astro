@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/blog/PostCard.astro";
@@ -7,6 +7,16 @@ import PostCard from "../../components/blog/PostCard.astro";
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await getCollection("blog");
   const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+
+  // 预渲染获取所有文章的自动摘录
+  const excerpts: Record<string, string> = {};
+  await Promise.all(
+    posts.map(async (post) => {
+      const { remarkPluginFrontmatter } = await render(post);
+      excerpts[post.id] = remarkPluginFrontmatter?.excerpt || "";
+    })
+  );
+
   return tags.map((tag) => ({
     params: { tag },
     props: {
@@ -14,11 +24,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
       posts: posts
         .filter((post) => post.data.tags?.includes(tag))
         .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+      excerpts,
     },
   }));
 };
 
-const { tag, posts } = Astro.props;
+const { tag, posts, excerpts } = Astro.props;
 ---
 
 <BaseLayout title={`标签: ${tag}`} description={`标签 ${tag} 下的 ${posts.length} 篇文章`}>
@@ -29,7 +40,7 @@ const { tag, posts } = Astro.props;
         <p class="tags-page__count">共 {posts.length} 篇文章</p>
       </div>
       <div class="tags-page__list">
-        {posts.map((post) => <PostCard post={post} />)}
+        {posts.map((post) => <PostCard post={post} excerpt={excerpts[post.id]} />)}
       </div>
     </div>
   </section>

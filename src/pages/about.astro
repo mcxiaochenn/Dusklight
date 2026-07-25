@@ -181,12 +181,12 @@ const socialIconMap: Record<string, string> = {
     border-radius: var(--radius-lg);
     padding: var(--space-5);
     box-shadow: var(--shadow-sm), var(--glass-highlight);
-    transition: all 0.3s var(--ease-entrance);
+    transition: box-shadow var(--duration-fast) var(--ease-material),
+                border-color var(--duration-fast) var(--ease-material);
   }
 
   .about__card:hover {
     box-shadow: var(--shadow-md), var(--glass-highlight);
-    transform: translateY(-2px);
   }
 
   .about__card--wide {
@@ -272,7 +272,7 @@ const socialIconMap: Record<string, string> = {
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-full);
     border: 1px solid oklch(from var(--accent) l c h / 0.25);
-    transition: all var(--duration-fast) var(--ease-entrance);
+    transition: all var(--duration-fast) var(--ease-material);
   }
 
   .about__social-link:hover {

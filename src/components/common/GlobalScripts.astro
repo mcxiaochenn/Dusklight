@@ -1,7 +1,8 @@
 ---
 /**
  * 全局脚本
- * 代码块复制按钮 + 图片灯箱 + 返回顶部
+ * 图片灯箱 + 返回顶部
+ * 代码块复制已迁移到 expressive-code 的 custom-copy-button 插件
  */
 ---
 
@@ -10,36 +11,6 @@
 </div>
 
 <style>
-  .code-copy-btn {
-    position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    font-size: var(--text-xs);
-    color: var(--foreground-muted);
-    background: var(--surface-2);
-    border: 1px solid var(--border-subtle);
-    opacity: 0;
-    transition:
-      opacity var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
-  }
-
-  pre:hover .code-copy-btn {
-    opacity: 1;
-  }
-
-  .code-copy-btn:hover {
-    color: var(--foreground);
-    background: var(--surface-3);
-  }
-
-  .code-copy-btn--copied {
-    color: var(--success);
-  }
-
   .lightbox {
     position: fixed;
     inset: 0;
@@ -52,7 +23,7 @@
     -webkit-backdrop-filter: blur(8px);
     cursor: zoom-out;
     opacity: 0;
-    transition: opacity var(--duration-normal) var(--ease-standard);
+    transition: opacity var(--duration-normal) var(--ease-material);
   }
 
   .lightbox[hidden] { display: none; }
@@ -64,36 +35,13 @@
     object-fit: contain;
     border-radius: var(--radius-md);
     transform: scale(0.95);
-    transition: transform var(--duration-normal) var(--ease-entrance);
+    transition: transform var(--duration-normal) var(--ease-decelerate);
   }
 
   .lightbox--open .lightbox__img { transform: scale(1); }
 </style>
 
 <script>
-  function initCodeCopy() {
-    document.querySelectorAll(".prose pre").forEach((pre) => {
-      if (pre.querySelector(".code-copy-btn")) return;
-      const btn = document.createElement("button");
-      btn.className = "code-copy-btn";
-      btn.textContent = "复制";
-      btn.setAttribute("aria-label", "复制代码");
-      (pre as HTMLElement).style.position = "relative";
-      pre.appendChild(btn);
-      btn.addEventListener("click", async () => {
-        const code = pre.querySelector("code")?.textContent || "";
-        try { await navigator.clipboard.writeText(code); } catch {
-          const ta = document.createElement("textarea"); ta.value = code;
-          document.body.appendChild(ta); ta.select(); document.execCommand("copy");
-          document.body.removeChild(ta);
-        }
-        btn.textContent = "已复制";
-        btn.classList.add("code-copy-btn--copied");
-        setTimeout(() => { btn.textContent = "复制"; btn.classList.remove("code-copy-btn--copied"); }, 2000);
-      });
-    });
-  }
-
   function initLightbox() {
     const lb = document.getElementById("lightbox");
     const lbImg = document.getElementById("lightbox-img") as HTMLImageElement;
@@ -128,7 +76,7 @@
     toggle();
   }
 
-  function initAll() { initCodeCopy(); initLightbox(); initBackToTop(); }
+  function initAll() { initLightbox(); initBackToTop(); }
   document.addEventListener("DOMContentLoaded", initAll);
   document.addEventListener("astro:page-load", initAll);
 

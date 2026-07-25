@@ -1,0 +1,950 @@
+/*
+ * Twikoo Apple-style Override
+ * ─────────────────────────────────────────────────────────
+ * Inspired by blog.mcxiaochen.top — adapted to Dusklight's
+ * Apple design language: liquid glass, spring easing,
+ * pointer-down feedback, optical sizing.
+ *
+ * Twikoo DOM reference:
+ *   .tk-comments          — main wrapper
+ *   .tk-comment           — single comment
+ *   .tk-avatar            — avatar container
+ *   .tk-nick              — username
+ *   .tk-content           — comment body
+ *   .tk-time              — timestamp
+ *   .tk-reply / .tk-like  — action buttons
+ *   .tk-submit            — input area
+ *   .tk-input             — textarea wrapper
+ *   .tk-send              — send button
+ *   .tk-tag               — badges
+ *   .tk-meta-input        — name/email/url fields
+ *   .tk-row / .tk-col     — layout rows
+ *   .tk-actions / .tk-action — action bar
+ *   .tk-expand            — load more / collapse
+ *   .tk-sort-item         — sort selector
+ *   .tk-pagination-pager  — pagination
+ */
+
+/* ═══════════════════════════════════════════════════════
+   Root container
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-comments {
+  font-family: var(--font-body), var(--font-cjk);
+  color: var(--foreground);
+  font-optical-sizing: auto;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Comment count header
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-comment-count {
+  font-family: var(--font-display), var(--font-cjk);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--foreground);
+  letter-spacing: var(--tracking-snug);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#twikoo .tk-comments-title .__comments svg {
+  fill: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Submit area — liquid glass card
+   参考博客隐藏提交区头像，保留更紧凑的布局
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-submit {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  padding: var(--space-5);
+  margin-bottom: var(--space-8);
+  transition: box-shadow var(--duration-normal) var(--ease-material);
+}
+
+#twikoo .tk-submit:focus-within {
+  box-shadow: var(--shadow-md), var(--glass-highlight);
+}
+
+/* 隐藏提交区头像（参考博客风格，更紧凑） */
+#twikoo .tk-submit .tk-avatar {
+  display: none;
+}
+
+/* Flex column 布局（参考博客） */
+#twikoo .tk-row .tk-col {
+  flex-direction: column-reverse;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Textarea — Apple-style input
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-row .tk-col .tk-input textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body), var(--font-cjk);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--foreground);
+  outline: none;
+  resize: vertical;
+  transition:
+    border-color var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-row .tk-col .tk-input textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+#twikoo .tk-row .tk-col .tk-input textarea::placeholder {
+  color: var(--foreground-muted);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Meta inputs (name, email, link)
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-meta-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+#twikoo .tk-meta-input div {
+  min-height: 40px;
+}
+
+#twikoo .tk-meta-input div input {
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  outline: none;
+  min-height: inherit;
+  transition:
+    border-color var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-meta-input div input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+#twikoo .tk-meta-input div input::placeholder {
+  color: var(--foreground-muted);
+}
+
+/* Element UI prepend 标签 */
+#twikoo .tk-meta-input div .el-input-group__prepend {
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  min-height: inherit;
+  background-color: inherit !important;
+  border-color: var(--border);
+  color: var(--foreground-muted);
+}
+
+#twikoo .tk-meta-input div input {
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Action row — send + cancel（隐藏 markdown 按钮）
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-row.actions {
+  width: 100%;
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* 隐藏 markdown 按钮（参考博客风格） */
+#twikoo .tk-row.actions .__markdown {
+  display: none !important;
+}
+
+/* 统一按钮样式 */
+#twikoo .tk-row.actions .tk-send,
+#twikoo .tk-row.actions .tk-preview,
+#twikoo .tk-row.actions .tk-cancel {
+  height: 36px;
+  padding-inline: var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body), var(--font-cjk);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-material),
+    transform var(--duration-instant) var(--ease-material),
+    opacity var(--duration-fast) var(--ease-material);
+}
+
+/* Send — accent filled */
+#twikoo .tk-row.actions .tk-send {
+  background: var(--accent) !important;
+  color: oklch(1 0 0) !important;
+  padding-inline: var(--space-5);
+}
+
+#twikoo .tk-row.actions .tk-send:hover {
+  background: var(--accent-dim) !important;
+}
+
+#twikoo .tk-row.actions .tk-send:active {
+  transform: scale(0.97);
+}
+
+/* Preview / Cancel — ghost */
+#twikoo .tk-row.actions .tk-preview,
+#twikoo .tk-row.actions .tk-cancel {
+  background: transparent !important;
+  color: var(--foreground-secondary) !important;
+  border: 1px solid var(--border) !important;
+}
+
+#twikoo .tk-row.actions .tk-preview:hover,
+#twikoo .tk-row.actions .tk-cancel:hover {
+  color: var(--foreground) !important;
+  background: var(--accent-subtle) !important;
+  border-color: oklch(from var(--accent) l c h / 0.24) !important;
+}
+
+#twikoo .tk-row.actions .tk-preview:active,
+#twikoo .tk-row.actions .tk-cancel:active {
+  transform: scale(0.97);
+}
+
+/* Disabled state */
+#twikoo .tk-row.actions .tk-send:disabled,
+#twikoo .tk-row.actions .tk-preview:disabled,
+#twikoo .tk-row.actions .tk-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Individual comment — glass card
+   参考博客：1rem 圆角 + 1px 边框 + hover 阴影
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-comment {
+  position: relative;
+  padding: var(--space-5);
+  margin-top: var(--space-3);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  transition:
+    box-shadow var(--duration-fast) var(--ease-material),
+    border-color var(--duration-fast) var(--ease-material);
+}
+
+@media (hover: hover) {
+  #twikoo .tk-comment:hover {
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+    border-color: var(--border);
+  }
+}
+
+/* 嵌套评论 — 参考博客用 page-bg 区分，这里用更低透明度 */
+#twikoo .tk-comment .tk-comment,
+#twikoo .tk-replies .tk-comment {
+  background: oklch(from var(--glass-bg) l c h / calc(alpha - 0.1));
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--space-2);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Avatar — round with glass border
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-avatar {
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 2px solid var(--glass-border);
+  transition: border-color var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-comment:hover .tk-avatar {
+  border-color: var(--border);
+}
+
+#twikoo .tk-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Nick — author name
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-nick {
+  font-family: var(--font-display), var(--font-cjk);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  letter-spacing: var(--tracking-normal);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-nick:hover,
+#twikoo .tk-nick-link:hover {
+  color: var(--accent) !important;
+}
+
+/* Link to user site */
+#twikoo a.tk-nick {
+  color: var(--accent);
+}
+
+#twikoo a.tk-nick:hover {
+  color: var(--accent-bright);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Meta / tag row
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Admin / badge tag — glass pill
+   参考博客：translateY(-2px) 微调 + accent 背景
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--space-2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--foreground-secondary);
+  transform: translateY(-2px);
+  cursor: default;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-tag-green {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: oklch(from var(--accent) l c h / 0.3);
+}
+
+:root.dark #twikoo .tk-tag-green {
+  background: var(--accent);
+  color: oklch(0.14 0.012 var(--hue));
+}
+
+/* ═══════════════════════════════════════════════════════
+   Timestamp
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-time {
+  font-size: var(--text-xs);
+  color: var(--foreground-muted);
+  letter-spacing: var(--tracking-body);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Comment body
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-content,
+#twikoo .tk-preview-container {
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--foreground);
+  word-break: break-word;
+}
+
+#twikoo .tk-content p {
+  margin: 0 0 var(--space-2);
+}
+
+#twikoo .tk-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* 图片 inline 显示（参考博客） */
+#twikoo .tk-content img,
+#twikoo .tk-preview-container img {
+  display: inline;
+  vertical-align: bottom !important;
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+/* 链接 */
+#twikoo .tk-content a,
+#twikoo .tk-preview-container a {
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: oklch(from var(--accent) l c h / 0.3);
+  text-underline-offset: 2px;
+  transition:
+    color var(--duration-fast) var(--ease-material),
+    text-decoration-color var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-content a:hover,
+#twikoo .tk-preview-container a:hover {
+  color: var(--accent-bright);
+  text-decoration-color: var(--accent);
+}
+
+/* 回复人链接去掉下划线 */
+#twikoo .tk-content .tk-ruser,
+#twikoo .tk-preview-container .tk-ruser {
+  text-decoration: none;
+}
+
+/* Inline code — 参考博客风格 */
+#twikoo .tk-content :not(pre) > code,
+#twikoo .tk-preview-container :not(pre) > code {
+  padding: 0.15em 0.4em;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--foreground-secondary);
+}
+
+/* Code block — glass */
+#twikoo .tk-content pre,
+#twikoo .tk-preview-container pre {
+  padding: var(--space-3) var(--space-4);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+#twikoo .tk-content pre code,
+#twikoo .tk-preview-container pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+/* Blockquote — accent 左边框 */
+#twikoo .tk-content blockquote {
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-subtle);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--foreground-secondary);
+}
+
+/* 列表项标记（参考博客） */
+#twikoo .tk-content li::before,
+#twikoo .tk-preview-container li::before {
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Action buttons — reply, like, edit, delete
+   参考博客：accent color + pointer + transition
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+#twikoo .tk-action {
+  align-items: center;
+  min-height: 24px;
+  display: flex;
+}
+
+#twikoo .tk-reply,
+#twikoo .tk-like,
+#twikoo .tk-action-icon,
+#twikoo .tk-owo,
+#twikoo .tk-admin,
+#twikoo .tk-delete,
+#twikoo .tk-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  color: var(--foreground-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-reply:hover,
+#twikoo .tk-like:hover,
+#twikoo .tk-action-icon:hover,
+#twikoo .tk-owo:hover,
+#twikoo .tk-admin:hover,
+#twikoo .tk-delete:hover,
+#twikoo .tk-edit:hover {
+  color: var(--accent) !important;
+  background: var(--accent-subtle);
+  border-color: oklch(from var(--accent) l c h / 0.15);
+}
+
+#twikoo .tk-reply:active,
+#twikoo .tk-like:active,
+#twikoo .tk-action-icon:active,
+#twikoo .tk-delete:active,
+#twikoo .tk-edit:active {
+  transform: scale(0.95);
+}
+
+/* Action icon SVG accent 色（参考博客） */
+#twikoo .tk-comment .tk-action-icon svg {
+  fill: var(--accent);
+}
+
+/* Action count */
+#twikoo .tk-action .tk-action-count {
+  color: var(--foreground-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Liked state */
+#twikoo .tk-like.active {
+  color: var(--danger);
+  background: oklch(from var(--danger) l c h / 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Reply-to indicator
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-reply-to {
+  font-size: var(--text-xs);
+  color: var(--foreground-muted);
+  margin-bottom: var(--space-2);
+}
+
+#twikoo .tk-reply-to .tk-nick {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Sort selector — accent 色（参考博客）
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-sort-item {
+  opacity: 0.6;
+  color: var(--accent) !important;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-sort-item.__active {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Loading state
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-8) 0;
+  color: var(--foreground-muted);
+  font-size: var(--text-sm);
+}
+
+#twikoo .tk-loading::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: var(--radius-full);
+  animation: tk-spin 0.8s linear infinite;
+}
+
+@keyframes tk-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Empty state
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-empty {
+  text-align: center;
+  padding: var(--space-10) 0;
+  color: var(--foreground-muted);
+  font-size: var(--text-sm);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Expand / Collapse / Load more
+   参考博客：hover 时圆角 + accent 背景
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-expand-wrap .tk-expand,
+#twikoo .tk-collapse-wrap .tk-expand {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-3);
+  background: transparent;
+  color: var(--foreground-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body), var(--font-cjk);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+@media (hover: hover) {
+  #twikoo .tk-expand-wrap .tk-expand:hover,
+  #twikoo .tk-collapse-wrap .tk-expand:hover {
+    color: var(--foreground);
+    background: var(--accent-subtle);
+    border-color: oklch(from var(--accent) l c h / 0.24);
+    border-radius: var(--radius-lg);
+  }
+}
+
+#twikoo .tk-expand-wrap .tk-expand:active,
+#twikoo .tk-collapse-wrap .tk-expand:active {
+  transform: scale(0.98);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Pagination — accent 高亮当前页
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-pagination-pager.__current {
+  background: var(--accent) !important;
+  color: oklch(1 0 0) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Admin panel
+   ═══════════════════════════════════════════════════════ */
+#twikoo .tk-admin {
+  border-radius: var(--radius-md) !important;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+#twikoo .tk-admin-panel {
+  z-index: 100;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Element UI 覆盖 — 修复纯黑背景 + 统一 accent 色
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Textarea ── */
+#twikoo .el-textarea__inner {
+  background-color: var(--surface-0) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-body), var(--font-cjk) !important;
+  transition:
+    border-color var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material) !important;
+}
+
+#twikoo .el-textarea__inner:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+/* ── Input ── */
+#twikoo .el-input__inner {
+  background-color: var(--surface-0) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  transition:
+    border-color var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material) !important;
+}
+
+#twikoo .el-input__inner:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+#twikoo .el-input.is-active .el-input__inner {
+  border-color: var(--accent) !important;
+}
+
+/* ── Input group prepend ── */
+#twikoo .el-input-group__prepend {
+  background-color: var(--surface-0) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground-muted) !important;
+}
+
+/* ── Buttons — primary ── */
+#twikoo .el-button--primary {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: oklch(1 0 0) !important;
+}
+
+#twikoo .el-button--primary:hover,
+#twikoo .el-button--primary:focus {
+  background-color: var(--accent-dim) !important;
+  border-color: var(--accent-dim) !important;
+}
+
+#twikoo .el-button--primary:active {
+  transform: scale(0.97);
+}
+
+/* ── Buttons — default / secondary ── */
+#twikoo .el-button:not(.el-button--primary):not(.el-button--text) {
+  background-color: var(--surface-0) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground-secondary) !important;
+}
+
+#twikoo .el-button:not(.el-button--primary):not(.el-button--text):hover,
+#twikoo .el-button:not(.el-button--primary):not(.el-button--text):focus {
+  background-color: var(--accent-subtle) !important;
+  border-color: oklch(from var(--accent) l c h / 0.24) !important;
+  color: var(--accent) !important;
+}
+
+/* ── Buttons — text / ghost ── */
+#twikoo .el-button--text,
+#twikoo .el-button--text:focus,
+#twikoo .el-button--text:hover {
+  color: var(--accent) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+/* ── Select / dropdown ── */
+#twikoo select option {
+  background-color: var(--surface-0) !important;
+  color: var(--foreground) !important;
+}
+
+:root.dark #twikoo select option {
+  background-color: var(--surface-1) !important;
+  color: var(--foreground) !important;
+}
+
+/* ── Element UI popover / dropdown 弹出层 ── */
+#twikoo .el-select-dropdown,
+#twikoo .el-dropdown-menu,
+#twikoo .el-popper {
+  background-color: var(--surface-0) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+#twikoo .el-select-dropdown__item {
+  color: var(--foreground) !important;
+}
+
+#twikoo .el-select-dropdown__item.hover,
+#twikoo .el-select-dropdown__item:hover {
+  background-color: var(--accent-subtle) !important;
+  color: var(--accent) !important;
+}
+
+#twikoo .el-select-dropdown__item.selected {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Checkbox / radio ── */
+#twikoo .el-checkbox__inner,
+#twikoo .el-radio__inner {
+  background-color: var(--surface-0) !important;
+  border-color: var(--border) !important;
+}
+
+#twikoo .el-checkbox__input.is-checked .el-checkbox__inner,
+#twikoo .el-radio__input.is-checked .el-radio__inner {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ── Message / notification 弹出 ── */
+#twikoo .el-message {
+  background-color: var(--surface-0) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--foreground) !important;
+}
+
+/* ── Overlay / dialog ── */
+#twikoo .el-dialog,
+#twikoo .el-message-box {
+  background-color: var(--surface-0) !important;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-xl) !important;
+  color: var(--foreground) !important;
+}
+
+#twikoo .el-dialog__title,
+#twikoo .el-message-box__title {
+  color: var(--foreground) !important;
+}
+
+#twikoo .el-dialog__header,
+#twikoo .el-message-box__header {
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+#twikoo .el-dialog__footer,
+#twikoo .el-message-box__btns {
+  border-top: 1px solid var(--border-subtle) !important;
+}
+
+/* ── Table (admin panel) ── */
+#twikoo .el-table {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+}
+
+#twikoo .el-table th,
+#twikoo .el-table td {
+  background-color: transparent !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--foreground) !important;
+}
+
+#twikoo .el-table tr:hover td {
+  background-color: var(--accent-subtle) !important;
+}
+
+/* ── Pagination ── */
+#twikoo .el-pagination {
+  color: var(--foreground-secondary) !important;
+}
+
+#twikoo .el-pager li {
+  background-color: transparent !important;
+  color: var(--foreground-secondary) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+#twikoo .el-pager li:hover {
+  color: var(--accent) !important;
+}
+
+#twikoo .el-pager li.active {
+  background-color: var(--accent) !important;
+  color: oklch(1 0 0) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Scrollbar inside comment area
+   ═══════════════════════════════════════════════════════ */
+#twikoo ::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+#twikoo ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#twikoo ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-sm);
+}
+
+#twikoo ::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-muted);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Responsive — tighter spacing on mobile
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  #twikoo .tk-submit {
+    padding: var(--space-4);
+  }
+
+  #twikoo .tk-comment {
+    padding: var(--space-4);
+  }
+
+  #twikoo .tk-meta-input {
+    flex-direction: column;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Reduced transparency — solid fallback
+   ═══════════════════════════════════════════════════════ */
+@media (prefers-reduced-transparency: reduce) {
+  #twikoo .tk-submit,
+  #twikoo .tk-comment,
+  #twikoo .tk-replies .tk-comment,
+  #twikoo .tk-content pre,
+  #twikoo .tk-preview-container pre {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--surface-1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Dark mode — stronger shadows
+   ═══════════════════════════════════════════════════════ */
+:root.dark #twikoo .tk-submit:focus-within {
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
+}
+
+:root.dark #twikoo .tk-comment:hover {
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
+}

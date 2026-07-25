@@ -5,6 +5,7 @@
  */
 import { commentConfig } from "../../config/comment";
 import { cdnConfig } from "../../config/cdn";
+import "../../styles/twikoo.css";
 ---
 
 {commentConfig.enabled && (
@@ -29,30 +30,7 @@ import { cdnConfig } from "../../config/cdn";
   }
 
   .comments__container {
-    padding: var(--space-4);
     min-height: 200px;
-    border-radius: var(--radius-lg);
-  }
-
-  /* Twikoo 深色模式覆盖 */
-  :root.dark .comments__container .tk-content,
-  :root.dark .comments__container .tk-comment,
-  :root.dark .comments__container .tk-submit {
-    color: var(--foreground) !important;
-  }
-
-  :root.dark .comments__container .tk-input,
-  :root.dark .comments__container .tk-preview,
-  :root.dark .comments__container textarea,
-  :root.dark .comments__container input {
-    background: var(--surface-2) !important;
-    color: var(--foreground) !important;
-    border-color: var(--border) !important;
-  }
-
-  :root.dark .comments__container .tk-submit-action-btn {
-    background: var(--accent) !important;
-    color: var(--surface-0) !important;
   }
 </style>
 
@@ -77,6 +55,55 @@ import { cdnConfig } from "../../config/cdn";
         theme: getTwikooTheme(),
         onCommentLoaded: function () {},
       });
+
+      // Twikoo CDN 的 Element UI 样式在运行时动态注入，覆盖了静态 CSS。
+      // 此处在 init 之后注入 <style>，确保优先级高于 CDN 样式。
+      injectTwikooOverrides();
+    }
+
+    function injectTwikooOverrides() {
+      // 直接操作元素内联样式，绕过 Element UI 的内联样式优先级
+      var root = document.documentElement;
+      var cs = getComputedStyle(root);
+      var surface0 = cs.getPropertyValue("--surface-0").trim() || "#f5f5f5";
+      var foreground = cs.getPropertyValue("--foreground").trim() || "#1a1a1a";
+      var border = cs.getPropertyValue("--border").trim() || "#e0e0e0";
+      var accent = cs.getPropertyValue("--accent").trim() || "#5b8fb9";
+      var accentSubtle = cs.getPropertyValue("--accent-subtle").trim() || "oklch(55% 0.16 170 / 0.1)";
+
+      function applyStyles(el, styles) {
+        for (var k in styles) {
+          el.style.setProperty(k, styles[k], "important");
+        }
+      }
+
+      function patchFormFields() {
+        var root = document.getElementById("tcomment");
+        if (!root) return;
+        var selectors = [
+          ".el-textarea__inner",
+          ".el-input__inner",
+          ".el-input-group__prepend",
+        ];
+        selectors.forEach(function(sel) {
+          root.querySelectorAll(sel).forEach(function(el) {
+            applyStyles(el, {
+              "background-color": surface0,
+              "color": foreground,
+              "border-color": border,
+            });
+          });
+        });
+      }
+
+      patchFormFields();
+      // Twikoo DOM 可能延迟渲染，用 MutationObserver 持续监听
+      var observer = new MutationObserver(patchFormFields);
+      observer.observe(document.getElementById("tcomment") || document.body, {
+        childList: true, subtree: true,
+      });
+      // 5 秒后停止监听（DOM 已稳定）
+      setTimeout(function() { observer.disconnect(); }, 5000);
     }
 
     function loadTwikoo() {

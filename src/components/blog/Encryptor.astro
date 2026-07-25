@@ -1,0 +1,289 @@
+---
+import { encryptContent } from "@/utils/crypto-utils";
+
+export interface Props {
+	password: string;
+	slug: string;
+	hint?: string;
+}
+
+const { password, slug, hint = "" } = Astro.props;
+
+const htmlContent = await Astro.slots.render("default");
+const encryptedContent = encryptContent(htmlContent, String(password), slug);
+---
+
+<div id="password-protection" class="password-protection">
+	<div class="password-modal">
+		<div class="password-modal__icon">🔒</div>
+		<h3 class="password-modal__title">此文章已加密</h3>
+		<p class="password-modal__desc">请输入密码以查看内容</p>
+		{hint && <p class="password-modal__hint">提示：{hint}</p>}
+		<div class="password-modal__form">
+			<input
+				type="password"
+				id="password-input"
+				class="password-modal__input"
+				placeholder="请输入密码"
+				autocomplete="off"
+			/>
+			<button id="password-submit" class="password-modal__btn" type="button">
+				解锁
+			</button>
+		</div>
+		<p id="password-error" class="password-modal__error" style="display: none;"></p>
+	</div>
+</div>
+
+<div
+	id="decrypted-content"
+	class="decrypted-content prose custom-md"
+	style="display: none;"
+>
+</div>
+
+<style>
+	.password-protection {
+		display: flex;
+		justify-content: center;
+		padding: var(--space-10) 0;
+	}
+
+	.password-modal {
+		text-align: center;
+		max-width: 400px;
+		padding: var(--space-8);
+		background: var(--glass-bg);
+		backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+		-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+		border: 1px solid var(--glass-border);
+		box-shadow: var(--shadow-sm), var(--glass-highlight);
+		border-radius: var(--radius-lg);
+	}
+
+	.password-modal__icon {
+		font-size: 3rem;
+		margin-bottom: var(--space-4);
+	}
+
+	.password-modal__title {
+		font-size: var(--text-xl);
+		font-weight: 600;
+		margin-bottom: var(--space-2);
+		color: var(--foreground);
+	}
+
+	.password-modal__desc {
+		color: var(--foreground-secondary);
+		margin-bottom: var(--space-4);
+	}
+
+	.password-modal__hint {
+		color: var(--foreground-muted);
+		font-size: var(--text-sm);
+		font-style: italic;
+		margin-bottom: var(--space-4);
+	}
+
+	.password-modal__form {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	.password-modal__input {
+		flex: 1;
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		background: var(--surface-0);
+		color: var(--foreground);
+		font-size: var(--text-base);
+		outline: none;
+		transition: border-color var(--duration-fast) var(--ease-material);
+	}
+
+	.password-modal__input:focus {
+		border-color: var(--accent);
+	}
+
+	.password-modal__btn {
+		padding: var(--space-2) var(--space-4);
+		background: var(--accent);
+		color: white;
+		border: none;
+		border-radius: var(--radius-md);
+		font-size: var(--text-base);
+		font-weight: 500;
+		cursor: pointer;
+		transition: opacity var(--duration-fast) var(--ease-material);
+	}
+
+	.password-modal__btn:hover {
+		opacity: 0.9;
+	}
+
+	.password-modal__btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.password-modal__error {
+		color: var(--error, #ef4444);
+		font-size: var(--text-sm);
+		margin-top: var(--space-3);
+	}
+
+	.decrypted-content {
+		animation: fadeIn 0.3s ease-in-out;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>
+
+<script
+	is:inline
+	define:vars={{
+		encryptedContent,
+	}}
+>
+	(function() {
+		var VERIFY_PREFIX = "DUSKLIGHT-VERIFY:";
+		var PBKDF2_ITERATIONS = 100000;
+		var SALT_LENGTH = 16;
+		var IV_LENGTH = 12;
+		var AUTH_TAG_LENGTH = 16;
+
+		function base64ToUint8Array(b64) {
+			var bin = atob(b64);
+			var arr = new Uint8Array(bin.length);
+			for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+			return arr;
+		}
+
+		async function decryptContent(encData, password) {
+			var raw = base64ToUint8Array(encData);
+			var salt = raw.slice(0, SALT_LENGTH);
+			var iv = raw.slice(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
+			var authTag = raw.slice(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + AUTH_TAG_LENGTH);
+			var ciphertext = raw.slice(SALT_LENGTH + IV_LENGTH + AUTH_TAG_LENGTH);
+
+			var combined = new Uint8Array(ciphertext.length + AUTH_TAG_LENGTH);
+			combined.set(ciphertext, 0);
+			combined.set(authTag, ciphertext.length);
+
+			var enc = new TextEncoder();
+			var keyMaterial = await crypto.subtle.importKey(
+				"raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]
+			);
+			var aesKey = await crypto.subtle.deriveKey(
+				{ name: "PBKDF2", salt: salt, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+				keyMaterial, { name: "AES-GCM", length: 256 }, false, ["decrypt"]
+			);
+			var decrypted = await crypto.subtle.decrypt(
+				{ name: "AES-GCM", iv: iv }, aesKey, combined
+			);
+			var decoded = new TextDecoder().decode(decrypted);
+			if (!decoded.startsWith(VERIFY_PREFIX)) {
+				throw new Error("Verification prefix mismatch");
+			}
+			return decoded.substring(VERIFY_PREFIX.length);
+		}
+
+		async function attemptUnlock(inputPassword) {
+			var errorEl = document.getElementById("password-error");
+			var submitBtn = document.getElementById("password-submit");
+
+			if (!inputPassword) {
+				if (errorEl) {
+					errorEl.textContent = "请输入密码";
+					errorEl.style.display = "block";
+				}
+				return;
+			}
+
+			if (submitBtn) submitBtn.disabled = true;
+			if (errorEl) errorEl.style.display = "none";
+
+			try {
+				var realContent = await decryptContent(encryptedContent, inputPassword);
+				var contentDiv = document.getElementById("decrypted-content");
+				var protectionDiv = document.getElementById("password-protection");
+
+				if (contentDiv) {
+					contentDiv.innerHTML = realContent;
+
+					// 执行解密内容中的脚本
+					var scripts = contentDiv.querySelectorAll("script");
+					var scriptPromises = Array.from(scripts).map(function(script) {
+						return new Promise(function(resolve) {
+							var newScript = document.createElement("script");
+							if (script.type) newScript.type = script.type;
+							newScript.textContent = script.textContent;
+							newScript.onload = resolve;
+							newScript.onerror = resolve;
+							if (script.parentNode) script.parentNode.replaceChild(newScript, script);
+							if (!newScript.src) resolve(undefined);
+						});
+					});
+					await Promise.all(scriptPromises);
+
+					if (protectionDiv) protectionDiv.style.display = "none";
+					contentDiv.style.display = "block";
+
+					sessionStorage.setItem("page-password-" + window.location.pathname, inputPassword);
+
+					// 触发解密后更新
+					setTimeout(function() {
+						if (typeof window.renderMermaidDiagrams === "function") {
+							window.renderMermaidDiagrams();
+						}
+						window.dispatchEvent(new Event("scroll"));
+						window.dispatchEvent(new Event("resize"));
+					}, 100);
+				}
+			} catch (error) {
+				console.error("Decryption error:", error);
+				if (errorEl) {
+					errorEl.textContent = "密码错误，请重试";
+					errorEl.style.display = "block";
+				}
+				sessionStorage.removeItem("page-password-" + window.location.pathname);
+			} finally {
+				if (submitBtn) submitBtn.disabled = false;
+			}
+		}
+
+		// 绑定事件
+		var submitBtn = document.getElementById("password-submit");
+		var inputEl = document.getElementById("password-input");
+
+		if (submitBtn) {
+			submitBtn.addEventListener("click", function() {
+				attemptUnlock(inputEl ? inputEl.value : "");
+			});
+		}
+
+		if (inputEl) {
+			inputEl.addEventListener("keydown", function(e) {
+				if (e.key === "Enter") {
+					attemptUnlock(inputEl.value);
+				}
+			});
+		}
+
+		// 尝试使用保存的密码自动解锁
+		var savedPassword = sessionStorage.getItem("page-password-" + window.location.pathname);
+		if (savedPassword) {
+			attemptUnlock(savedPassword);
+		}
+	})();
+</script>

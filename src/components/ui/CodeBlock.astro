@@ -22,9 +22,12 @@ const { lang, title, class: className } = Astro.props;
 <style>
   .code-block {
     margin: var(--space-8) 0;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
     overflow: hidden;
   }
 
@@ -33,8 +36,8 @@ const { lang, title, class: className } = Astro.props;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--foreground-muted);
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-border);
   }
 
   .code-block__pre {

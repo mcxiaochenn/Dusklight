@@ -13,9 +13,13 @@ interface Props {
   post: CollectionEntry<"blog">;
   variant?: "default" | "hero";
   class?: string;
+  excerpt?: string;
 }
 
-const { post, variant = "default", class: className } = Astro.props;
+const { post, variant = "default", class: className, excerpt: autoExcerpt } = Astro.props;
+
+// 优先使用 frontmatter description，fallback 到 remark-content 自动摘录
+const displayDesc = post.data.description || autoExcerpt || "";
 ---
 
 <article class:list={["post-card", `post-card--${variant}`, className]}>
@@ -40,8 +44,8 @@ const { post, variant = "default", class: className } = Astro.props;
 
       <h3 class="post-card__title">{post.data.title}</h3>
 
-      {post.data.description && (
-        <p class="post-card__desc">{post.data.description}</p>
+      {displayDesc && (
+        <p class="post-card__desc">{displayDesc}</p>
       )}
 
       <div class="post-card__meta">
@@ -56,23 +60,23 @@ const { post, variant = "default", class: className } = Astro.props;
 </article>
 
 <style>
-  /* 直接在元素上做液态玻璃，不用伪元素 */
+  /* Liquid glass card */
   .post-card {
     position: relative;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow var(--duration-fast) var(--ease-standard),
-                border-color var(--duration-fast) var(--ease-standard),
-                transform var(--duration-fast) var(--ease-standard);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    transition: box-shadow var(--duration-fast) var(--ease-material),
+                border-color var(--duration-fast) var(--ease-material);
   }
 
   .post-card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-md), var(--glass-highlight);
     border-color: var(--border);
-    transform: translateY(-2px);
   }
 
   .post-card__link {
@@ -93,7 +97,7 @@ const { post, variant = "default", class: className } = Astro.props;
     height: 100%;
     object-fit: cover;
     border-radius: 0;
-    transition: transform var(--duration-slow) var(--ease-standard);
+    transition: transform var(--duration-slow) var(--ease-material);
   }
 
   .post-card:hover .post-card__cover img {
@@ -154,7 +158,10 @@ const { post, variant = "default", class: className } = Astro.props;
 
   .post-card__category {
     padding: var(--space-1) var(--space-2);
-    background: var(--surface-2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
   }
 

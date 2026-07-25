@@ -10,10 +10,11 @@ interface Props {
   updated?: Date;
   category?: string;
   readingTime?: number;
+  wordCount?: number;
   class?: string;
 }
 
-const { date, updated, category, readingTime, class: className } = Astro.props;
+const { date, updated, category, readingTime, wordCount, class: className } = Astro.props;
 ---
 
 <div class:list={["article-meta", className]}>
@@ -31,6 +32,12 @@ const { date, updated, category, readingTime, class: className } = Astro.props;
     <span class="article-meta__item article-meta__category">
       <Icon name="ph:folder" class="article-meta__icon" />
       {category}
+    </span>
+  )}
+  {wordCount && (
+    <span class="article-meta__item">
+      <Icon name="ph:text-aa" class="article-meta__icon" />
+      {wordCount.toLocaleString()} 字
     </span>
   )}
   {readingTime && (
@@ -70,7 +77,10 @@ const { date, updated, category, readingTime, class: className } = Astro.props;
 
   .article-meta__category {
     padding: var(--space-1) var(--space-2);
-    background: var(--surface-2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
     font-size: var(--text-xs);
   }

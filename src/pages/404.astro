@@ -82,16 +82,26 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     font-weight: 500;
     color: var(--foreground);
     text-decoration: none;
-    border: 1px solid var(--border);
-    background: var(--surface-1);
-    transition: all var(--duration-fast) var(--ease-standard);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    transition:
+      color var(--duration-fast) var(--ease-material),
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
   }
 
   .not-found__btn:hover {
     border-color: var(--accent);
     color: var(--accent);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+  }
+
+  .not-found__btn:active {
+    transform: scale(0.97);
+    transition: transform 80ms ease-out;
   }
 
   .not-found__btn svg {
