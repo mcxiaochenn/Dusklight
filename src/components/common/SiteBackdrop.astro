@@ -114,14 +114,22 @@
     img.src = src;
   }
 
-  // 页面加载完成后开始下载
-  if (document.readyState === "complete") {
+  // 首次加载 + View Transitions 页面切换后重新初始化
+  function initBackdrop() {
+    const el = document.getElementById("backdrop-image");
+    if (!el) return;
+    if (el.classList.contains("site-backdrop__image--loaded") && el.style.backgroundImage) return;
     loadBackdropImage();
-  } else {
-    window.addEventListener("load", loadBackdropImage);
   }
 
-  // 用 MutationObserver 监听 <html> class 变化（比 click 更可靠）
+  if (document.readyState === "complete") {
+    initBackdrop();
+  } else {
+    window.addEventListener("load", initBackdrop);
+  }
+  document.addEventListener("astro:page-load", initBackdrop);
+
+  // 用 MutationObserver 监听 <html> class 变化（持久存在，不随页面切换销毁）
   let lastDark = isDarkMode();
   new MutationObserver(() => {
     const nowDark = isDarkMode();
