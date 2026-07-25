@@ -198,11 +198,10 @@
     opacity var(--duration-fast) var(--ease-material);
 }
 
-/* Send — accent filled */
+/* Send — accent filled, same size as preview */
 #twikoo .tk-row.actions .tk-send {
   background: var(--accent) !important;
   color: oklch(1 0 0) !important;
-  padding-inline: var(--space-5);
 }
 
 #twikoo .tk-row.actions .tk-send:hover {
@@ -213,12 +212,15 @@
   transform: scale(0.97);
 }
 
-/* Preview / Cancel — ghost */
+/* Preview / Cancel — glass ghost */
 #twikoo .tk-row.actions .tk-preview,
 #twikoo .tk-row.actions .tk-cancel {
-  background: transparent !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   color: var(--foreground-secondary) !important;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-sm), inset 0 0.5px 0 oklch(1 0 0 / 0.2) !important;
 }
 
 #twikoo .tk-row.actions .tk-preview:hover,
@@ -682,13 +684,16 @@
    Element UI 覆盖 — 修复纯黑背景 + 统一 accent 色
    ═══════════════════════════════════════════════════════ */
 
-/* ── Textarea ── */
+/* ── Textarea — glass ── */
 #twikoo .el-textarea__inner {
-  background-color: var(--surface-0) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   color: var(--foreground) !important;
-  border-color: var(--border) !important;
+  border-color: var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
   font-family: var(--font-body), var(--font-cjk) !important;
+  box-shadow: var(--shadow-sm), inset 0 0.5px 0 oklch(1 0 0 / 0.2) !important;
   transition:
     border-color var(--duration-fast) var(--ease-material),
     box-shadow var(--duration-fast) var(--ease-material) !important;
@@ -699,12 +704,15 @@
   box-shadow: 0 0 0 3px var(--accent-subtle) !important;
 }
 
-/* ── Input ── */
+/* ── Input — glass ── */
 #twikoo .el-input__inner {
-  background-color: var(--surface-0) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   color: var(--foreground) !important;
-  border-color: var(--border) !important;
+  border-color: var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm), inset 0 0.5px 0 oklch(1 0 0 / 0.2) !important;
   transition:
     border-color var(--duration-fast) var(--ease-material),
     box-shadow var(--duration-fast) var(--ease-material) !important;

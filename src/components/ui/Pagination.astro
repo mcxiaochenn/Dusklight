@@ -1,0 +1,188 @@
+---
+/**
+ * 分页组件
+ * Apple glass 风格页码导航。
+ */
+interface Props {
+  currentPage: number;
+  lastPage: number;
+  prevUrl?: string;
+  nextUrl?: string;
+  baseUrl?: string;
+  class?: string;
+}
+
+const { currentPage, lastPage, prevUrl, nextUrl, baseUrl = "/", class: className } = Astro.props;
+
+// 生成页码列表，省略号用 -1 表示
+function getPageNumbers(current: number, total: number): number[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: number[] = [1];
+  if (current > 3) pages.push(-1);
+  for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+    pages.push(i);
+  }
+  if (current < total - 2) pages.push(-1);
+  pages.push(total);
+  return pages;
+}
+
+const pages = getPageNumbers(currentPage, lastPage);
+const showNav = lastPage > 1;
+---
+
+{showNav && (
+  <nav class:list={["pagination", className]} aria-label="分页导航">
+    {prevUrl ? (
+      <a href={prevUrl} class="pagination__btn" aria-label="上一页">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+          <path d="M160 40l-96 88 96 88" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    ) : (
+      <span class="pagination__btn pagination__btn--disabled" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+          <path d="M160 40l-96 88 96 88" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    )}
+
+    <div class="pagination__pages">
+      {pages.map((p) =>
+        p === -1 ? (
+          <span class="pagination__ellipsis">…</span>
+        ) : p === currentPage ? (
+          <span class="pagination__page pagination__page--active" aria-current="page">{p}</span>
+        ) : (
+          <a href={p === 1 ? baseUrl : `${baseUrl}${p}/`} class="pagination__page">{p}</a>
+        )
+      )}
+    </div>
+
+    {nextUrl ? (
+      <a href={nextUrl} class="pagination__btn" aria-label="下一页">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+          <path d="M96 40l96 88-96 88" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    ) : (
+      <span class="pagination__btn pagination__btn--disabled" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="none">
+          <path d="M96 40l96 88-96 88" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    )}
+  </nav>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-8) 0 var(--space-16);
+  }
+
+  .pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--foreground-secondary);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-material);
+  }
+
+  .pagination__btn:hover {
+    color: var(--foreground);
+    background: oklch(from var(--glass-bg) l c h / calc(alpha + 0.1));
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+  }
+
+  .pagination__btn:active {
+    transform: scale(0.95);
+  }
+
+  .pagination__btn--disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination__pages {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .pagination__page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 var(--space-2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--foreground-secondary);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    transition: all var(--duration-fast) var(--ease-material);
+  }
+
+  .pagination__page:hover {
+    color: var(--foreground);
+    background: oklch(from var(--glass-bg) l c h / calc(alpha + 0.1));
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+  }
+
+  .pagination__page:active {
+    transform: scale(0.95);
+  }
+
+  .pagination__page--active {
+    background: var(--accent) !important;
+    color: oklch(1 0 0) !important;
+    border-color: var(--accent) !important;
+    box-shadow: var(--shadow-sm) !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .pagination__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 36px;
+    color: var(--foreground-muted);
+    font-size: var(--text-sm);
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 640px) {
+    .pagination__btn,
+    .pagination__page {
+      width: 32px;
+      height: 32px;
+      font-size: var(--text-xs);
+      min-width: 32px;
+    }
+  }
+</style>

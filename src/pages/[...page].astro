@@ -1,32 +1,37 @@
 ---
 /**
- * 首页
- * 单列文章流 + 交错入场动画 + 分页
+ * 首页 — 分页文章流
+ * / (第1页), /page/2/, /page/3/ ...
  */
 import { getCollection, render } from "astro:content";
+import type { GetStaticPaths } from "astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/blog/PostCard.astro";
-import Button from "../components/ui/Button.astro";
+import Pagination from "../components/ui/Pagination.astro";
 import { siteConfig } from "../config/site";
 
-const allPosts = (await getCollection("blog"))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const allPosts = (await getCollection("blog"))
+    .filter((p) => !p.data.draft)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-// 预渲染获取 remark-content 插件注入的自动摘录
-const postsWithExcerpt = await Promise.all(
-  allPosts.map(async (post) => {
-    const { remarkPluginFrontmatter } = await render(post);
-    return {
-      post,
-      excerpt: remarkPluginFrontmatter?.excerpt || "",
-    };
-  })
-);
+  // 预渲染获取 remark-content 插件注入的自动摘录
+  const excerpts: Record<string, string> = {};
+  await Promise.all(
+    allPosts.map(async (post) => {
+      const { remarkPluginFrontmatter } = await render(post);
+      excerpts[post.id] = remarkPluginFrontmatter?.excerpt || "";
+    })
+  );
 
-const perPage = siteConfig.postsPerPage;
-const posts = postsWithExcerpt.slice(0, perPage);
-const showPagination = allPosts.length > perPage;
+  return paginate(allPosts, {
+    pageSize: siteConfig.postsPerPage,
+    props: { excerpts },
+  });
+};
+
+const { page, excerpts } = Astro.props;
+const baseUrl = "/";
 ---
 
 <BaseLayout>
@@ -38,22 +43,24 @@ const showPagination = allPosts.length > perPage;
     </div>
   </section>
 
-  {/* 文章流 — 单列，每张卡片独立液态玻璃 */}
+  {/* 文章流 */}
   <section class="posts">
     <div class="content-container">
       <div class="posts__list">
-        {posts.map(({ post, excerpt }, i) => (
+        {page.data.map((post, i) => (
           <div class="posts__item" style={`--i: ${i}`}>
-            <PostCard post={post} excerpt={excerpt} />
+            <PostCard post={post} excerpt={excerpts[post.id]} />
           </div>
         ))}
       </div>
 
-      {showPagination && (
-        <div class="posts__more">
-          <Button href="/archive/" variant="secondary">查看全部文章 →</Button>
-        </div>
-      )}
+      <Pagination
+        currentPage={page.currentPage}
+        lastPage={page.lastPage}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        baseUrl={baseUrl}
+      />
     </div>
   </section>
 </BaseLayout>
@@ -80,26 +87,16 @@ const showPagination = allPosts.length > perPage;
     margin: 0;
   }
 
-  /* ── 单列文章流 ── */
   .posts__list {
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
   }
 
-  /* ── 交错入场动画（使用全局动画系统） ── */
   .posts__item {
     opacity: 0;
     animation: fade-in-up var(--duration-slow) var(--ease-decelerate) forwards;
     animation-delay: calc(var(--i) * 60ms);
-  }
-
-  /* ── 翻页区域 ── */
-  .posts__more {
-    display: flex;
-    justify-content: center;
-    margin-top: var(--space-10);
-    padding-bottom: var(--space-16);
   }
 
   @media (max-width: 768px) {

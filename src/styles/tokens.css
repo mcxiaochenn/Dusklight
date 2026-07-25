@@ -56,12 +56,12 @@
      Reserved for overlay surfaces only (nav, TOC, back-to-top).
      Never applied to content surfaces (cards, article body).
      ═══════════════════════════════════════════════════════ */
-  --glass-bg: oklch(1 0 0 / 0.45);
-  --glass-border: oklch(1 0 0 / 0.2);
-  --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.3);
-  --glass-blur: 20px;
-  --glass-saturation: 180%;
-  --glass-brightness: 1.08;
+  --glass-bg: oklch(0.98 0.006 var(--hue) / 0.55);
+  --glass-border: oklch(0.90 0.010 var(--hue) / 0.35);
+  --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.5);
+  --glass-blur: 12px;
+  --glass-saturation: 140%;
+  --glass-brightness: 1.0;
 
   /* ═══════════════════════════════════════════════════════
      RADIUS — Apple-aligned rounding scale.
