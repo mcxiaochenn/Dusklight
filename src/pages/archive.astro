@@ -13,7 +13,7 @@ const posts = (await getCollection("blog"))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const postsByYear = posts.reduce((acc, post) => {
-  const year = post.data.date.getFullYear();
+  const year = post.data.date.getUTCFullYear();
   if (!acc[year]) acc[year] = [];
   acc[year].push(post);
   return acc;

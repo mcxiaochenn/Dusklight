@@ -6,12 +6,16 @@ interface Props {
 const { date } = Astro.props;
 ---
 
+{/* timeZone UTC：frontmatter 无引号日期被 YAML 按 UTC 解析，
+    用 UTC 读回即"面值"（作者写什么显示什么）。本地时区读取会让
+    16:00 后发布的文章日期 +1 天。 */}
 <time datetime={date.toISOString()}>
 	{
 		date.toLocaleDateString('zh-CN', {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
+			timeZone: 'UTC',
 		})
 	}
 </time>
