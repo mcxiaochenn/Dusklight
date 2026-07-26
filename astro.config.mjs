@@ -56,6 +56,20 @@ export default defineConfig({
 					editorBackground: "var(--surface-1)",
 					terminalBackground: "var(--surface-1)",
 					shadow: "none",
+					// 框体 chrome 全部走设计 token —— 否则标签栏/终端栏用的是
+					// github-light/dark 主题的字面色（#f6f8fa、#fff、橙色指示条
+					// #f9826c），不跟 --hue 走，浅色下和全站青绿色系直接冲突
+					editorTabBarBackground: "var(--surface-2)",
+					editorTabBarBorderColor: "transparent",
+					editorTabBarBorderBottomColor: "var(--border-subtle)",
+					editorActiveTabBackground: "var(--code-bg)",
+					editorActiveTabForeground: "var(--foreground)",
+					editorActiveTabIndicatorTopColor: "var(--accent)",
+					editorActiveTabIndicatorBottomColor: "transparent",
+					terminalTitlebarBackground: "var(--surface-2)",
+					terminalTitlebarForeground: "var(--foreground-secondary)",
+					terminalTitlebarDotsForeground: "var(--foreground-muted)",
+					terminalTitlebarBorderBottomColor: "var(--border-subtle)",
 				},
 			},
 		}),
