@@ -122,6 +122,7 @@ Configured in `astro.config.mjs`:
 Syntax highlighting is handled by the **`astro-expressive-code`** integration configured in `astro.config.mjs`, not by Astro's built-in Shiki config. Editing `markdown.shikiConfig` will do nothing.
 
 - Dual themes: `github-light` / `github-dark`
+- **Theme selection is keyed to the site's `.dark` class, NOT the OS.** `astro.config.mjs` sets `useDarkModeMediaQuery: false` + `themeCssSelector: (theme) => theme.type === "dark" ? ".dark" : ".light"`. EC's default emits an `@media (prefers-color-scheme: dark)` rule, which follows the **OS** preference — but this site's 3-way toggle lets the site theme disagree with the OS. Under the default, OS-dark + site-light rendered github-dark's near-white punctuation (`#E1E4E8`) on the near-white `--code-bg` (invisible), and OS-light + site-dark rendered dark-on-dark. The `.light` selector never matches in `auto` mode (root gets `auto` [+ `dark`], never `light`) — that is fine: no rule fires and the base theme (github-light) applies. Verified with a 6-combo OS×site matrix.
 - Official plugins: `pluginCollapsibleSections`, `pluginLineNumbers`
 - Project plugin: `src/plugins/expressive-code/language-badge.ts` (registered)
 - `styleOverrides` deliberately point at design tokens (`var(--radius-lg)`, `var(--surface-1)`, `var(--font-mono)`) so code blocks track the theme

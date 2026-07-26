@@ -43,6 +43,15 @@ export default defineConfig({
 	integrations: [
 		expressiveCode({
 			themes: ["github-light", "github-dark"],
+			// 语法主题必须跟站内 .dark class 走，而不是系统 prefers-color-scheme。
+			// 默认的 useDarkModeMediaQuery 在「系统深色 + 站点浅色」时会套用
+			// github-dark 前景色 —— 近白标点 #E1E4E8 落在近白 --code-bg 上不可读，
+			// 反向组合（系统浅 + 站点深）则是深字落深底。站内三档切换允许与系统
+			// 偏好不一致，代码块必须服从站内档位。
+			// .light 选择器在 auto-浅色下不出现在 root 上，但那时无规则命中，
+			// 基础主题（github-light）自然生效，行为仍正确。
+			useDarkModeMediaQuery: false,
+			themeCssSelector: (theme) => (theme.type === "dark" ? ".dark" : ".light"),
 			plugins: [
 				pluginCollapsibleSections(),
 				pluginLineNumbers(),
