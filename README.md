@@ -13,7 +13,7 @@ A personal blog theme built with [Astro](https://astro.build), featuring a liqui
 
 - 🪟 **Liquid Glass UI** — backdrop-filter based glass effect with edge refraction highlights
 - 🌗 **Theme Switching** — light / dark / auto with circular clip-path transition animation
-- 📝 **MDX Support** — Markdown + MDX content with syntax highlighting (Shiki dual themes)
+- 📝 **MDX Support** — Markdown + MDX content with syntax highlighting (Expressive Code, dual themes)
 - 🏷️ **Content Collections** — typed blog posts with tags, categories, reading time
 - 💬 **Comments** — Twikoo integration with theme-aware styling
 - 📱 **Responsive** — mobile-first layout with floating pill navigation
@@ -24,6 +24,7 @@ A personal blog theme built with [Astro](https://astro.build), featuring a liqui
 ## Tech Stack
 
 - [Astro 7.x](https://astro.build) — static site generator
+- [Expressive Code](https://expressive-code.com/) — code blocks with line numbers, collapsible sections, language badges
 - [astro-icon](https://www.astroicon.dev/) + [Iconify](https://iconify.design/) — icon system
 - [Twikoo](https://twikoo.js.org/) — comment system
 - [Inter Variable](https://rsms.me/inter/) — typography

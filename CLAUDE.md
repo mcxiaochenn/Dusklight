@@ -21,6 +21,10 @@ pnpm sync-content     # Manually sync content repository
 
 **Deployment**: GitHub Actions deploys to GitHub Pages. The build step installs Playwright (Chromium) because Mermaid diagram rendering requires it at build time.
 
+**No test or lint tooling exists.** `package.json` defines no `test`/`lint`/`format` script, and there is no ESLint / Prettier / Biome config in the repo. Verification means `pnpm build` completes + visual check in the browser. Do not invent or assume a test command.
+
+**Background dev server** (from `AGENTS.md`): `astro dev --background`, managed with `astro dev stop` / `astro dev status` / `astro dev logs`.
+
 ## Architecture
 
 This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue/Svelte). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`.
@@ -82,7 +86,7 @@ Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These ar
 
 | Plugin | Purpose |
 |---|---|
-| `remark-content.mjs` | Injects reading time and word count into frontmatter |
+| `remark-content.mjs` | Injects `excerpt`, `minutes` (reading time), `words` into frontmatter. CJK-aware: Latin counted at 200 wpm, CJK characters at 400 cpm |
 | `remark-mermaid.js` | Extracts Mermaid code blocks for build-time rendering |
 | `remark-fix-github-admonitions.js` | Normalizes GitHub-style `> [!NOTE]` syntax |
 | `remark-directive-rehype.js` | Bridges remark-directive to rehype custom components |
@@ -93,6 +97,8 @@ Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These ar
 | `rehype-component-admonition.mjs` | Custom admonition component (`:::note`, `:::tip`, etc.) |
 | `rehype-component-github-card.mjs` | `<github repo="owner/repo">` embed cards |
 | `rehype-component-image-grid.mjs` | `<grid>` image grid layout |
+| `mermaid-render-script.js` | Browser-side script the Playwright page runs to rasterize Mermaid to SVG |
+| `expressive-code/language-badge.ts` | Expressive Code plugin — language badge on code block frames (registered) |
 
 **Mermaid rendering** requires Playwright (Chromium) at build time — this is why the CI workflow installs `npx playwright install --with-deps chromium`.
 
@@ -108,20 +114,35 @@ Configured in `astro.config.mjs`:
 - **rehype-slug** → add `id` attributes to headings
 - **rehype-autolink-headings** → wrap headings in anchor links
 - **rehype-external-links** → open external links in new tab with `noopener noreferrer`
-- **Shiki** → syntax highlighting with dual themes (`github-light` / `github-dark`)
+- **remark-directive** + `parseDirectiveNode` + **rehype-components** → the `:::note` / `<github>` / `<grid>` custom components
+- **remark-sectionize** → wraps heading-delimited content in `<section>` elements
+
+### Code Blocks — Expressive Code (not Shiki)
+
+Syntax highlighting is handled by the **`astro-expressive-code`** integration configured in `astro.config.mjs`, not by Astro's built-in Shiki config. Editing `markdown.shikiConfig` will do nothing.
+
+- Dual themes: `github-light` / `github-dark`
+- Official plugins: `pluginCollapsibleSections`, `pluginLineNumbers`
+- Project plugin: `src/plugins/expressive-code/language-badge.ts` (registered)
+- `styleOverrides` deliberately point at design tokens (`var(--radius-lg)`, `var(--surface-1)`, `var(--font-mono)`) so code blocks track the theme
+- Extra visual tuning lives in `src/styles/expressive-code.css`, imported by `BlogPost.astro`
+- The **copy button is Expressive Code's built-in one** — the old hand-rolled copy script was removed from `GlobalScripts.astro`
 
 ### Component Architecture
 
 ```
 src/components/
-├── common/     # Header, Footer, ThemeToggle, BackToTop, ScrollProgress, SiteBackdrop, GlobalScripts
-├── blog/       # PostCard, PostCardList, ArticleMeta, TOC, TwikooComments
-└── ui/         # Button, Tag, Divider, Card, CodeBlock, Blockquote
+├── common/     # Header, Footer, ThemeToggle, BackToTop, ScrollProgress, SiteBackdrop, GlobalScripts, AntiMirror
+├── blog/       # PostCard, PostCardList, ArticleMeta, TOC, TwikooComments, Encryptor
+├── seo/        # SEOHead (meta/OG/canonical), JsonLd
+└── ui/         # Button, Tag, Divider, Card, CodeBlock, Blockquote, Pagination
 ```
 
-- **BaseLayout.astro** — wraps every page (Header + slot + Footer + ScrollProgress + BackToTop + GlobalScripts)
-- **GlobalScripts.astro** — all client-side JS in one place: code block copy, image lightbox, scroll reveal, back-to-top logic. Initialized on both `DOMContentLoaded` and `astro:page-load`.
-- **SiteBackdrop.astro** — lazy-loads background images, switches via MutationObserver on `<html>` class changes
+- **BaseLayout.astro** — wraps every page: `SEOHead` + `AntiMirror` + `ClientRouter` in `<head>`, then skip-link + SiteBackdrop + Header + `<slot />` + Footer + ScrollProgress + BackToTop + GlobalScripts
+- **GlobalScripts.astro** — the shared client-side JS: image lightbox, back-to-top visibility, scroll reveal (`IntersectionObserver` on `.reveal`). Runs `initAll()` on `DOMContentLoaded`, `astro:page-load`, and Vite HMR `vite:afterUpdate`. Code block copy is **no longer here** — Expressive Code owns it.
+- **SiteBackdrop.astro** — lazy-loads background images after `window.load`, swaps them via a MutationObserver on `<html>` class changes. Image paths are hardcoded (`/images/bg/xiowo-bg-{light,dark}.webp`); light mode is dimmed with `filter: blur(8px) brightness(0.75)`.
+
+**View Transitions are enabled site-wide** — `<ClientRouter />` sits in `BaseLayout`'s `<head>`. This is *why* every piece of client JS must re-initialize on `astro:page-load`: the browser never does a full document load after the first navigation, so `DOMContentLoaded` fires only once.
 
 ### Content Collections
 
@@ -141,7 +162,32 @@ Defined in `src/content.config.ts`:
   - `abbrlink` (string, optional)
   - `comment` (boolean, default `true`) — hidden, always-on unless explicitly set
   - `toc` (boolean, default `true`) — hidden, always-on unless explicitly set
+  - `password` (string, optional) — presence turns the post into an encrypted post
+  - `hint` (string, optional) — password hint shown by `Encryptor`
 - **`spec`**: `src/content/spec/` — untyped markdown pages (about.md, etc.) rendered via `getEntry()` + `render()`
+
+### Remark-Injected Frontmatter (excerpt / reading time)
+
+`remark-content.mjs` computes `excerpt`, `minutes`, and `words` during markdown compilation, so these values **do not exist on `post.data`** — they live in the render output. There are two different access paths in this codebase, and which one you need depends on whether you have rendered the post:
+
+- `src/pages/blog/[...slug].astro` reads them off the already-rendered entry: `post.rendered?.metadata?.frontmatter`
+- `src/pages/[...page].astro` cannot — so it `await render(post)` for **every** post inside `getStaticPaths` purely to collect excerpts, then passes them down as a `props.excerpts` map keyed by `post.id`
+
+Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise the first non-empty paragraph. Code blocks are excluded from both excerpt and word count.
+
+### Routing & Pagination
+
+| Route file | URL(s) |
+|---|---|
+| `src/pages/[...page].astro` | `/` and `/page/2/`, `/page/3/`… — **this is the homepage**; there is no `index.astro` |
+| `src/pages/blog/[...slug].astro` | `/blog/<post.id>/` — slug is the content file path, **not** `abbrlink` |
+| `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
+| `src/pages/archive.astro`, `about.astro`, `404.astro` | static pages |
+| `src/pages/rss.xml.js` | RSS feed endpoint |
+
+Pagination uses Astro's built-in `paginate()` helper with `pageSize: siteConfig.postsPerPage` (currently 8). The shared `ui/Pagination.astro` renders from `page.currentPage` / `page.lastPage` / `page.url.prev` / `page.url.next`.
+
+**Prefetch**: `astro.config.mjs` sets `prefetch: { prefetchAll: true, defaultStrategy: "hover" }` — every internal link prefetches on hover.
 
 ### Theme Switching
 
@@ -167,7 +213,7 @@ Uses `getEffective()` (not `getStored()`) to determine toggle cycle — `auto` r
 | `src/config/comment.ts` | Twikoo comment system envId |
 | `src/config/cdn.ts` | CDN resource URLs (Twikoo, KaTeX, Mermaid) |
 | `src/config/seo.ts` | SEO defaults, JSON-LD, search engine verification |
-| `src/config/theme.ts` | Default theme, glass params, typography settings |
+| `src/config/theme.ts` | ⚠️ Exported but **consumed by nothing** — see Gotchas. Real values live in `tokens.css` |
 | `src/config/index.ts` | Barrel export for all config modules |
 
 All config is re-exported from `src/config/index.ts` — import via `import { siteConfig, themeConfig } from "@/config"`.
@@ -179,6 +225,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - All CSS uses design tokens from `tokens.css` — no magic numbers
 - Components use scoped `<style>` blocks (Astro auto-scopes with `data-astro-cid-*`)
 - Global styles in `src/styles/` are imported via `global.css` (tokens → reset → base → typography → glass → animations → utilities)
+- **Three stylesheets are deliberately outside that chain** and are imported by the component that needs them, so they don't ship on every page: `expressive-code.css` + `encrypted-content.css` (imported by `layouts/BlogPost.astro`) and `twikoo.css` (imported by `blog/TwikooComments.astro`)
 - `.prose` class in `typography.css` handles all long-form content typography
 - Responsive: `@media (max-width: 768px)` and `@media (max-width: 640px)` breakpoints
 
@@ -209,3 +256,9 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
 - **Mermaid requires Playwright**: Building with Mermaid diagrams needs Chromium installed (`npx playwright install --with-deps chromium`). The `rehype-mermaid.mjs` plugin launches a headless browser to render diagrams to SVG at build time. Without Playwright, the build will fail on posts containing Mermaid code blocks.
 - **Encrypted post slugs**: The `Encryptor` component needs the `slug` prop passed explicitly from the page — it's not available from context inside the layout.
+- **`src/config/theme.ts` is inert — do not edit it expecting visual change.** `themeConfig` is re-exported from `src/config/index.ts` but imported by **zero** components or pages. Its values actively contradict the real ones: it declares `accentHue: 250` and `glass.blur: 20` while `tokens.css` uses `--hue: 170` and `--glass-blur: 12px`. To change theme colors, glass, or typography, edit `src/styles/tokens.css`.
+- **`Temp/` is not project code.** It is gitignored (`.gitignore:30`, zero tracked files) and holds a vendored copy of the Mizuki theme kept for reference. Never edit it, and exclude it when searching — its `biome.json` / `tsconfig.json` / `.env.example` are not this project's.
+- **Unused leftovers — don't wire them up without being asked**: `src/plugins/expressive-code/copy-button-plugin.ts` exists but is *not* registered in `astro.config.mjs` (only `language-badge.ts` is); `src/utils/abbrlink.ts` exports a deterministic slug generator that nothing imports — blog URLs come from `post.id`, so the `abbrlink` frontmatter field is currently decorative.
+- **Expressive Code, not Shiki**: code highlighting is configured through the `expressiveCode({...})` integration in `astro.config.mjs`. Astro's `markdown.shikiConfig` is not used and editing it has no effect.
+- **Content sync uses Windows junctions**: `scripts/sync-content.js` calls `symlinkSync(..., "junction")` (no admin rights needed on Windows) and silently falls back to `cpSync` if that fails. A copy fallback means later content-repo updates won't propagate until the next sync.
+- **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
