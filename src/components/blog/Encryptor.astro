@@ -7,10 +7,10 @@ export interface Props {
 	hint?: string;
 }
 
-const { password, slug, hint = "" } = Astro.props;
+const { password, hint = "" } = Astro.props;
 
 const htmlContent = await Astro.slots.render("default");
-const encryptedContent = encryptContent(htmlContent, String(password), slug);
+const encryptedContent = encryptContent(htmlContent, String(password));
 ---
 
 <div id="password-protection" class="password-protection">
