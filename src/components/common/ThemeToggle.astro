@@ -94,6 +94,52 @@
   :root.auto .theme-toggle__icon--auto  { opacity: 1; transform: rotate(0); }
 </style>
 
+<style is:global>
+  /*
+   * 主题切换 —— 圆形揭示
+   * ─────────────────────────────────────────────────
+   * 新主题从按钮位置擦出来，全程可见真实页面内容，没有纯色遮罩阶段。
+   *
+   * 必须 is:global：::view-transition-* 是挂在文档根上的伪元素树，
+   * Astro 的 scoped 样式会给选择器追加 data-astro-cid-* 属性，
+   * 那样永远匹配不上。
+   *
+   * 必须用 [data-theme-switching] 收窄：站点在 BaseLayout 里开了
+   * <ClientRouter />，每次页面导航同样会生成 ::view-transition-*。
+   * 不收窄的话翻页也会套用这套圆形动画，而且用的是上一次残留的坐标。
+   */
+
+  /* 关掉默认的 plus-lighter 混合，否则新旧两层颜色会相加 */
+  :root[data-theme-switching]::view-transition-image-pair(root) {
+    isolation: auto;
+  }
+
+  :root[data-theme-switching]::view-transition-old(root),
+  :root[data-theme-switching]::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  /* 旧主题整幅留在底层不动，新主题在上层用 clip-path 揭示 */
+  :root[data-theme-switching]::view-transition-old(root) {
+    z-index: 0;
+  }
+
+  :root[data-theme-switching]::view-transition-new(root) {
+    z-index: 1;
+    animation: theme-reveal var(--duration-slow) var(--ease-material) forwards;
+  }
+
+  @keyframes theme-reveal {
+    from {
+      clip-path: circle(0 at var(--theme-switch-x) var(--theme-switch-y));
+    }
+    to {
+      clip-path: circle(var(--theme-switch-r) at var(--theme-switch-x) var(--theme-switch-y));
+    }
+  }
+</style>
+
 <script>
   // 切换动画进行中的标记 —— 防止连点导致遮罩与主题错位
   let animating = false;
@@ -150,67 +196,50 @@
       const stored = this.getStored();
       const next = stored === "light" ? "dark" : stored === "dark" ? "auto" : "light";
 
+      const root = document.documentElement;
+      const startViewTransition = (
+        document as Document & {
+          startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+        }
+      ).startViewTransition?.bind(document);
+
       /*
-       * 尊重「减少动效」偏好：直接切换，不做遮罩动画。
-       * CSS 的 reduced-motion 规则只会把 transition 压到 0.01ms，
-       * 管不到下面的 setTimeout —— 那会让遮罩瞬间铺满、静止 700ms
-       * 再瞬间消失，对这部分用户反而是更糟的纯色闪屏。
+       * 两种情况直接切换，不做动画：
+       *   1. 浏览器不支持 View Transitions（Firefox 等）
+       *   2. 用户开了「减少动效」
+       * 第 2 点必须在 JS 里短路：CSS 的 reduced-motion 规则只压 transition
+       * 时长，管不到 ::view-transition-new(root) 上的 animation。
        */
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (!startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         this.applyTheme(next);
         return;
       }
 
       animating = true;
 
-      const maxR = Math.hypot(
+      // 覆盖到最远屏幕角所需的半径
+      const radius = Math.hypot(
         Math.max(originX, window.innerWidth - originX),
         Math.max(originY, window.innerHeight - originY)
       );
+      root.style.setProperty("--theme-switch-x", `${originX}px`);
+      root.style.setProperty("--theme-switch-y", `${originY}px`);
+      root.style.setProperty("--theme-switch-r", `${radius}px`);
+      // 这个属性把下面的圆形揭示动画限定在主题切换，不波及 ClientRouter 的页面切换
+      root.dataset.themeSwitching = "";
 
-      // 遮罩用新主题的目标表面色（提前计算）
-      const root = document.documentElement;
-      const isNextDark = next === "dark" || (next === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      // 色相从 token 读取，避免把配色写死在 JS 里 —— 明度/色度与 tokens.css 的 --surface-0 保持一致
-      const hue = getComputedStyle(root).getPropertyValue("--hue").trim() || "170";
-      const nextBg = isNextDark
-        ? `oklch(0.14 0.012 ${hue})`
-        : `oklch(0.96 0.012 ${hue})`;
-
-      const overlay = document.createElement("div");
-      overlay.style.cssText = `
-        position:fixed; inset:0; z-index:9999; margin:0;
-        background: ${nextBg};
-        clip-path: circle(0px at ${originX}px ${originY}px);
-        transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: none;
-      `;
-      document.body.appendChild(overlay);
-
-      // 第一步：从按钮扩散到全屏（遮罩铺满）
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          overlay.style.clipPath = `circle(${maxR}px at ${originX}px ${originY}px)`;
-        });
-      });
-
-      // 第二步：扩散完成后切换真实主题（被遮罩盖住，用户看不到）
-      setTimeout(() => {
-        this.applyTheme(next);
-      }, 620);
-
-      // 第三步：收回遮罩到按钮位置（露出新主题）
-      setTimeout(() => {
-        overlay.style.transition = "clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
-        overlay.style.clipPath = `circle(0px at ${originX}px ${originY}px)`;
-        overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
-      }, 700);
-
-      // 兜底：transitionend 未触发时也要移除遮罩并解锁，否则按钮会被永久锁死
-      setTimeout(() => {
-        overlay.remove();
+      const cleanup = () => {
+        delete root.dataset.themeSwitching;
+        root.style.removeProperty("--theme-switch-x");
+        root.style.removeProperty("--theme-switch-y");
+        root.style.removeProperty("--theme-switch-r");
         animating = false;
-      }, 1400);
+      };
+
+      // 主题在回调里同步切换，浏览器负责把切换前后的两帧做成快照
+      startViewTransition(() => {
+        this.applyTheme(next);
+      }).finished.then(cleanup, cleanup);
     },
   };
 
