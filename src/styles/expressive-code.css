@@ -19,10 +19,11 @@
   --ec-frm-frameBoxShdCssVal: var(--shadow-sm), var(--glass-highlight);
 }
 
+/* --code-bg 两种模式都不透明，backdrop-filter 已无任何可见效果，
+   只剩每个代码块一层合成开销 —— 移除。边框与内高光保留，
+   它们才是「抬升卡片」观感的来源。 */
 .expressive-code .frame {
-  background: var(--glass-bg) !important;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  background: var(--code-bg) !important;
   border: 1px solid var(--glass-border) !important;
   box-shadow: var(--shadow-sm), var(--glass-highlight) !important;
   border-radius: var(--radius-lg) !important;
@@ -159,7 +160,7 @@
   left: 0;
   right: 0;
   height: 2.5rem;
-  background: linear-gradient(to bottom, transparent 0%, var(--glass-bg) 90%);
+  background: linear-gradient(to bottom, transparent 0%, var(--code-bg) 90%);
   pointer-events: none;
 }
 
