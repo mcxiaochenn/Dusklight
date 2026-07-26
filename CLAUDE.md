@@ -125,6 +125,7 @@ Syntax highlighting is handled by the **`astro-expressive-code`** integration co
 - Official plugins: `pluginCollapsibleSections`, `pluginLineNumbers`
 - Project plugin: `src/plugins/expressive-code/language-badge.ts` (registered)
 - `styleOverrides` deliberately point at design tokens (`var(--radius-lg)`, `var(--surface-1)`, `var(--font-mono)`) so code blocks track the theme
+- **Code frames use `--code-bg`, not `--glass-bg`, and it is opaque in both themes.** `github-light` / `github-dark` are palettes tuned for a specific canvas (`#FFFFFF` / `#0D1117`); a translucent frame composites the backdrop photo into that canvas and the palette loses contrast unpredictably. Measured on the real backdrop images: at the old `--glass-bg` alpha, **0 %** of light-mode syntax fragments met WCAG AA and contrast swung by up to 10.2 between the photo's bright and dark regions; dark mode dropped to 82.9 % because the dark backdrop has a bright green region that tinted the frame. Opaque puts both modes exactly at their palette ceiling (97.3 % / 99.2 %) with zero drift. `backdrop-filter` was removed from `.frame` for the same reason — it is a no-op behind an opaque fill, and per the Liquid Glass Pattern above, glass belongs on floating chrome, never on in-flow content.
 - Extra visual tuning lives in `src/styles/expressive-code.css`, imported by `BlogPost.astro`
 - The **copy button is Expressive Code's built-in one** — the old hand-rolled copy script was removed from `GlobalScripts.astro`
 
@@ -170,7 +171,7 @@ Defined in `src/content.config.ts`:
 
 `remark-content.mjs` computes `excerpt`, `minutes`, and `words` during markdown compilation, so these values **do not exist on `post.data`** — they live in the render output. There are two different access paths in this codebase, and which one you need depends on whether you have rendered the post:
 
-- `src/pages/blog/[...slug].astro` reads them off the already-rendered entry: `post.rendered?.metadata?.frontmatter`
+- `src/pages/posts/[...slug].astro` reads them off the already-rendered entry: `post.rendered?.metadata?.frontmatter`
 - `src/pages/[...page].astro` cannot — so it `await render(post)` for **every** post inside `getStaticPaths` purely to collect excerpts, then passes them down as a `props.excerpts` map keyed by `post.id`
 
 Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise the first non-empty paragraph. Code blocks are excluded from both excerpt and word count.
@@ -180,7 +181,7 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 | Route file | URL(s) |
 |---|---|
 | `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro` |
-| `src/pages/blog/[...slug].astro` | `/blog/<post.id>/` — slug is the content file path, **not** `abbrlink` |
+| `src/pages/posts/[...slug].astro` | `/posts/<abbrlink 或 post.id>/` — see Post URLs below |
 | `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
 | `src/pages/archive.astro`, `about.astro`, `404.astro` | static pages |
 | `src/pages/rss.xml.js` | RSS feed endpoint |
@@ -189,18 +190,37 @@ Pagination uses Astro's built-in `paginate()` helper with `pageSize: siteConfig.
 
 **Prefetch**: `astro.config.mjs` sets `prefetch: { prefetchAll: true, defaultStrategy: "hover" }` — every internal link prefetches on hover.
 
+### Post URLs (abbrlink)
+
+**Never hand-build a post URL.** `src/utils/abbrlink.ts` owns the rule and every link goes through it:
+
+- `getPostSlug(post)` → `post.data.abbrlink?.trim() || post.id`
+- `getPostUrl(post)` → `/posts/${getPostSlug(post)}/`
+
+Callers: `pages/posts/[...slug].astro` (via `getStaticPaths`), `PostCard`, `PostCardList`, `archive.astro`, `rss.xml.js`. Canonical/OG URLs need no wiring — `SEOHead` derives them from `Astro.url.pathname`.
+
+The `/posts/` prefix and the abbrlink-else-filename rule both **match the existing live blog exactly** (`/posts/p6eae1621/` alongside `/posts/mi-unlock-713/`). That is the point: same URLs means inbound links, search rankings, and **Twikoo comment threads all survive the migration** — `TwikooComments.astro` passes no explicit `path`, so Twikoo keys threads on `location.pathname`. Changing the URL shape orphans every existing comment.
+
+`generateAbbrlink()` in the same file computes `md5(title + date)` and is **deliberately not wired into routing** — its output would not match the abbrlinks already published on the live site. abbrlink values come only from frontmatter.
+
 ### Theme Switching
 
-ThemeToggle cycles **light → dark → auto** (3 modes, not 2). The animation:
+ThemeToggle cycles **light → dark → auto** (3 modes, not 2). The animation is a **circular reveal built on the native View Transitions API** — the new theme wipes in from the button, and the old theme stays put underneath:
 
-1. Computes the **incoming** theme's `--surface-0` colour (lightness/chroma are literals; the hue is read from the `--hue` token via `getComputedStyle`)
-2. Creates a full-screen overlay in that colour and expands its clip-path `circle(0)` → full screen
-3. At 620 ms — while the overlay hides everything — calls `applyTheme()`
-4. At 700 ms retracts the clip-path back to `circle(0)` and removes the overlay
+1. Stashes the click origin and a cover-the-farthest-corner radius on `:root` as `--theme-switch-x/y/r`, plus a `data-theme-switching` attribute
+2. Calls `document.startViewTransition(() => applyTheme(next))` — the browser snapshots before/after
+3. CSS animates `clip-path` on `::view-transition-new(root)` from `circle(0)` to `circle(--theme-switch-r)` over `--duration-slow`
+4. `transition.finished` clears the attribute, the coordinate vars, and the `animating` flag
+
+Three things about the CSS that are load-bearing, all in ThemeToggle's **`<style is:global>`** block:
+
+- **It must be `is:global`.** `::view-transition-*` is a pseudo-element tree on the document root; Astro's scoping would append `data-astro-cid-*` and the selectors would never match.
+- **It must be gated on `:root[data-theme-switching]`.** `<ClientRouter />` generates the same pseudo-elements on every page navigation — ungated, every page transition would inherit the circular wipe using stale coordinates.
+- **`isolation: auto` on `::view-transition-image-pair(root)` plus `mix-blend-mode: normal`** — the UA default is `plus-lighter` for cross-fading, which would add the two themes' colours together instead of showing one over the other.
 
 The cycle uses **`getStored()`, not `getEffective()`** — and it must. `getEffective()` resolves `auto` to light/dark, so using it would make `auto` unreachable and collapse the 3-way cycle into a 2-way one.
 
-Guards worth preserving: an `animating` flag rejects re-entry while the overlay is live, and `prefers-reduced-motion` short-circuits to a plain `applyTheme()`. The CSS reduced-motion block cannot cover this animation — it only shortens transitions, leaving the `setTimeout` choreography intact, which would strand users on a 700 ms opaque colour field.
+Guards worth preserving: an `animating` flag rejects re-entry mid-transition, and the JS short-circuits to a plain `applyTheme()` when `prefers-reduced-motion` is set **or** `document.startViewTransition` is missing (Firefox). The reduced-motion check cannot live in CSS — a `@media` block only shortens transitions, it cannot cancel the `animation` on `::view-transition-new(root)`.
 
 ### Navigation
 
@@ -250,7 +270,13 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 
 ## Gotchas
 
-- **Build cache**: If CSS changes don't appear, delete `.astro/` and `dist/` directories before rebuilding
+- **Build cache**: If CSS changes don't appear, delete `.astro/` and `dist/` before rebuilding.
+- **`node_modules/.astro/` is a THIRD cache, and `rm -rf .astro dist` does not touch it.** Its `data-store.json` holds the *rendered HTML* of every content entry — including the `<link rel="stylesheet" href="/_astro/ec.<hash>.css">` that `astro-expressive-code` injects into the rendered markdown AST. The hash is content-derived, so whenever EC's generated CSS changes but the markdown does not, the cached HTML keeps pointing at the **old** hash while the build emits the **new** file. Result: every page requests a stylesheet that 404s, all syntax highlighting silently dies, and code renders flat in `--foreground`. This actually shipped and was mistaken for a contrast bug. Diagnose with:
+  ```bash
+  echo "ref: $(grep -o 'ec\.[a-z0-9]*\.css' dist/posts/<any>/index.html | head -1)"
+  echo "got: $(ls dist/_astro/ | grep -o 'ec\.[a-z0-9]*\.css')"
+  ```
+  If they differ, `rm -rf node_modules/.astro .astro dist && pnpm build`. CI is immune (fresh `node_modules`), so this only bites locally — which makes it easy to misread as a styling problem.
 - **View Transitions**: ThemeToggle re-binds on `astro:after-swap`; SiteBackdrop's MutationObserver survives page transitions
 - **BackToTop visibility**: Logic is in GlobalScripts.astro, not in BackToTop.astro (Astro scoped scripts don't work reliably for global state)
 - **trailingSlash**: Set to `"always"` — all internal links must end with `/`
@@ -261,7 +287,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Encrypted post slugs**: The `Encryptor` component needs the `slug` prop passed explicitly from the page — it's not available from context inside the layout.
 - **`src/config/theme.ts` is inert — do not edit it expecting visual change.** `themeConfig` is re-exported from `src/config/index.ts` but imported by **zero** components or pages. Its values actively contradict the real ones: it declares `accentHue: 250` and `glass.blur: 20` while `tokens.css` uses `--hue: 170` and `--glass-blur: 12px`. To change theme colors, glass, or typography, edit `src/styles/tokens.css`.
 - **`Temp/` is not project code.** It is gitignored (`.gitignore:30`, zero tracked files) and holds a vendored copy of the Mizuki theme kept for reference. Never edit it, and exclude it when searching — its `biome.json` / `tsconfig.json` / `.env.example` are not this project's.
-- **Unused leftovers — don't wire them up without being asked**: `src/plugins/expressive-code/copy-button-plugin.ts` exists but is *not* registered in `astro.config.mjs` (only `language-badge.ts` is); `src/utils/abbrlink.ts` exports a deterministic slug generator that nothing imports — blog URLs come from `post.id`, so the `abbrlink` frontmatter field is currently decorative.
+- **Unused leftovers — don't wire them up without being asked**: `src/plugins/expressive-code/copy-button-plugin.ts` exists but is *not* registered in `astro.config.mjs` (only `language-badge.ts` is); `generateAbbrlink()` / `isValidAbbrlink()` in `src/utils/abbrlink.ts` are unused **on purpose** — see Post URLs. The file's live exports are `getPostSlug` / `getPostUrl`.
 - **Expressive Code, not Shiki**: code highlighting is configured through the `expressiveCode({...})` integration in `astro.config.mjs`. Astro's `markdown.shikiConfig` is not used and editing it has no effect.
 - **Content sync uses Windows junctions**: `scripts/sync-content.js` calls `symlinkSync(..., "junction")` (no admin rights needed on Windows) and silently falls back to `cpSync` if that fails. A copy fallback means later content-repo updates won't propagate until the next sync.
 - **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
