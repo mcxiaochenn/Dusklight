@@ -69,7 +69,7 @@ ${dead()}
 var ${v.dec}=function(a){var r="",l=a.length;for(var i=0;i<l;i++)r+=String.fromCharCode(a[i]^${v.key});return r};
 var ${v.ok}=${v.dec}([${hostEnc.join(",")}]);
 ${dead()}
-var ${v.host}=location.host;
+var ${v.host}=location.hostname;
 if(${v.host}&&${v.host}!=="localhost"&&${v.host}.indexOf("127.")!==0
   &&${v.host}!=="[::1]"&&${v.host}!=="0.0.0.0"&&${v.host}!==${v.ok}){
 document.documentElement.innerHTML=${v.dec}([${htmlEnc.join(",")}]);
