@@ -6,18 +6,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Tag from "../components/ui/Tag.astro";
 import { Icon } from "astro-icon/components";
 import { profileConfig } from "../config/profile";
+import { skillsData } from "@/data/skills";
 import { getEntry, render } from "astro:content";
 
 const aboutEntry = await getEntry("spec", "about");
 const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
-
-const socialIconMap: Record<string, string> = {
-  GitHub: "simple-icons:github",
-  Bilibili: "simple-icons:bilibili",
-  "酷安": "ph:device-mobile",
-  Email: "ph:envelope",
-  Twitter: "simple-icons:x",
-};
 ---
 
 <BaseLayout title="关于" description={`关于 ${profileConfig.name}`}>
@@ -32,6 +25,11 @@ const socialIconMap: Record<string, string> = {
         <div class="about__hero-text">
           <h1 class="about__name">{profileConfig.name}</h1>
           <p class="about__motto">{profileConfig.bio}</p>
+          <div class="about__identities">
+            {profileConfig.identities.map((t) => (
+              <span class="about__identity">{t}</span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -60,40 +58,61 @@ const socialIconMap: Record<string, string> = {
             <Icon name="ph:brain" /> 性格侧写
           </h2>
           <p class="about__mbti">{profileConfig.mbti}</p>
-          <p class="about__mbti-desc">逻辑、好奇、独立思考</p>
+          <p class="about__mbti-desc">{profileConfig.mbtiDesc}</p>
         </div>
 
-        {/* 技能与工具 */}
-        <div class="about__card about__card--skills">
+        {/* 技能墙 — 与 /skills/ 页同源数据 */}
+        <div class="about__card about__card--wide">
           <h2 class="about__card-title">
-            <Icon name="ph:code" /> 技能与工具
+            <Icon name="ph:code" /> 技能
           </h2>
-          <div class="about__skill-tags">
-            {profileConfig.skills.map((s) => <Tag>{s}</Tag>)}
-          </div>
-        </div>
-
-        {/* 联系与兴趣 */}
-        <div class="about__card about__card--connect">
-          <h2 class="about__card-title">
-            <Icon name="ph:link" /> 联系与兴趣
-          </h2>
-          <div class="about__social-links">
-            {profileConfig.socials.map((s) => (
-              <a href={s.url} target="_blank" rel="noopener noreferrer" class="about__social-link">
-                <Icon name={socialIconMap[s.label] || "ph:link"} class="about__social-icon" />
-                {s.label}
-              </a>
+          <div class="about__skill-wall">
+            {skillsData.map((s) => (
+              <span class="about__skill-icon" title={s.name}>
+                <Icon name={s.icon} />
+              </span>
             ))}
           </div>
         </div>
 
-        {/* 个人简介 */}
-        <div class="about__card about__card--wide about__card--intro">
+        {/* 喜欢的番 */}
+        <div class="about__card">
           <h2 class="about__card-title">
-            <Icon name="ph:notebook" /> 个人简介
+            <Icon name="ph:television-simple" /> 喜欢的番
           </h2>
-          <p class="about__intro-text">{profileConfig.intro}</p>
+          <div class="about__fav-tags">
+            {profileConfig.favorites.anime.map((a) => <Tag>{a}</Tag>)}
+          </div>
+        </div>
+
+        {/* 喜欢的游戏 */}
+        <div class="about__card">
+          <h2 class="about__card-title">
+            <Icon name="ph:game-controller" /> 喜欢的游戏
+          </h2>
+          <div class="about__fav-tags">
+            {profileConfig.favorites.games.map((g) => <Tag>{g}</Tag>)}
+          </div>
+        </div>
+
+        {/* 社交平台 */}
+        <div class="about__card about__card--wide">
+          <h2 class="about__card-title">
+            <Icon name="ph:link" /> 社交平台
+          </h2>
+          <div class="about__social-links">
+            {profileConfig.socials.map((s) => (
+              <a
+                href={s.url}
+                target={s.url.startsWith("mailto:") ? undefined : "_blank"}
+                rel="noopener noreferrer"
+                class="about__social-link"
+              >
+                <Icon name={s.icon} class="about__social-icon" />
+                {s.label}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -247,8 +266,58 @@ const socialIconMap: Record<string, string> = {
     margin: 0;
   }
 
-  /* ── 技能 ── */
-  .about__skill-tags {
+  /* ── Hero 身份标签 ── */
+  .about__identities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .about__identity {
+    padding: 2px var(--space-3);
+    border-radius: var(--radius-full);
+    background: oklch(from var(--accent) l c h / 0.12);
+    border: 1px solid oklch(from var(--accent) l c h / 0.2);
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  /* ── 技能图标墙 ── */
+  .about__skill-wall {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .about__skill-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: oklch(1 0 0 / 0.35);
+    border: 1px solid var(--glass-border);
+    transition: transform var(--duration-fast) var(--ease-material);
+  }
+
+  :global(.dark) .about__skill-icon {
+    background: oklch(1 0 0 / 0.06);
+  }
+
+  .about__skill-icon:hover {
+    transform: translateY(-2px) scale(1.06);
+  }
+
+  .about__skill-icon [data-icon] {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ── 番 / 游戏 ── */
+  .about__fav-tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);

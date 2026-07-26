@@ -19,6 +19,8 @@ import { remarkEscapeNumericColons } from "./src/plugins/remark-escape-numeric-c
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkMermaid } from "./src/plugins/remark-mermaid.js";
 
+import { h } from "hastscript";
+
 // Rehype 插件
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
@@ -120,6 +122,8 @@ export default defineConfig({
 					components: {
 						github: GithubCardComponent,
 						grid: ImageGridComponent,
+						// 行内剧透遮罩 :spoiler[...]（生产 about.md 使用）
+						spoiler: (_props, children) => h("span", { class: "spoiler" }, children),
 						note: (x, y) => AdmonitionComponent(x, y, "note"),
 						info: (x, y) => AdmonitionComponent(x, y, "info"),
 						tip: (x, y) => AdmonitionComponent(x, y, "tip"),

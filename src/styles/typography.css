@@ -404,6 +404,23 @@
   color: oklch(0.5 0.2 25);
 }
 
+/* ── 行内剧透遮罩 :spoiler[...] ── */
+.prose .spoiler {
+  background: var(--foreground-muted);
+  color: transparent;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-material),
+              color var(--duration-fast) var(--ease-material);
+}
+
+.prose .spoiler:hover,
+.prose .spoiler:focus {
+  background: transparent;
+  color: inherit;
+}
+
 /* ── 图片网格画廊 ── */
 .prose .image-grid {
   display: grid;

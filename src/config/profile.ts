@@ -11,6 +11,16 @@ export const profileConfig = {
 
   // ─── MBTI ───
   mbti: "INTP-T",
+  mbtiDesc: "大众前社恐，实则慢热，和熟人比较放得开 :(",
+
+  // ─── 身份标签（About 页 Hero 区 chips） ───
+  identities: ["高中生", "半吊子开发者", "二次元"],
+
+  // ─── 喜欢的番 / 游戏（About 页卡片，文案与生产 about.md 逐字一致） ───
+  favorites: {
+    anime: ["孤独摇滚", "国家队", "晨曦公主", "EVA（新世纪福音战士）", "鬼灭之刃"],
+    games: ["各种旮旯给木（GalGame）", "Minecraft", "CS", "明日方舟：终末地", "鸣潮"],
+  },
 
   // ─── 社交链接（icon 为 astro-icon 名称） ───
   socials: [
