@@ -158,7 +158,7 @@ Defined in `src/content.config.ts`:
   - `description` (string, required)
   - `tags` (string[], default `[]`)
   - `category` (string, optional)
-  - `cover` (string, optional)
+  - `cover` (string, optional) — **must be a public absolute path (`/images/…`) or full URL.** The schema is a plain `z.string()` (not Astro's `image()` helper), so the value lands verbatim in `<img src>` with zero processing — a relative path like `./cover.jpeg` 404s on every page because the file is never emitted to `dist/`. (Relative images in the markdown *body* are fine — those go through Astro's asset pipeline.)
   - `pinned` (boolean, default `false`)
   - `author` (string, optional)
   - `draft` (boolean, default `false`)

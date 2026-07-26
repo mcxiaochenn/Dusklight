@@ -2,7 +2,7 @@
 title: Simple Guides for Fuwari
 date: '2024/04/01 00:00:00'
 description: "How to use this blog template."
-cover: "./cover.jpeg"
+cover: "/images/demo/guide-cover.jpeg"
 tags: ["Fuwari", "Blogging", "Customization"]
 category: Guides
 draft: false
