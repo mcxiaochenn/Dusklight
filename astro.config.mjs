@@ -14,6 +14,8 @@ import remarkMath from "remark-math";
 import remarkDirective from "remark-directive";
 import remarkSectionize from "remark-sectionize";
 import { remarkContent } from "./src/plugins/remark-content.mjs";
+import { remarkPangu } from "./src/plugins/remark-pangu.mjs";
+import { siteConfig } from "./src/config/site";
 import { remarkFixGithubAdmonitions } from "./src/plugins/remark-fix-github-admonitions.js";
 import { remarkEscapeNumericColons } from "./src/plugins/remark-escape-numeric-colons.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
@@ -95,6 +97,8 @@ export default defineConfig({
 	markdown: {
 		remarkPlugins: [
 			remarkMath,
+			// pangu 在 remarkContent 之前：摘录/字数统计基于补完空格的文本
+			[remarkPangu, { mode: siteConfig.pangu }],
 			remarkContent,
 			remarkFixGithubAdmonitions,
 			remarkDirective,

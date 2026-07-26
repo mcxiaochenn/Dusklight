@@ -16,6 +16,10 @@ export const siteConfig = {
   // 建站日期 — 侧栏「运行天数」的起点
   siteStartDate: "2025-07-17",
 
+  // pangu 盘古之白（CJK 与西文间自动补空格，构建期渲染管线处理）
+  // "off" 关闭 | "global" 全部 markdown（默认） | "posts" 仅文章
+  pangu: "global" as "off" | "global" | "posts",
+
   // 分页
   postsPerPage: 8,
 
