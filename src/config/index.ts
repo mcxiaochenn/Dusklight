@@ -11,4 +11,5 @@ export { themeConfig } from "./theme";
 export { commentConfig } from "./comment";
 export { navConfig } from "./nav";
 export { profileConfig } from "./profile";
+export { announcementConfig } from "./announcement";
 export { seoConfig } from "./seo";

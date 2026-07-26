@@ -3,22 +3,24 @@
  */
 export const profileConfig = {
   // ─── 基本信息 ───
-  name: "mcxiaochen",
-  avatar: "/img/congyu/touxiang.webp",
-  bio: "热爱技术，热爱生活",
+  name: "辰渊尘",
+  avatar: "/images/congyu/touxiang.webp",
+  bio: "有志不在年高，无志空活百岁。",
   location: "浙江·嘉兴",
   email: "mcxiaochenn_yyds@163.com",
 
   // ─── MBTI ───
   mbti: "INTP-T",
 
-  // ─── 社交链接 ───
+  // ─── 社交链接（icon 为 astro-icon 名称） ───
   socials: [
-    { label: "GitHub", url: "https://github.com/mcxiaochenn" },
-    { label: "Bilibili", url: "https://space.bilibili.com/123757127" },
-    { label: "酷安", url: "https://www.coolapk.com/u/21508887" },
-    { label: "Email", url: "mailto:mcxiaochenn_yyds@163.com" },
-  ] as ReadonlyArray<{ label: string; url: string }>,
+    { label: "GitHub", url: "https://github.com/mcxiaochenn", icon: "simple-icons:github" },
+    { label: "Bilibili", url: "https://space.bilibili.com/123757127", icon: "simple-icons:bilibili" },
+    { label: "QQ", url: "https://qm.qq.com/q/KZKEcWKVSq", icon: "simple-icons:qq" },
+    { label: "Telegram", url: "https://t.me/mcxiaochenn", icon: "simple-icons:telegram" },
+    { label: "酷安", url: "https://www.coolapk.com/u/21508887", icon: "ph:link" },
+    { label: "Email", url: "mailto:mcxiaochenn_yyds@163.com", icon: "ph:envelope" },
+  ] as ReadonlyArray<{ label: string; url: string; icon: string }>,
 
   // ─── 个人简介（Hero 区短文） ───
   intro: "一个热爱技术与生活的开发者，喜欢折腾新工具，用代码解决问题。博客记录学习笔记、项目心得与日常思考。",

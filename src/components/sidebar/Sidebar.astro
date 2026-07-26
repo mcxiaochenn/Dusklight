@@ -1,0 +1,49 @@
+---
+/**
+ * 首页右侧栏 — 组合个人介绍 / 公告 / 站点统计 / 日历 / 无聊湾。
+ * 统计数据由页面在 getStaticPaths 中算好传入（全量文章口径，非当页）。
+ */
+import ProfileCard from "./ProfileCard.astro";
+import Announcement from "./Announcement.astro";
+import SiteStats from "./SiteStats.astro";
+import Calendar from "./Calendar.astro";
+import BoringBay from "./BoringBay.astro";
+
+export interface SidebarStats {
+  postCount: number;
+  categoryCount: number;
+  tagCount: number;
+  totalWords: number;
+  /** 最新文章的面值日 YYYY-MM-DD（UTC 读取） */
+  latestDay: string;
+  postDates: string[];
+}
+
+interface Props {
+  stats: SidebarStats;
+}
+
+const { stats } = Astro.props;
+---
+
+<aside class="sidebar">
+  <ProfileCard />
+  <Announcement />
+  <SiteStats
+    postCount={stats.postCount}
+    categoryCount={stats.categoryCount}
+    tagCount={stats.tagCount}
+    totalWords={stats.totalWords}
+    latestDay={stats.latestDay}
+  />
+  <Calendar postDates={stats.postDates} />
+  <BoringBay />
+</aside>
+
+<style>
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+</style>

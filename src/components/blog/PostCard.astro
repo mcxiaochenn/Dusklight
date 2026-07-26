@@ -37,9 +37,14 @@ const displayDesc = post.data.description || autoExcerpt || "";
     )}
 
     <div class="post-card__body">
-      {post.data.tags && post.data.tags.length > 0 && (
+      {(post.data.pinned || (post.data.tags && post.data.tags.length > 0)) && (
         <div class="post-card__tags">
-          {post.data.tags.slice(0, 3).map((t) => <Tag>{t}</Tag>)}
+          {post.data.pinned && (
+            <span class="post-card__pin">
+              <Icon name="ph:push-pin-fill" />置顶
+            </span>
+          )}
+          {(post.data.tags ?? []).slice(0, 3).map((t) => <Tag>{t}</Tag>)}
         </div>
       )}
 
@@ -131,6 +136,24 @@ const displayDesc = post.data.description || autoExcerpt || "";
   .post-card__tags :global(.tag):hover {
     background: oklch(from var(--accent) l c h / 0.15);
     border-color: oklch(from var(--accent) l c h / 0.35);
+  }
+
+  .post-card__pin {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: oklch(0.99 0.002 var(--hue));
+    font-size: var(--text-xs);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .post-card__pin [data-icon] {
+    width: 11px;
+    height: 11px;
   }
 
   .post-card__title {

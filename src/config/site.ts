@@ -13,6 +13,9 @@ export const siteConfig = {
   // 时区
   timezone: "Asia/Shanghai",
 
+  // 建站日期 — 侧栏「运行天数」的起点
+  siteStartDate: "2025-07-17",
+
   // 分页
   postsPerPage: 8,
 

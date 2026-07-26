@@ -1,0 +1,128 @@
+---
+/**
+ * 侧栏日历 — 构建期生成的当月月历，有文章的日子高亮。
+ * 纯静态（构建时间即"当前月"，博客每次发文重新构建，足够新鲜）。
+ */
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  /** 全部文章日期，YYYY-MM-DD（本地时区） */
+  postDates: string[];
+}
+
+const { postDates } = Astro.props;
+
+const now = new Date();
+const year = now.getFullYear();
+const month = now.getMonth(); // 0-based
+const today = now.getDate();
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const monthPrefix = `${year}-${pad(month + 1)}-`;
+const postDays = new Set(
+  postDates.filter((d) => d.startsWith(monthPrefix)).map((d) => Number(d.slice(8, 10)))
+);
+
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+const firstWeekday = new Date(year, month, 1).getDay(); // 0=周日
+const cells: (number | null)[] = [
+  ...Array.from({ length: firstWeekday }, () => null),
+  ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+];
+const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+---
+
+<div class="calendar">
+  <div class="calendar__header">
+    <Icon name="ph:calendar-blank" class="calendar__icon" />
+    <span class="calendar__title">{year} 年 {month + 1} 月</span>
+  </div>
+  <div class="calendar__grid" role="grid" aria-label={`${year} 年 ${month + 1} 月日历`}>
+    {weekdays.map((w) => <span class="calendar__weekday">{w}</span>)}
+    {cells.map((d) =>
+      d === null ? (
+        <span class="calendar__cell calendar__cell--empty"></span>
+      ) : (
+        <span
+          class:list={[
+            "calendar__cell",
+            d === today && "calendar__cell--today",
+            postDays.has(d) && "calendar__cell--post",
+          ]}
+          title={postDays.has(d) ? "这天有文章发布" : undefined}
+        >
+          {d}
+        </span>
+      )
+    )}
+  </div>
+</div>
+
+<style>
+  .calendar {
+    padding: var(--space-4) var(--space-5);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .calendar__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .calendar__icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+  }
+
+  .calendar__title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--foreground);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .calendar__weekday {
+    text-align: center;
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    padding-bottom: var(--space-1);
+  }
+
+  .calendar__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--foreground-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  .calendar__cell--today {
+    outline: 1.5px solid var(--accent);
+    outline-offset: -1.5px;
+    font-weight: 700;
+    color: var(--foreground);
+  }
+
+  .calendar__cell--post {
+    background: oklch(from var(--accent) l c h / 0.18);
+    color: var(--accent);
+    font-weight: 700;
+  }
+</style>

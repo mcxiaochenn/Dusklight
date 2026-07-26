@@ -1,0 +1,71 @@
+---
+/**
+ * 侧栏「无聊湾」徽章 — boringbay.com 提供的外链徽章图，
+ * 域名从 siteConfig.site 派生
+ */
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "@/config";
+
+const hostname = new URL(siteConfig.site).hostname;
+---
+
+<div class="boring-bay">
+  <div class="boring-bay__header">
+    <Icon name="ph:anchor" class="boring-bay__icon" />
+    <span class="boring-bay__title">无聊湾</span>
+  </div>
+  <a
+    href="https://boringbay.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="boring-bay__link"
+  >
+    <img
+      src={`https://boringbay.com/api/badge/${hostname}`}
+      alt="无聊湾徽章"
+      loading="lazy"
+      decoding="async"
+    />
+  </a>
+</div>
+
+<style>
+  .boring-bay {
+    padding: var(--space-4) var(--space-5);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .boring-bay__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .boring-bay__icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+  }
+
+  .boring-bay__title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--foreground);
+  }
+
+  .boring-bay__link {
+    display: block;
+    line-height: 0;
+  }
+
+  .boring-bay__link img {
+    max-width: 100%;
+    border-radius: var(--radius-sm);
+  }
+</style>

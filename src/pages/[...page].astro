@@ -8,29 +8,53 @@ import type { GetStaticPaths } from "astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/blog/PostCard.astro";
 import Pagination from "../components/ui/Pagination.astro";
+import Sidebar from "../components/sidebar/Sidebar.astro";
+import type { SidebarStats } from "../components/sidebar/Sidebar.astro";
 import { siteConfig } from "../config/site";
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  // 置顶优先，其余按时间倒序
   const allPosts = (await getCollection("blog"))
     .filter((p) => !p.data.draft)
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+    .sort(
+      (a, b) =>
+        (b.data.pinned ? 1 : 0) - (a.data.pinned ? 1 : 0) ||
+        b.data.date.valueOf() - a.data.date.valueOf()
+    );
 
-  // 预渲染获取 remark-content 插件注入的自动摘录
+  // 预渲染获取 remark-content 插件注入的自动摘录 + 全站字数
   const excerpts: Record<string, string> = {};
+  let totalWords = 0;
   await Promise.all(
     allPosts.map(async (post) => {
       const { remarkPluginFrontmatter } = await render(post);
       excerpts[post.id] = remarkPluginFrontmatter?.excerpt || "";
+      totalWords += remarkPluginFrontmatter?.words || 0;
     })
   );
 
+  // 侧栏统计（全量口径）。日期串按 UTC 读取 —— YAML 无引号日期按 UTC
+  // 解析，UTC 读回即 frontmatter 面值（与 FormattedDate 同一语义）
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const utcDay = (d: Date) =>
+    `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  const latest = allPosts.reduce((m, p) => (p.data.date > m ? p.data.date : m), new Date(0));
+  const stats: SidebarStats = {
+    postCount: allPosts.length,
+    categoryCount: new Set(allPosts.map((p) => p.data.category).filter(Boolean)).size,
+    tagCount: new Set(allPosts.flatMap((p) => p.data.tags)).size,
+    totalWords,
+    latestDay: utcDay(latest),
+    postDates: allPosts.map((p) => utcDay(p.data.date)),
+  };
+
   return paginate(allPosts, {
     pageSize: siteConfig.postsPerPage,
-    props: { excerpts },
+    props: { excerpts, stats },
   });
 };
 
-const { page, excerpts } = Astro.props;
+const { page, excerpts, stats } = Astro.props;
 const baseUrl = "/";
 ---
 
@@ -43,24 +67,28 @@ const baseUrl = "/";
     </div>
   </section>
 
-  {/* 文章流 */}
+  {/* 文章流 + 右侧栏 */}
   <section class="posts">
-    <div class="content-container">
-      <div class="posts__list">
-        {page.data.map((post) => (
-          <div class="posts__item">
-            <PostCard post={post} excerpt={excerpts[post.id]} />
-          </div>
-        ))}
+    <div class="home-grid">
+      <div class="home-grid__main">
+        <div class="posts__list">
+          {page.data.map((post) => (
+            <div class="posts__item">
+              <PostCard post={post} excerpt={excerpts[post.id]} />
+            </div>
+          ))}
+        </div>
+
+        <Pagination
+          currentPage={page.currentPage}
+          lastPage={page.lastPage}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          baseUrl={baseUrl}
+        />
       </div>
 
-      <Pagination
-        currentPage={page.currentPage}
-        lastPage={page.lastPage}
-        prevUrl={page.url.prev}
-        nextUrl={page.url.next}
-        baseUrl={baseUrl}
-      />
+      <Sidebar stats={stats} />
     </div>
   </section>
 </BaseLayout>
@@ -87,6 +115,17 @@ const baseUrl = "/";
     margin: 0;
   }
 
+  /* 双栏：文章流居左，侧栏固定宽度居右（fuwari 式单侧） */
+  .home-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--space-8);
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    align-items: start;
+  }
+
   .posts__list {
     display: flex;
     flex-direction: column;
@@ -95,6 +134,13 @@ const baseUrl = "/";
 
   .posts__item {
     /* reveal 动画由 IntersectionObserver 驱动 */
+  }
+
+  @media (max-width: 960px) {
+    /* 窄屏单列：侧栏堆到文章流下方 */
+    .home-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   @media (max-width: 768px) {

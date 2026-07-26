@@ -1,0 +1,80 @@
+---
+/**
+ * 侧栏公告卡片 — 文案与开关在 config/announcement.ts
+ */
+import { Icon } from "astro-icon/components";
+import { announcementConfig } from "@/config";
+---
+
+{announcementConfig.enabled && (
+  <div class="announcement">
+    <div class="announcement__header">
+      <Icon name="ph:megaphone" class="announcement__icon" />
+      <span class="announcement__title">{announcementConfig.title}</span>
+    </div>
+    <p class="announcement__content">{announcementConfig.content}</p>
+    {announcementConfig.link && (
+      <a href={announcementConfig.link.url} class="announcement__link">
+        {announcementConfig.link.text}
+        <Icon name="ph:arrow-right" class="announcement__link-icon" />
+      </a>
+    )}
+  </div>
+)}
+
+<style>
+  .announcement {
+    padding: var(--space-4) var(--space-5);
+    background: color-mix(in oklab, var(--accent) 8%, var(--glass-bg));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .announcement__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--accent);
+  }
+
+  .announcement__icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .announcement__title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .announcement__content {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    line-height: 1.65;
+    color: var(--foreground-secondary);
+  }
+
+  .announcement__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .announcement__link:hover {
+    text-decoration: underline;
+  }
+
+  .announcement__link-icon {
+    width: 12px;
+    height: 12px;
+  }
+</style>
