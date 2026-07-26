@@ -95,6 +95,9 @@
 </style>
 
 <script>
+  // 切换动画进行中的标记 —— 防止连点导致遮罩与主题错位
+  let animating = false;
+
   const ThemeManager = {
     getStored(): string {
       if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
@@ -142,8 +145,23 @@
     },
 
     toggleWithAnimation(originX: number, originY: number) {
+      if (animating) return;
+
       const stored = this.getStored();
       const next = stored === "light" ? "dark" : stored === "dark" ? "auto" : "light";
+
+      /*
+       * 尊重「减少动效」偏好：直接切换，不做遮罩动画。
+       * CSS 的 reduced-motion 规则只会把 transition 压到 0.01ms，
+       * 管不到下面的 setTimeout —— 那会让遮罩瞬间铺满、静止 700ms
+       * 再瞬间消失，对这部分用户反而是更糟的纯色闪屏。
+       */
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        this.applyTheme(next);
+        return;
+      }
+
+      animating = true;
 
       const maxR = Math.hypot(
         Math.max(originX, window.innerWidth - originX),
@@ -153,8 +171,11 @@
       // 遮罩用新主题的目标表面色（提前计算）
       const root = document.documentElement;
       const isNextDark = next === "dark" || (next === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      // 新主题的 surface-0 预估色
-      const nextBg = isNextDark ? "oklch(0.14 0.012 170)" : "oklch(0.96 0.012 170)";
+      // 色相从 token 读取，避免把配色写死在 JS 里 —— 明度/色度与 tokens.css 的 --surface-0 保持一致
+      const hue = getComputedStyle(root).getPropertyValue("--hue").trim() || "170";
+      const nextBg = isNextDark
+        ? `oklch(0.14 0.012 ${hue})`
+        : `oklch(0.96 0.012 ${hue})`;
 
       const overlay = document.createElement("div");
       overlay.style.cssText = `
@@ -184,6 +205,12 @@
         overlay.style.clipPath = `circle(0px at ${originX}px ${originY}px)`;
         overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
       }, 700);
+
+      // 兜底：transitionend 未触发时也要移除遮罩并解锁，否则按钮会被永久锁死
+      setTimeout(() => {
+        overlay.remove();
+        animating = false;
+      }, 1400);
     },
   };
 
