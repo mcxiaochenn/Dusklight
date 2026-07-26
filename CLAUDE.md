@@ -179,7 +179,7 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 
 | Route file | URL(s) |
 |---|---|
-| `src/pages/[...page].astro` | `/` and `/page/2/`, `/page/3/`… — **this is the homepage**; there is no `index.astro` |
+| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro` |
 | `src/pages/blog/[...slug].astro` | `/blog/<post.id>/` — slug is the content file path, **not** `abbrlink` |
 | `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
 | `src/pages/archive.astro`, `about.astro`, `404.astro` | static pages |
@@ -193,11 +193,14 @@ Pagination uses Astro's built-in `paginate()` helper with `pageSize: siteConfig.
 
 ThemeToggle cycles **light → dark → auto** (3 modes, not 2). The animation:
 
-1. Records old theme color via `getComputedStyle`
-2. Immediately applies new theme via `applyTheme()`
-3. Creates a full-screen overlay with old color, clip-path `circle(0)` → expands to full screen → shrinks back to 0 → removes overlay
+1. Computes the **incoming** theme's `--surface-0` colour (lightness/chroma are literals; the hue is read from the `--hue` token via `getComputedStyle`)
+2. Creates a full-screen overlay in that colour and expands its clip-path `circle(0)` → full screen
+3. At 620 ms — while the overlay hides everything — calls `applyTheme()`
+4. At 700 ms retracts the clip-path back to `circle(0)` and removes the overlay
 
-Uses `getEffective()` (not `getStored()`) to determine toggle cycle — `auto` resolves to the actual system preference.
+The cycle uses **`getStored()`, not `getEffective()`** — and it must. `getEffective()` resolves `auto` to light/dark, so using it would make `auto` unreachable and collapse the 3-way cycle into a 2-way one.
+
+Guards worth preserving: an `animating` flag rejects re-entry while the overlay is live, and `prefers-reduced-motion` short-circuits to a plain `applyTheme()`. The CSS reduced-motion block cannot cover this animation — it only shortens transitions, leaving the `setTimeout` choreography intact, which would strand users on a 700 ms opaque colour field.
 
 ### Navigation
 
@@ -262,3 +265,5 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Expressive Code, not Shiki**: code highlighting is configured through the `expressiveCode({...})` integration in `astro.config.mjs`. Astro's `markdown.shikiConfig` is not used and editing it has no effect.
 - **Content sync uses Windows junctions**: `scripts/sync-content.js` calls `symlinkSync(..., "junction")` (no admin rights needed on Windows) and silently falls back to `cpSync` if that fails. A copy fallback means later content-repo updates won't propagate until the next sync.
 - **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
+- **`DOMContentLoaded` and `astro:page-load` BOTH fire on the first page load.** Any init function registered on both runs twice on first load. For idempotent work that is harmless; for `addEventListener` it is not. A double-bound toggle handler cancels itself out — this actually shipped, and made the desktop nav dropdown unopenable on first load until a client-side navigation re-ran init on a fresh DOM. Element-level bindings need an idempotency guard (`header.dataset.headerInit`); the flag resets naturally because View Transitions replace the element. Verified by A/B test against a headless browser.
+- **`window` and `document` survive View Transitions; page elements do not.** Listeners bound to them belong at module top level (module scripts execute once per document), never inside a per-navigation init function — otherwise they accumulate one per navigation and their closures pin swapped-out DOM nodes in memory. See the top of `Header.astro`'s script for the intended shape.
