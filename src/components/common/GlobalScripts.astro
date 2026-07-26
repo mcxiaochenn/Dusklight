@@ -61,19 +61,27 @@
     });
   }
 
-  let backToTopBound = false;
-  function initBackToTop() {
+  /* ── 返回顶部 ──
+     window/document 监听在模块顶层绑定一次，事件内实时查元素。
+     旧实现的 toggle 闭包捕获了首个页面的按钮，滚动监听又被
+     backToTopBound 挡住不再重绑 —— View Transitions 换页后
+     监听器一直在切换已脱离文档的旧按钮，新按钮永远不出现，
+     点击也没绑。与 Header.astro 顶部的形态保持一致。 */
+  function toggleBackToTop() {
     const btn = document.getElementById("back-to-top");
     if (!btn) return;
-    function toggle() {
-      btn.classList.toggle("back-to-top--visible", window.scrollY > 1);
+    btn.classList.toggle("back-to-top--visible", window.scrollY > 1);
+  }
+  window.addEventListener("scroll", toggleBackToTop, { passive: true });
+  document.addEventListener("click", (e) => {
+    if (e.target instanceof Element && e.target.closest("#back-to-top")) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    if (!backToTopBound) {
-      window.addEventListener("scroll", toggle, { passive: true });
-      btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-      backToTopBound = true;
-    }
-    toggle();
+  });
+
+  function initBackToTop() {
+    // 每次导航后刷新初始可见性（新文档从顶部开始，应为隐藏）
+    toggleBackToTop();
   }
 
   /* ── 滚动渐显 ── */
