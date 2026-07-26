@@ -53,13 +53,17 @@
 
   /* ═══════════════════════════════════════════════════════
      GLASS — Apple-inspired material surfaces.
-     Reserved for overlay surfaces only (nav, TOC, back-to-top).
-     Never applied to content surfaces (cards, article body).
+     悬浮件（nav、TOC、back-to-top）与背景图透出的流内磨砂面板
+     （卡片、代码框、admonition）共用。正文文字仍直接落在背景上，
+     不套玻璃。
+     --glass-blur 基线 24px：背景图本身带 blur(8px) 预模糊，
+     玻璃模糊低于 ~16px 时在预模糊图上几乎不可见（12px 时期
+     即「玻璃感消失」的原因）。
      ═══════════════════════════════════════════════════════ */
   --glass-bg: oklch(0.98 0.006 var(--hue) / 0.55);
   --glass-border: oklch(0.90 0.010 var(--hue) / 0.35);
   --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.5);
-  --glass-blur: 12px;
+  --glass-blur: 24px;
   --glass-saturation: 140%;
   --glass-brightness: 1.0;
 
@@ -69,16 +73,16 @@
      直接是 SiteBackdrop 那张压暗过的背景图，而 Expressive Code
      的 github-light 配色是按纯白调的。55% 不透明度会让注释色
      掉到 3:1 以下，且对比度随背景图局部漂移。
-     这里取不透明，让语法配色回到它被设计的底色上。
-     实测：留 4% 透明度会把 4 个卡在 AA 边界的语法色（纯白底
-     4.57~4.95:1）压到线下。
-     取 --surface-1 而不是近纯白：0.995 的白块浮在背景图上过于
-     生硬（观感对照源站 blog.mcxiaochen.top 的 oklch(.97 .005 170)），
-     surface-1 带同色系色相，融入分层表面系统。
-     玻璃属于悬浮层（Header/TOC/BackToTop），代码块是流内元素，
-     本来就不该用 —— 见 CLAUDE.md 的 Liquid Glass Pattern 一节。
+     色调取 surface-1（近纯白过于生硬，对照源站
+     blog.mcxiaochen.top 的 oklch(.97 .005 170)）。
+     透明度 85% + .frame 上的深模糊（--glass-blur 24px，叠在背景图
+     自带的 8px 预模糊上）：磨砂把代码框下方的背景局部均匀化，
+     块内漂移趋近 0；比起全不透明牺牲最后几个百分点的 AA 达标率，
+     换回磨砂质感 —— 用户明确选择「更深的模糊提高可读性，
+     而不是直接删除」。alpha 再往下（55% 时代）实测会让浅色
+     AA 达标率归零，不要回去。
      ═══════════════════════════════════════════════════════ */
-  --code-bg: var(--surface-1);
+  --code-bg: oklch(0.98 0.008 var(--hue) / 0.85);
 
   /* ═══════════════════════════════════════════════════════
      RADIUS — Apple-aligned rounding scale.
@@ -218,9 +222,9 @@
   --glass-border: oklch(1 0 0 / 0.15);
   --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.15);
 
-  /* 代码块 — 同样不透明、同样落在 surface-1。深色背景图不像浅色
-     那样被 brightness(0.75) 压过，实测有一块 rgb(18,108,79) 的亮绿
-     区域；45% 不透明度会让代码框在那里泛绿，并吃掉最多 41% 对比度
-     （#B392F0 / #F97583 / #99A0A6 这些高频色首当其冲）。 */
-  --code-bg: var(--surface-1);
+  /* 代码块 — surface-1 色调 85% + 深模糊，与浅色同构。
+     深色背景图有一块 rgb(18,108,79) 亮绿区（未被 brightness 压过），
+     45% 时代码框在那里泛绿并吃掉最多 41% 对比度；85% 把绿色渗透
+     压到 ΔG≈11/255，磨砂再把它抹匀。不要降回 45%。 */
+  --code-bg: oklch(0.18 0.014 var(--hue) / 0.85);
 }

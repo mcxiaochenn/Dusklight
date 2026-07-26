@@ -19,13 +19,15 @@
   --ec-frm-frameBoxShdCssVal: var(--shadow-sm), var(--glass-highlight);
 }
 
-/* --code-bg 两种模式都不透明，backdrop-filter 已无任何可见效果，
-   只剩每个代码块一层合成开销 —— 移除。边框与内高光保留，
-   它们才是「抬升卡片」观感的来源。
+/* 磨砂代码框：--code-bg 85% 不透明 + 深模糊。
+   模糊值直接复用 --glass-blur（24px）——它叠在背景图自带的 8px
+   预模糊之上，把代码框下方局部均匀化，保住语法色可读性。
    边框用实体 --border 而非 --glass-border：玻璃边框 35% 透明度
-   在浅色不透明底上几乎不可见，块体浮在背景图上缺乏轮廓。 */
+   在高不透明底上几乎不可见，块体浮在背景图上缺乏轮廓。 */
 .expressive-code .frame {
   background: var(--code-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-sm), var(--glass-highlight) !important;
   border-radius: var(--radius-lg) !important;

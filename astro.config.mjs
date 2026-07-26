@@ -68,14 +68,16 @@ export default defineConfig({
 					// 框体 chrome 全部走设计 token —— 否则标签栏/终端栏用的是
 					// github-light/dark 主题的字面色（#f6f8fa、#fff、橙色指示条
 					// #f9826c），不跟 --hue 走，浅色下和全站青绿色系直接冲突
-					editorTabBarBackground: "var(--surface-2)",
+					// 标签栏/标题栏用 color-mix 半透明化 —— frame 是磨砂玻璃，
+					// 头部若为不透明实色会形成一条「实心帽子」，材质割裂
+					editorTabBarBackground: "color-mix(in oklab, var(--surface-2) 72%, transparent)",
 					editorTabBarBorderColor: "transparent",
 					editorTabBarBorderBottomColor: "var(--border-subtle)",
 					editorActiveTabBackground: "var(--code-bg)",
 					editorActiveTabForeground: "var(--foreground)",
 					editorActiveTabIndicatorTopColor: "var(--accent)",
 					editorActiveTabIndicatorBottomColor: "transparent",
-					terminalTitlebarBackground: "var(--surface-2)",
+					terminalTitlebarBackground: "color-mix(in oklab, var(--surface-2) 72%, transparent)",
 					terminalTitlebarForeground: "var(--foreground-secondary)",
 					terminalTitlebarDotsForeground: "var(--foreground-muted)",
 					terminalTitlebarBorderBottomColor: "var(--border-subtle)",
