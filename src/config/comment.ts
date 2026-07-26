@@ -7,8 +7,8 @@ export const commentConfig = {
 
   // Twikoo 配置
   twikoo: {
-    // 环境 ID（Vercel URL 或腾讯云环境 ID）
-    envId: "https://your-env-id.vercel.app",
+    // 环境 ID（Vercel URL 或腾讯云环境 ID）— 生产自建服务
+    envId: "https://twikoo.mcxiaochen.top/",
 
     // 腾讯云区域（使用腾讯云时填写）
     region: "",

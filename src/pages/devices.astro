@@ -1,0 +1,155 @@
+---
+/**
+ * 设备页 — src/data/devices.ts 按类别分组展示
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { devicesData } from "@/data/devices";
+
+const groups = Object.entries(devicesData).filter(([, list]) => list && list.length > 0);
+---
+
+<BaseLayout title="设备" description="我的设备清单">
+  <section class="section">
+    <div class="page-container">
+      <header class="devices__header">
+        <h1 class="devices__title">我的设备</h1>
+        <p class="devices__subtitle">日常使用的硬件清单</p>
+      </header>
+
+      {groups.map(([category, list]) => (
+        <div class="devices__group">
+          <h2 class="devices__category">{category}</h2>
+          <div class="devices__grid">
+            {list.map((d) => (
+              <a
+                href={d.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="device-card"
+              >
+                <div class="device-card__figure">
+                  <img
+                    src={d.image}
+                    alt={d.name}
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                  />
+                </div>
+                <div class="device-card__body">
+                  <span class="device-card__name">{d.name}</span>
+                  <span class="device-card__specs">{d.specs}</span>
+                  <span class="device-card__desc">{d.description}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .devices__header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .devices__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-2);
+  }
+
+  .devices__subtitle {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0;
+  }
+
+  .devices__group {
+    margin-bottom: var(--space-8);
+  }
+
+  .devices__category {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0 0 var(--space-4);
+  }
+
+  .devices__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .device-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    overflow: hidden;
+    text-decoration: none;
+    transition: box-shadow var(--duration-fast) var(--ease-material),
+                border-color var(--duration-fast) var(--ease-material),
+                transform var(--duration-fast) var(--ease-material);
+  }
+
+  .device-card:hover {
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+    border-color: var(--border);
+    transform: translateY(-2px);
+  }
+
+  .device-card__figure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    padding: var(--space-4);
+    background: oklch(1 0 0 / 0.25);
+  }
+
+  :global(.dark) .device-card__figure {
+    background: oklch(1 0 0 / 0.04);
+  }
+
+  .device-card__figure img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .device-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+  }
+
+  .device-card__name {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .device-card__specs {
+    font-size: var(--text-xs);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .device-card__desc {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--foreground-secondary);
+  }
+</style>

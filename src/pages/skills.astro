@@ -1,0 +1,179 @@
+---
+/**
+ * 技术栈页 — src/data/skills.ts 按分类分组展示
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+import { skillsData } from "@/data/skills";
+import type { Skill } from "@/data/skills";
+
+const categoryLabels: Record<Skill["category"], string> = {
+  frontend: "前端",
+  backend: "后端",
+  database: "数据库",
+  tools: "工具",
+  other: "其他",
+};
+
+const levelLabels: Record<Skill["level"], string> = {
+  beginner: "入门",
+  intermediate: "熟悉",
+  advanced: "熟练",
+  expert: "精通",
+};
+
+const order: Skill["category"][] = ["frontend", "backend", "database", "tools", "other"];
+const groups = order
+  .map((c) => [c, skillsData.filter((s) => s.category === c)] as const)
+  .filter(([, list]) => list.length > 0);
+
+function experienceText(s: Skill): string {
+  const { years, months } = s.experience;
+  if (years > 0 && months > 0) return `${years} 年 ${months} 个月`;
+  if (years > 0) return `${years} 年`;
+  return `${months} 个月`;
+}
+---
+
+<BaseLayout title="技术栈" description="我的技能与经验">
+  <section class="section">
+    <div class="page-container">
+      <header class="skills__header">
+        <h1 class="skills__title">技术栈</h1>
+        <p class="skills__subtitle">正在使用与学习中的技术</p>
+      </header>
+
+      {groups.map(([category, list]) => (
+        <div class="skills__group">
+          <h2 class="skills__category">{categoryLabels[category]}</h2>
+          <div class="skills__grid">
+            {list.map((s) => (
+              <div class="skill-card">
+                <div class="skill-card__icon">
+                  <Icon name={s.icon} />
+                </div>
+                <div class="skill-card__body">
+                  <span class="skill-card__name">
+                    {s.name}
+                    <span class="skill-card__level">{levelLabels[s.level]}</span>
+                  </span>
+                  <span class="skill-card__exp">{experienceText(s)}</span>
+                  <span class="skill-card__desc">{s.description}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .skills__header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .skills__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-2);
+  }
+
+  .skills__subtitle {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0;
+  }
+
+  .skills__group {
+    margin-bottom: var(--space-8);
+  }
+
+  .skills__category {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0 0 var(--space-4);
+  }
+
+  .skills__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .skill-card {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    padding: var(--space-4);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .skill-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    background: oklch(1 0 0 / 0.35);
+    border: 1px solid var(--glass-border);
+  }
+
+  :global(.dark) .skill-card__icon {
+    background: oklch(1 0 0 / 0.06);
+  }
+
+  .skill-card__icon [data-icon] {
+    width: 26px;
+    height: 26px;
+  }
+
+  .skill-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .skill-card__name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .skill-card__level {
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-full);
+    background: oklch(from var(--accent) l c h / 0.14);
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  .skill-card__exp {
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+  }
+
+  .skill-card__desc {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--foreground-secondary);
+  }
+</style>

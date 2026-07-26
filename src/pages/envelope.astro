@@ -1,0 +1,37 @@
+---
+/**
+ * 留言板 — spec/envelope.md 文案 + Twikoo 评论
+ * URL /envelope/ 与生产站一致，评论线程按路径延续
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import TwikooComments from "../components/blog/TwikooComments.astro";
+import { getEntry, render } from "astro:content";
+
+const entry = await getEntry("spec", "envelope");
+const { Content } = entry ? await render(entry) : { Content: null };
+---
+
+<BaseLayout title="留言板" description="有什么想说的，都可以在这里留言">
+  <section class="section">
+    <div class="content-container">
+      {Content && (
+        <div class="prose envelope__intro">
+          <Content />
+        </div>
+      )}
+      <TwikooComments />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .envelope__intro {
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+</style>

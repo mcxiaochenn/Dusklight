@@ -22,9 +22,11 @@ function isParentActive(item: NavItem): boolean {
 
 const navIcons: Record<string, string> = {
   "首页": "ph:house",
-  "博客": "ph:notebook",
   "归档": "ph:archive",
+  "留言板": "ph:envelope-simple",
+  "友链": "ph:users-three",
   "关于": "ph:user",
+  "外链": "ph:arrow-square-out",
 };
 ---
 
@@ -37,7 +39,7 @@ const navIcons: Record<string, string> = {
     </div>
 
     <nav class="header__pill header__pill--right" aria-label="主导航">
-      <div class="header__links hide-mobile">
+      <div class="header__links">
         {navConfig.main.map((item) => (
           item.children ? (
             <div class="header__dropdown">
@@ -55,6 +57,8 @@ const navIcons: Record<string, string> = {
                 {item.children.map((child) => (
                   <a
                     href={child.href}
+                    target={child.external ? "_blank" : undefined}
+                    rel={child.external ? "noopener noreferrer" : undefined}
                     class:list={["header__dropdown-item", { "header__dropdown-item--active": isActive(child.href) }]}
                   >
                     {child.label}
@@ -80,7 +84,7 @@ const navIcons: Record<string, string> = {
         <ThemeToggle />
         <button
           id="mobile-menu-toggle"
-          class="header__menu-btn hide-desktop"
+          class="header__menu-btn"
           aria-label="打开菜单"
           aria-expanded="false"
         >
@@ -112,6 +116,8 @@ const navIcons: Record<string, string> = {
             {item.children.map((child) => (
               <a
                 href={child.href}
+                target={child.external ? "_blank" : undefined}
+                rel={child.external ? "noopener noreferrer" : undefined}
                 class:list={["mobile-menu__link mobile-menu__link--sub", { "mobile-menu__link--active": isActive(child.href) }]}
               >
                 {child.label}
@@ -362,7 +368,11 @@ const navIcons: Record<string, string> = {
   }
 
   .header__menu-btn {
-    display: flex;
+    /* 桌面隐藏，≤768px 显示。显隐断点写在组件内 —— 之前依赖
+       utilities 的 .hide-mobile/.hide-desktop，与本组件 display
+       声明特异性相同、打包顺序不定，构建后曾出现移动端导航
+       竖排 + 桌面汉堡常驻。 */
+    display: none;
     align-items: center;
     justify-content: center;
     width: 36px;
@@ -514,6 +524,14 @@ const navIcons: Record<string, string> = {
   @media (max-width: 768px) {
     .main-header {
       padding: var(--space-2) var(--space-3);
+    }
+
+    .header__links {
+      display: none;
+    }
+
+    .header__menu-btn {
+      display: flex;
     }
   }
 </style>
