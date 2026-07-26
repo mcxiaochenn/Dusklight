@@ -465,13 +465,15 @@
   line-height: 1.6;
 }
 
-/* Blockquote — accent 左边框 */
+/* Blockquote — 与正文引用块同材质。
+   嵌套在评论卡片内，backdrop-filter 会被父级玻璃隔断采样，
+   所以只取着色与圆角，不叠 blur。 */
 #twikoo .tk-content blockquote {
   margin: var(--space-3) 0;
   padding: var(--space-3) var(--space-4);
   border-left: 3px solid var(--accent);
-  background: var(--accent-subtle);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: color-mix(in oklab, var(--accent) 10%, var(--glass-bg));
+  border-radius: var(--radius-md);
   color: var(--foreground-secondary);
 }
 

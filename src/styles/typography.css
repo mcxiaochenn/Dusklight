@@ -127,13 +127,20 @@
   list-style: disc;
 }
 
-/* ── 引用块 — Fuwari 风格：左侧色条 + 淡色背景 ── */
+/* ── 引用块 — 磨砂玻璃 ──
+   注意：admonition（:::note 等）渲染为 <blockquote class="admonition">，
+   所以这里就是普通引用块与 admonition 共享的玻璃基底 ——
+   材质只定义一次，两者不可能再漂移。admonition 的各类型
+   只覆写色条颜色与背景里的类型色。 */
 .prose blockquote {
   margin: 1.5rem 0;
   padding: var(--space-4) var(--space-5);
   border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  background: var(--accent-subtle);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--accent) 10%, var(--glass-bg));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: var(--glass-highlight);
   color: var(--foreground-secondary);
   font-style: normal;
 }
@@ -328,22 +335,10 @@
 }
 
 /* ── 提示框 (Admonitions) ── */
-/* ── Admonition — 磨砂玻璃面板 ──
-   背景 = 类型色以 color-mix 调进 --glass-bg（随 .dark 自动翻转），
-   叠 backdrop-filter 磨砂；左侧 3px 类型色条保留作为语义标识。
-   圆角走 --radius-lg，与代码框/卡片同一档 Apple 圆角。 */
-.prose .admonition {
-  margin: 1.5rem 0;
-  padding: var(--space-4) var(--space-5);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius-lg);
-  background: color-mix(in oklab, var(--accent) 10%, var(--glass-bg));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  box-shadow: var(--glass-highlight);
-  color: var(--foreground-secondary);
-  font-style: normal;
-}
+/* ── Admonition ──
+   :::note 等渲染为 <blockquote class="admonition bdm-*">，
+   磨砂玻璃基底直接继承上方 .prose blockquote 规则；
+   这里只保留类型差异（标题样式 + 每型的色条与背景类型色）。 */
 
 .prose .admonition .bdm-title {
   display: block;
