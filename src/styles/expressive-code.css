@@ -26,8 +26,8 @@
    在高不透明底上几乎不可见，块体浮在背景图上缺乏轮廓。 */
 .expressive-code .frame {
   background: var(--code-bg) !important;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-sm), var(--glass-highlight) !important;
   border-radius: var(--radius-lg) !important;
@@ -71,8 +71,8 @@
   width: 2rem;
   border-radius: var(--radius-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   border: 1px solid var(--glass-border);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-material);
@@ -120,8 +120,8 @@
   width: 2rem;
   border-radius: var(--radius-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   border: 1px solid var(--glass-border);
   color: var(--foreground-secondary);
   cursor: pointer;
@@ -180,8 +180,8 @@
 /* ── Mermaid 全屏按钮 ── */
 .expressive-code .mermaid-fullscreen-btn {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   color: var(--foreground-secondary);
   box-shadow: var(--shadow-sm), var(--glass-highlight);
   border: 1px solid var(--glass-border);

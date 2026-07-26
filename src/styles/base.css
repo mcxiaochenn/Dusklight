@@ -87,8 +87,8 @@ pre {
   line-height: 1.6;
   padding: var(--space-5);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
   overflow-x: auto;

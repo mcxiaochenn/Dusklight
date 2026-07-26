@@ -13,8 +13,8 @@
 .glass,
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md), var(--glass-highlight);
@@ -26,8 +26,8 @@
   top: 0;
   z-index: 50;
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border-bottom: 1px solid var(--glass-border);
   box-shadow: var(--glass-highlight);
 }
@@ -35,8 +35,8 @@
 /* ── Overlay glass — modal, dialog ── */
 .glass-overlay {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg), var(--glass-highlight);
@@ -57,8 +57,8 @@
 /* ── Mobile — reduce blur for performance ── */
 @media (max-width: 768px) {
   .glass, .glass-nav, .glass-panel, .glass-overlay {
-    backdrop-filter: blur(16px) saturate(var(--glass-saturation));
     -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturation));
+    backdrop-filter: blur(16px) saturate(var(--glass-saturation));
   }
 }
 
@@ -66,8 +66,8 @@
 @media (prefers-reduced-transparency: reduce) {
   .glass, .glass-nav, .glass-panel, .glass-overlay,
   .glass-interactive {
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     background: var(--surface-1);
     border: 1px solid var(--border);
   }

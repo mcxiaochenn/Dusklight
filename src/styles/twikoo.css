@@ -59,8 +59,8 @@
 #twikoo .tk-submit {
   position: relative;
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm), var(--glass-highlight);
@@ -216,8 +216,8 @@
 #twikoo .tk-row.actions .tk-preview,
 #twikoo .tk-row.actions .tk-cancel {
   background: var(--glass-bg) !important;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   color: var(--foreground-secondary) !important;
   border: 1px solid var(--glass-border) !important;
   box-shadow: var(--shadow-sm), inset 0 0.5px 0 oklch(1 0 0 / 0.2) !important;
@@ -252,8 +252,8 @@
   padding: var(--space-5);
   margin-top: var(--space-3);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm), var(--glass-highlight);
@@ -344,8 +344,8 @@
   align-items: center;
   padding: 1px var(--space-2);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
@@ -449,8 +449,8 @@
 #twikoo .tk-preview-container pre {
   padding: var(--space-3) var(--space-4);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   overflow-x: auto;
@@ -687,8 +687,8 @@
 /* ── Textarea — glass ── */
 #twikoo .el-textarea__inner {
   background: var(--glass-bg) !important;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   color: var(--foreground) !important;
   border-color: var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
@@ -707,8 +707,8 @@
 /* ── Input — glass ── */
 #twikoo .el-input__inner {
   background: var(--glass-bg) !important;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)) !important;
   color: var(--foreground) !important;
   border-color: var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
@@ -940,8 +940,8 @@
   #twikoo .tk-replies .tk-comment,
   #twikoo .tk-content pre,
   #twikoo .tk-preview-container pre {
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     background: var(--surface-1);
   }
 }
