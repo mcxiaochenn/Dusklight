@@ -69,7 +69,8 @@ function git(cmd, cwd) {
 
 // ===== 主同步逻辑 =====
 async function main() {
-  const env = loadEnv();
+  // .env 文件优先，回落到进程环境变量（CI 通过 env: 注入，没有 .env 文件）
+  const env = { ...process.env, ...loadEnv() };
 
   // 检查是否启用同步
   if (env.ENABLE_CONTENT_SYNC !== "true") {

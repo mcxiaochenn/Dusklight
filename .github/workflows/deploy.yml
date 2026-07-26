@@ -26,6 +26,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # /timeline/ 页构建期读完整 git log
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -41,7 +44,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 同步内容仓库
+      # 同步内容仓库（私有仓库：CONTENT_REPO_URL secret 需内嵌 PAT，
+      # 形如 https://<PAT>@github.com/mcxiaochenn/Dusklight-Content.git）
       - name: Sync content repository
         run: pnpm sync-content
         env:
@@ -53,9 +57,11 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
 
-      # 构建 Astro 站点
+      # 构建 Astro 站点（build 链前置追番数据拉取，BILI_SESSDATA 可选）
       - name: Build Astro site
         run: pnpm build
+        env:
+          BILI_SESSDATA: ${{ secrets.BILI_SESSDATA }}
 
       # 上传构建产物
       - name: Upload artifact

@@ -7,9 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm install          # Install dependencies
 pnpm dev              # Start dev server (localhost:4321)
-pnpm build            # Build for production → dist/
+pnpm build            # update-anime (fail-soft) → astro build → dist/
 pnpm preview          # Preview production build
 pnpm sync-content     # Manually sync content repository
+pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (gitignored)
 ```
 
 **Package manager**: pnpm (not npm/yarn). Lockfile is `pnpm-lock.yaml`.
@@ -68,6 +69,8 @@ const synced = existsSync("./content/blog/posts");
 **Deliberately NO symlinks/junctions**: on Windows, git traverses junctions and recurses into their contents — a junction at `src/content` would surface every private article as untracked files in the framework repo's working tree, one careless `git add .` away from publishing them. The `existsSync` switch keeps private content entirely outside the framework's tracked tree. (The old junction-based sync also had a copy-fallback staleness gotcha; both are gone.)
 
 Content repo layout: `blog/posts/**` (articles, `年/月/序号.标题.md`) + `blog/spec/*` (about/envelope/sponsors/friends). Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, sync is skipped; whether real content is used depends only on `content/blog/` existing. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`.
+
+**Editing content-repo files: commit + push in `content/` FIRST, then build.** The prebuild sync runs `git stash + git reset --hard origin/main` inside `content/` — any uncommitted edit there is silently discarded by the next `pnpm dev`/`pnpm build` (this actually happened; the edit survived only in `git stash`). `sync-content.js` reads `.env` first and falls back to `process.env` — CI passes `CONTENT_REPO_URL` via workflow `env:` (for the private repo the secret must embed a PAT: `https://<PAT>@github.com/...`).
 
 **abbrlink fidelity**: all 31 migrated posts carry `abbrlink` in frontmatter (30 legacy values preserved verbatim from the live site; one computed with Mizuki's exact CRC-32 rule `"p" + (CRC32(path) >>> 0).toString(36)`, validated against 3 known pairs). Never regenerate or edit a published abbrlink — it is the URL, and Twikoo threads key on it.
 
@@ -185,11 +188,18 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 
 | Route file | URL(s) |
 |---|---|
-| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro` |
+| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro`. Two-column: post stream left + `components/sidebar/Sidebar.astro` right (profile/announcement/site-stats/calendar/boringbay), stats computed in `getStaticPaths` |
 | `src/pages/posts/[...slug].astro` | `/posts/<abbrlink 或 post.id>/` — see Post URLs below |
 | `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
 | `src/pages/archive.astro`, `about.astro`, `404.astro` | static pages |
+| `src/pages/envelope.astro`, `link.astro`, `sponsors.astro` | 留言板 / 友链 / 赞助 — URLs match the live site verbatim so Twikoo threads survive; each embeds `TwikooComments` |
+| `src/pages/devices.astro`, `skills.astro` | data-driven pages from `src/data/{devices,skills}.ts` |
+| `src/pages/anime.astro` | `/anime/` — reads gitignored `src/data/bilibili-data.json` fetched by `scripts/update-anime.mjs` in the build chain; empty-state when missing |
+| `src/pages/timeline.astro` | `/timeline/` — build-time `git log` grouped by month (CI needs `fetch-depth: 0`) |
+| `src/pages/Friend-Circle-Lite.astro` | `/Friend-Circle-Lite/` (case-sensitive, matches live) — external fclite JS/CSS + `fc.mcxiaochen.top` |
 | `src/pages/rss.xml.js` | RSS feed endpoint |
+
+**Data files (`src/data/`)**: friends/devices/skills/sponsors are self-contained TS (interface + data in one file), committed to the framework repo (they were already public in the old blog repo). `bilibili-data.json` is the one exception — build-fetched and gitignored. `skills.ts` still holds theme template sample data (as does the live site).
 
 Pagination uses Astro's built-in `paginate()` helper with `pageSize: siteConfig.postsPerPage` (currently 8). The shared `ui/Pagination.astro` renders from `page.currentPage` / `page.lastPage` / `page.url.prev` / `page.url.next`.
 
@@ -296,6 +306,8 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Unused leftovers — don't wire them up without being asked**: `src/plugins/expressive-code/copy-button-plugin.ts` exists but is *not* registered in `astro.config.mjs` (only `language-badge.ts` is); `generateAbbrlink()` / `isValidAbbrlink()` in `src/utils/abbrlink.ts` are unused **on purpose** — see Post URLs. The file's live exports are `getPostSlug` / `getPostUrl`.
 - **Expressive Code, not Shiki**: code highlighting is configured through the `expressiveCode({...})` integration in `astro.config.mjs`. Astro's `markdown.shikiConfig` is not used and editing it has no effect.
 - **`git add -A` / `git add .` is forbidden in this repo while `content/` exists.** The private content clone lives inside the project tree (gitignored, so normally safe), but any future change that touches `.gitignore` or moves `content/` could expose it. Always stage explicit paths.
+- **Locating project files from page frontmatter: use `process.cwd()`, never `new URL(..., import.meta.url)`.** After `astro build`, `import.meta.url` points at the compiled module in `dist/chunks/` — relative paths resolve into `dist/` and silently miss (anime.astro shipped an empty page this way; the build log looked fine because the fetch script succeeded). Builds always run from the project root, so `resolve(process.cwd(), "src/data/…")` is correct in both dev and build.
+- **Frontmatter dates render at UTC face value.** Unquoted YAML datetimes parse as UTC; `FormattedDate` and all date grouping read them back with UTC getters so the author-written date is what displays. Formatting with local-time getters shifts post-16:00 dates +1 day (matched the live site's convention; fixed once already — keep the UTC discipline for any new date rendering).
 - **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
 - **`DOMContentLoaded` and `astro:page-load` BOTH fire on the first page load.** Any init function registered on both runs twice on first load. For idempotent work that is harmless; for `addEventListener` it is not. A double-bound toggle handler cancels itself out — this actually shipped, and made the desktop nav dropdown unopenable on first load until a client-side navigation re-ran init on a fresh DOM. Element-level bindings need an idempotency guard (`header.dataset.headerInit`); the flag resets naturally because View Transitions replace the element. Verified by A/B test against a headless browser.
 - **`window` and `document` survive View Transitions; page elements do not.** Listeners bound to them belong at module top level (module scripts execute once per document), never inside a per-navigation init function — otherwise they accumulate one per navigation and their closures pin swapped-out DOM nodes in memory. See the top of `Header.astro`'s script for the intended shape.
