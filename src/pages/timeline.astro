@@ -1,0 +1,233 @@
+---
+/**
+ * Timeline — 博客日志：构建期读取框架仓库 git log 按月渲染时间线。
+ * CI 上需要完整历史（deploy.yml 的 actions/checkout 配 fetch-depth: 0）。
+ */
+import { execSync } from "node:child_process";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+
+interface Commit {
+  hash: string;
+  date: string;
+  subject: string;
+}
+
+let commits: Commit[] = [];
+try {
+  // cwd 用 process.cwd()（项目根）—— import.meta.url 在构建后指向 dist/chunks/
+  const raw = execSync(
+    'git log --pretty=format:"%h|%ad|%s" --date=format:"%Y-%m-%d" -n 300',
+    { encoding: "utf-8", cwd: process.cwd() }
+  );
+  commits = raw
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const [hash, date, ...rest] = line.split("|");
+      return { hash, date, subject: rest.join("|") };
+    });
+} catch {
+  commits = [];
+}
+
+// 按月分组（YYYY-MM）
+const months = new Map<string, Commit[]>();
+for (const c of commits) {
+  const key = c.date.slice(0, 7);
+  if (!months.has(key)) months.set(key, []);
+  months.get(key)!.push(c);
+}
+
+const REPO_URL = "https://github.com/mcxiaochenn/Dusklight";
+
+// Conventional Commits 类型 → 徽章
+function commitType(subject: string): string {
+  const m = subject.match(/^([a-z]+)(\(.+?\))?!?:/);
+  return m?.[1] ?? "other";
+}
+---
+
+<BaseLayout title="Timeline" description="博客开发日志">
+  <section class="section">
+    <div class="content-container">
+      <header class="tl__header">
+        <h1 class="tl__title">Timeline</h1>
+        <p class="tl__subtitle">博客开发日志 · 共 {commits.length} 次提交</p>
+      </header>
+
+      {commits.length === 0 && (
+        <p class="tl__empty">构建环境缺少 git 历史（CI 需 fetch-depth: 0）。</p>
+      )}
+
+      {[...months.entries()].map(([month, list]) => (
+        <div class="tl__month">
+          <h2 class="tl__month-title">
+            <Icon name="ph:calendar-blank" />
+            {month.replace("-", " 年 ")} 月
+            <span class="tl__month-count">{list.length}</span>
+          </h2>
+          <ol class="tl__list">
+            {list.map((c) => (
+              <li class="tl__item" data-type={commitType(c.subject)}>
+                <span class="tl__dot"></span>
+                <div class="tl__card">
+                  <span class="tl__date">{c.date}</span>
+                  <span class="tl__subject">{c.subject}</span>
+                  <a
+                    href={`${REPO_URL}/commit/${c.hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="tl__hash"
+                  >{c.hash}</a>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tl__header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .tl__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-2);
+  }
+
+  .tl__subtitle {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0;
+  }
+
+  .tl__empty {
+    text-align: center;
+    color: var(--foreground-muted);
+    padding: var(--space-10) 0;
+  }
+
+  .tl__month {
+    margin-bottom: var(--space-8);
+  }
+
+  .tl__month-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0 0 var(--space-4);
+  }
+
+  .tl__month-title [data-icon] {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+  }
+
+  .tl__month-count {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--accent);
+    background: oklch(from var(--accent) l c h / 0.12);
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-full);
+  }
+
+  .tl__list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--space-4);
+    border-left: 2px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .tl__item {
+    position: relative;
+  }
+
+  .tl__dot {
+    position: absolute;
+    left: calc(-1 * var(--space-4) - 5px);
+    top: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px oklch(from var(--accent) l c h / 0.18);
+  }
+
+  .tl__item[data-type="fix"] .tl__dot {
+    background: oklch(0.7 0.18 75);
+    box-shadow: 0 0 0 3px oklch(0.7 0.18 75 / 0.18);
+  }
+
+  .tl__item[data-type="docs"] .tl__dot,
+  .tl__item[data-type="chore"] .tl__dot {
+    background: var(--foreground-muted);
+    box-shadow: 0 0 0 3px oklch(from var(--foreground-muted) l c h / 0.18);
+  }
+
+  .tl__card {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .tl__date {
+    flex-shrink: 0;
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tl__subject {
+    font-size: var(--text-sm);
+    color: var(--foreground);
+    overflow-wrap: anywhere;
+  }
+
+  .tl__hash {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .tl__hash:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .tl__card {
+      flex-wrap: wrap;
+      gap: var(--space-1) var(--space-3);
+    }
+
+    .tl__hash {
+      margin-left: 0;
+    }
+  }
+</style>

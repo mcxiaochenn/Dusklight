@@ -20,6 +20,11 @@ export const siteConfig = {
   // "off" 关闭 | "global" 全部 markdown（默认） | "posts" 仅文章
   pangu: "global" as "off" | "global" | "posts",
 
+  // 追番页 — scripts/update-anime.mjs 构建期从 Bilibili 拉取（vmid = B 站 UID）
+  anime: {
+    vmid: "123757127",
+  },
+
   // 分页
   postsPerPage: 8,
 

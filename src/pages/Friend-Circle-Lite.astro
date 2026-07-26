@@ -1,0 +1,179 @@
+---
+/**
+ * 友链朋友圈 — Friend-Circle-Lite（外部服务 fc.mcxiaochen.top + jsDelivr 前端）
+ * URL /Friend-Circle-Lite/ 与生产站一致；入口在 /link/ 页
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="友链朋友圈" description="朋友们的最新文章">
+  <section class="section">
+    <div class="content-container">
+      <header class="fcl__header">
+        <h1 class="fcl__title">友链朋友圈</h1>
+        <p class="fcl__subtitle">朋友们的最新动态</p>
+      </header>
+
+      <div class="fcl__panel">
+        <div id="friend-circle-lite-root"></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  if (typeof UserConfig === "undefined") {
+    var UserConfig = {
+      private_api_url: "https://fc.mcxiaochen.top/",
+      page_turning_number: 24,
+      error_img: "https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg",
+    };
+  }
+</script>
+<link
+  rel="stylesheet"
+  href="https://fastly.jsdelivr.net/gh/willow-god/Friend-Circle-Lite/main/fclite.min.css"
+/>
+<script
+  is:inline
+  src="https://fastly.jsdelivr.net/gh/willow-god/Friend-Circle-Lite/main/fclite.min.js"
+></script>
+
+<script is:inline>
+  // fclite 主题跟随站点 .dark（data-theme 是 fclite 的约定）
+  (function () {
+    function syncTheme() {
+      var isDark = document.documentElement.classList.contains("dark");
+      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    }
+    syncTheme();
+    new MutationObserver(syncTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  })();
+</script>
+
+<style>
+  .fcl__header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .fcl__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-2);
+  }
+
+  .fcl__subtitle {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0;
+  }
+
+  .fcl__panel {
+    padding: var(--space-5);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+</style>
+
+<style is:global>
+  /* fclite 的主题变量映射到 Dusklight tokens */
+  [data-theme="light"],
+  [data-theme="dark"] {
+    --hover-color: var(--accent);
+    --container-bg-color: var(--surface-1);
+    --border-color: var(--border-subtle);
+    --text-color: var(--foreground);
+    --author-color: var(--foreground-muted);
+    --background-color: var(--surface-2);
+    --tag-bg-color: var(--surface-2);
+    --load-more-btn-bg-color: var(--surface-1);
+  }
+
+  [data-theme="light"] {
+    --shadow-color: rgba(0, 0, 0, 0.06);
+  }
+
+  [data-theme="dark"] {
+    --shadow-color: rgba(255, 255, 255, 0.06);
+  }
+
+  #friend-circle-lite-root .card,
+  #random-article {
+    border-radius: var(--radius-lg) !important;
+  }
+
+  #friend-circle-lite-root .card-title,
+  #friend-circle-lite-root .random-title,
+  #friend-circle-lite-root .random-container-title,
+  #friend-circle-lite-root .stat-num {
+    color: var(--text-color) !important;
+  }
+
+  #friend-circle-lite-root .card-title:hover,
+  #friend-circle-lite-root #load-more-btn:hover {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+  }
+
+  #friend-circle-lite-root #load-more-btn {
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+    background-color: var(--load-more-btn-bg-color) !important;
+  }
+
+  #friend-circle-lite-root #load-more-btn:hover {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+  }
+
+  #friend-circle-lite-root .card:hover,
+  #random-article:hover {
+    border-color: var(--accent) !important;
+  }
+
+  #friend-circle-lite-root .random-link-button {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+  }
+
+  #friend-circle-lite-root .stat-text {
+    color: var(--author-color) !important;
+  }
+
+  #friend-circle-lite-root .random-author,
+  #friend-circle-lite-root .random-date {
+    color: var(--author-color) !important;
+    border-color: var(--border-color) !important;
+    background-color: var(--background-color) !important;
+  }
+
+  #friend-circle-lite-root .random-button-container a {
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+    background-color: var(--background-color) !important;
+  }
+
+  [data-theme="dark"] .modal-content {
+    background-color: rgba(30, 30, 30, 0.9) !important;
+  }
+
+  [data-theme="dark"] .modal-article .modal-article-title {
+    color: var(--text-color) !important;
+  }
+
+  #modal-author-name-link {
+    color: var(--accent) !important;
+  }
+</style>

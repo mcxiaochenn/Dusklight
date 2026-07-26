@@ -16,9 +16,12 @@ pnpm-debug.log*
 .env
 .env.production
 
-# 内容仓库（通过 symlink 映射）
+# 内容仓库（私有内容仓库的本地克隆，content.config.ts 直接读取）
 /content/
 *.backup
+
+# 构建期拉取的追番数据
+src/data/bilibili-data.json
 
 # macOS-specific files
 .DS_Store

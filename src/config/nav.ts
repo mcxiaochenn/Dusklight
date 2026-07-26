@@ -11,7 +11,6 @@ export interface NavItem {
 
 export const navConfig = {
   // 主导航 — 结构对齐生产站（blog.mcxiaochen.top）
-  // 追番 /anime/ 与 Timeline /timeline/ 待页面移植完成后再挂入「关于」下拉
   main: [
     { label: "首页", href: "/" },
     { label: "归档", href: "/archive/" },
@@ -21,8 +20,10 @@ export const navConfig = {
       label: "关于",
       href: "/about/",
       children: [
+        { label: "我的追番", href: "/anime/" },
         { label: "设备", href: "/devices/" },
         { label: "技术栈", href: "/skills/" },
+        { label: "Timeline", href: "/timeline/" },
         { label: "赞助", href: "/sponsors/" },
         { label: "关于本站", href: "/about/" },
       ],

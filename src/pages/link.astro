@@ -15,6 +15,7 @@ import { friendsData } from "@/data/friends";
       <header class="links__header">
         <h1 class="links__title">友情链接</h1>
         <p class="links__subtitle">共 {friendsData.length} 位朋友 · 排名不分先后</p>
+        <a href="/Friend-Circle-Lite/" class="links__fcl">友链朋友圈 →</a>
       </header>
 
       <div class="links__grid">
@@ -71,6 +72,19 @@ import { friendsData } from "@/data/friends";
     font-size: var(--text-sm);
     color: var(--foreground-secondary);
     margin: 0;
+  }
+
+  .links__fcl {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .links__fcl:hover {
+    text-decoration: underline;
   }
 
   .links__grid {
