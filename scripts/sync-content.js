@@ -1,6 +1,9 @@
 /**
- * 内容同步脚本
- * 参考 Mizuki 实现：clone + symlink 方式同步内容仓库
+ * 内容同步脚本 — 只负责 clone/更新私有内容仓库到 ./content/（gitignored）
+ *
+ * 不做 symlink/junction：内容的接入由 src/content.config.ts 里的 existsSync
+ * 切换完成（content/blog/ 存在则集合直接从中读取）。Windows 上 git 会穿越
+ * junction，把私有文章暴露进框架仓库工作区 —— 这是弃用 symlink 方案的原因。
  *
  * 使用方式：
  *   node scripts/sync-content.js
@@ -13,16 +16,8 @@
  */
 
 import { execSync } from "child_process";
-import {
-  existsSync,
-  mkdirSync,
-  rmSync,
-  symlinkSync,
-  cpSync,
-  readFileSync,
-  lstatSync,
-} from "fs";
-import { join, resolve, relative, dirname } from "path";
+import { existsSync, readFileSync } from "fs";
+import { join, resolve } from "path";
 
 // ===== 加载 .env 配置 =====
 function loadEnv() {
@@ -57,53 +52,6 @@ function loadEnv() {
   }
 
   return env;
-}
-
-// ===== 检查是否为符号链接 =====
-function isSymlink(path) {
-  try {
-    return lstatSync(path).isSymbolicLink();
-  } catch {
-    return false;
-  }
-}
-
-// ===== 创建符号链接 =====
-function createSymlink(src, dest, label) {
-  // 如果目标是符号链接，直接删除
-  if (isSymlink(dest)) {
-    rmSync(dest, { recursive: true, force: true });
-  }
-  // 如果目标已存在（非符号链接），先备份
-  else if (existsSync(dest)) {
-    const backup = dest + ".backup";
-    console.log(`  📦 备份: ${label} -> ${backup}`);
-    rmSync(backup, { recursive: true, force: true });
-    cpSync(dest, backup, { recursive: true });
-    rmSync(dest, { recursive: true, force: true });
-  }
-
-  // 确保父目录存在
-  mkdirSync(dirname(dest), { recursive: true });
-
-  try {
-    // 尝试创建符号链接（junction 在 Windows 上不需要管理员权限）
-    const relPath = relative(dirname(dest), src);
-    symlinkSync(relPath, dest, "junction");
-    console.log(`  🔗 ${label}: symlink created`);
-    return true;
-  } catch (err) {
-    // 如果符号链接失败，回退到文件复制
-    console.log(`  ⚠️  ${label}: symlink failed, using copy (${err.message})`);
-    try {
-      cpSync(src, dest, { recursive: true });
-      console.log(`  📁 ${label}: copied`);
-      return true;
-    } catch (copyErr) {
-      console.error(`  ❌ ${label}: copy failed (${copyErr.message})`);
-      return false;
-    }
-  }
 }
 
 // ===== 执行 Git 命令 =====
@@ -182,44 +130,12 @@ async function main() {
     }
   }
 
-  // 创建符号链接映射
-  const mappings = [
-    {
-      src: join(contentDir, "blog"),
-      dest: resolve("src/content"),
-      label: "blog -> src/content",
-    },
-    {
-      src: join(contentDir, "pages"),
-      dest: resolve("src/content/pages"),
-      label: "pages -> src/content/pages",
-    },
-    {
-      src: join(contentDir, "data"),
-      dest: resolve("src/data"),
-      label: "data -> src/data",
-    },
-    {
-      src: join(contentDir, "images"),
-      dest: resolve("public/images"),
-      label: "images -> public/images",
-    },
-  ];
-
-  console.log("\n📂 创建内容映射...");
-  let successCount = 0;
-
-  for (const { src, dest, label } of mappings) {
-    if (existsSync(src)) {
-      if (createSymlink(src, dest, label)) {
-        successCount++;
-      }
-    } else {
-      console.log(`  ⏭️  跳过 (不存在): ${label}`);
-    }
+  // 无 symlink 阶段 —— src/content.config.ts 通过 existsSync 直接读 content/blog/
+  if (existsSync(join(contentDir, "blog"))) {
+    console.log("\n✅ 内容同步完成！构建将使用 content/blog/ 中的私有内容\n");
+  } else {
+    console.log("\n⚠️  内容仓库中未找到 blog/ 目录，构建将退回内置演示内容\n");
   }
-
-  console.log(`\n✅ 内容同步完成！(${successCount}/${mappings.length} 映射成功)\n`);
 }
 
 main().catch((err) => {

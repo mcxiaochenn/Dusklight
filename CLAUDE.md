@@ -17,7 +17,7 @@ pnpm sync-content     # Manually sync content repository
 
 **After editing `.astro` or CSS files**: rebuild and visually verify. Astro caches aggressively in `.astro/` — if changes don't appear, delete `.astro/` and `dist/` before rebuilding.
 
-**Content sync**: `pnpm dev` and `pnpm build` automatically run `scripts/sync-content.js` via `predev`/`prebuild` hooks. This clones/updates a separate content repository and creates symlinks into `src/content/`. If no `.env` exists, the sync is skipped and local `src/content/` is used.
+**Content sync**: `pnpm dev` and `pnpm build` automatically run `scripts/sync-content.js` via `predev`/`prebuild` hooks. This clones/updates the private content repository into `./content/` (gitignored). No symlinks — `src/content.config.ts` reads `content/blog/` directly when it exists. If no `.env` exists, the sync is skipped and the built-in demo content in `src/content/` is used.
 
 **Deployment**: GitHub Actions deploys to GitHub Pages. The build step installs Playwright (Chromium) because Mermaid diagram rendering requires it at build time.
 
@@ -57,16 +57,19 @@ The Header pill uses a specific `::before` pseudo-element pattern for the glass 
 
 ### Content Sync Architecture
 
-Blog content lives in a **separate repository** (`Dusklight-Content`), not in this repo. The sync script (`scripts/sync-content.js`) clones/updates that repo and creates symlinks:
+Blog content lives in a **separate private repository** (`mcxiaochenn/Dusklight-Content` — framework is open-source, articles are not). The sync script (`scripts/sync-content.js`) only clones/updates that repo into `./content/` (gitignored). Content pickup happens in `src/content.config.ts`:
 
-| Content repo path | Symlink target |
-|---|---|
-| `content/blog/` | `src/content/` (posts) |
-| `content/pages/` | `src/content/pages/` |
-| `content/data/` | `src/data/` |
-| `content/images/` | `public/images/` |
+```ts
+const synced = existsSync("./content/blog/posts");
+// collections read from content/blog/{posts,spec} when present,
+// else from the built-in demo content in src/content/{posts,spec}
+```
 
-Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, the local `src/content/` directory is used directly. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`.
+**Deliberately NO symlinks/junctions**: on Windows, git traverses junctions and recurses into their contents — a junction at `src/content` would surface every private article as untracked files in the framework repo's working tree, one careless `git add .` away from publishing them. The `existsSync` switch keeps private content entirely outside the framework's tracked tree. (The old junction-based sync also had a copy-fallback staleness gotcha; both are gone.)
+
+Content repo layout: `blog/posts/**` (articles, `年/月/序号.标题.md`) + `blog/spec/*` (about/envelope/sponsors/friends). Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, sync is skipped; whether real content is used depends only on `content/blog/` existing. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`.
+
+**abbrlink fidelity**: all 31 migrated posts carry `abbrlink` in frontmatter (30 legacy values preserved verbatim from the live site; one computed with Mizuki's exact CRC-32 rule `"p" + (CRC32(path) >>> 0).toString(36)`, validated against 3 known pairs). Never regenerate or edit a published abbrlink — it is the URL, and Twikoo threads key on it.
 
 ### Anti-Mirror System
 
@@ -292,7 +295,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **`Temp/` is not project code.** It is gitignored (`.gitignore:30`, zero tracked files) and holds a vendored copy of the Mizuki theme kept for reference. Never edit it, and exclude it when searching — its `biome.json` / `tsconfig.json` / `.env.example` are not this project's.
 - **Unused leftovers — don't wire them up without being asked**: `src/plugins/expressive-code/copy-button-plugin.ts` exists but is *not* registered in `astro.config.mjs` (only `language-badge.ts` is); `generateAbbrlink()` / `isValidAbbrlink()` in `src/utils/abbrlink.ts` are unused **on purpose** — see Post URLs. The file's live exports are `getPostSlug` / `getPostUrl`.
 - **Expressive Code, not Shiki**: code highlighting is configured through the `expressiveCode({...})` integration in `astro.config.mjs`. Astro's `markdown.shikiConfig` is not used and editing it has no effect.
-- **Content sync uses Windows junctions**: `scripts/sync-content.js` calls `symlinkSync(..., "junction")` (no admin rights needed on Windows) and silently falls back to `cpSync` if that fails. A copy fallback means later content-repo updates won't propagate until the next sync.
+- **`git add -A` / `git add .` is forbidden in this repo while `content/` exists.** The private content clone lives inside the project tree (gitignored, so normally safe), but any future change that touches `.gitignore` or moves `content/` could expose it. Always stage explicit paths.
 - **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
 - **`DOMContentLoaded` and `astro:page-load` BOTH fire on the first page load.** Any init function registered on both runs twice on first load. For idempotent work that is harmless; for `addEventListener` it is not. A double-bound toggle handler cancels itself out — this actually shipped, and made the desktop nav dropdown unopenable on first load until a client-side navigation re-ran init on a fresh DOM. Element-level bindings need an idempotency guard (`header.dataset.headerInit`); the flag resets naturally because View Transitions replace the element. Verified by A/B test against a headless browser.
 - **`window` and `document` survive View Transitions; page elements do not.** Listeners bound to them belong at module top level (module scripts execute once per document), never inside a per-navigation init function — otherwise they accumulate one per navigation and their closures pin swapped-out DOM nodes in memory. See the top of `Header.astro`'s script for the intended shape.

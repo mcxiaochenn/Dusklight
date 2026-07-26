@@ -359,6 +359,15 @@
   color: oklch(0.55 0.15 250);
 }
 
+.prose .admonition.bdm-info {
+  border-left-color: oklch(0.65 0.13 210);
+  background: color-mix(in oklab, oklch(0.65 0.13 210) 10%, var(--glass-bg));
+}
+
+.prose .admonition.bdm-info .bdm-title {
+  color: oklch(0.55 0.13 210);
+}
+
 .prose .admonition.bdm-tip {
   border-left-color: oklch(0.65 0.15 155);
   background: color-mix(in oklab, oklch(0.65 0.15 155) 10%, var(--glass-bg));

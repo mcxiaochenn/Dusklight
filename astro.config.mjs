@@ -121,6 +121,7 @@ export default defineConfig({
 						github: GithubCardComponent,
 						grid: ImageGridComponent,
 						note: (x, y) => AdmonitionComponent(x, y, "note"),
+						info: (x, y) => AdmonitionComponent(x, y, "info"),
 						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
 						important: (x, y) => AdmonitionComponent(x, y, "important"),
 						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
