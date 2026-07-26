@@ -328,12 +328,19 @@
 }
 
 /* ── 提示框 (Admonitions) ── */
+/* ── Admonition — 磨砂玻璃面板 ──
+   背景 = 类型色以 color-mix 调进 --glass-bg（随 .dark 自动翻转），
+   叠 backdrop-filter 磨砂；左侧 3px 类型色条保留作为语义标识。
+   圆角走 --radius-lg，与代码框/卡片同一档 Apple 圆角。 */
 .prose .admonition {
   margin: 1.5rem 0;
   padding: var(--space-4) var(--space-5);
   border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  background: var(--accent-subtle);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--accent) 10%, var(--glass-bg));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: var(--glass-highlight);
   color: var(--foreground-secondary);
   font-style: normal;
 }
@@ -350,7 +357,7 @@
 
 .prose .admonition.bdm-note {
   border-left-color: oklch(0.65 0.15 250);
-  background: oklch(0.65 0.15 250 / 0.08);
+  background: color-mix(in oklab, oklch(0.65 0.15 250) 10%, var(--glass-bg));
 }
 
 .prose .admonition.bdm-note .bdm-title {
@@ -359,7 +366,7 @@
 
 .prose .admonition.bdm-tip {
   border-left-color: oklch(0.65 0.15 155);
-  background: oklch(0.65 0.15 155 / 0.08);
+  background: color-mix(in oklab, oklch(0.65 0.15 155) 10%, var(--glass-bg));
 }
 
 .prose .admonition.bdm-tip .bdm-title {
@@ -368,7 +375,7 @@
 
 .prose .admonition.bdm-important {
   border-left-color: oklch(0.55 0.2 300);
-  background: oklch(0.55 0.2 300 / 0.08);
+  background: color-mix(in oklab, oklch(0.55 0.2 300) 10%, var(--glass-bg));
 }
 
 .prose .admonition.bdm-important .bdm-title {
@@ -377,7 +384,7 @@
 
 .prose .admonition.bdm-warning {
   border-left-color: oklch(0.7 0.18 75);
-  background: oklch(0.7 0.18 75 / 0.08);
+  background: color-mix(in oklab, oklch(0.7 0.18 75) 10%, var(--glass-bg));
 }
 
 .prose .admonition.bdm-warning .bdm-title {
@@ -386,7 +393,7 @@
 
 .prose .admonition.bdm-caution {
   border-left-color: oklch(0.6 0.2 25);
-  background: oklch(0.6 0.2 25 / 0.08);
+  background: color-mix(in oklab, oklch(0.6 0.2 25) 10%, var(--glass-bg));
 }
 
 .prose .admonition.bdm-caution .bdm-title {
