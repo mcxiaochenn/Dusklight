@@ -8,6 +8,7 @@ import type { CollectionEntry } from "astro:content";
 import Tag from "../ui/Tag.astro";
 import FormattedDate from "../FormattedDate.astro";
 import { Icon } from "astro-icon/components";
+import { getPostUrl } from "@/utils/abbrlink";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -23,7 +24,7 @@ const displayDesc = post.data.description || autoExcerpt || "";
 ---
 
 <article class:list={["post-card", "reveal", `post-card--${variant}`, className]}>
-  <a href={`/blog/${post.id}/`} class="post-card__link">
+  <a href={getPostUrl(post)} class="post-card__link">
     {post.data.cover && (
       <div class="post-card__cover">
         <img

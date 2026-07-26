@@ -1,6 +1,7 @@
 import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
 import { siteConfig } from '../config/site';
+import { getPostUrl } from '@/utils/abbrlink';
 
 export async function GET(context) {
 	const posts = (await getCollection('blog'))
@@ -20,7 +21,7 @@ export async function GET(context) {
 			pubDate: post.data.date,
 			categories: post.data.tags,
 			author: post.data.author,
-			link: `/blog/${post.id}/`,
+			link: getPostUrl(post),
 		})),
 	});
 }

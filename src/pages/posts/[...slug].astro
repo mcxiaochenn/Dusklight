@@ -1,11 +1,13 @@
 ---
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
+import { getPostSlug } from "@/utils/abbrlink";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
-    params: { slug: post.id },
+    // 有 abbrlink 用 abbrlink，没有回退文件路径 —— 与线上老博客规则一致
+    params: { slug: getPostSlug(post) },
     props: post,
   }));
 }

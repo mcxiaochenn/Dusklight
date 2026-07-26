@@ -5,6 +5,7 @@
  */
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../FormattedDate.astro";
+import { getPostUrl } from "@/utils/abbrlink";
 
 interface Props {
   posts: CollectionEntry<"blog">[];
@@ -17,7 +18,7 @@ const { posts, class: className } = Astro.props;
 <ul class:list={["post-list", className]}>
   {posts.map((post) => (
     <li>
-      <a href={`/blog/${post.id}/`} class="post-list__item">
+      <a href={getPostUrl(post)} class="post-list__item">
         <span class="post-list__title">{post.data.title}</span>
         <span class="post-list__date"><FormattedDate date={post.data.date} /></span>
       </a>

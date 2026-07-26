@@ -6,6 +6,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
+import { getPostUrl } from "@/utils/abbrlink";
 
 const posts = (await getCollection("blog"))
   .filter((p) => !p.data.draft)
@@ -33,7 +34,7 @@ const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
           <ul class="archive__list">
             {postsByYear[year].map((post) => (
               <li class="archive__item">
-                <a href={`/blog/${post.id}/`} class="archive__link">
+                <a href={getPostUrl(post)} class="archive__link">
                   <span class="archive__date"><FormattedDate date={post.data.date} /></span>
                   <span class="archive__post-title">{post.data.title}</span>
                 </a>
