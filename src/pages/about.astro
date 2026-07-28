@@ -364,7 +364,8 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
 
   /* ── Markdown ── */
   .about__md {
-    margin-bottom: var(--space-16);
+    max-width: var(--content-width);
+    margin: 0 auto var(--space-16);
   }
 
   /* ── Fallback ── */

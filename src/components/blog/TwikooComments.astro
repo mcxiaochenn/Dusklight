@@ -1,17 +1,16 @@
 ---
 /**
- * Twikoo 评论组件
- * CDN 加载 + 主题跟随 + View Transitions 兼容
+ * Twikoo 1.7.15 评论组件
+ * 动态加载 + View Transitions 兼容 + CSS 本地强制覆盖
  */
 import { commentConfig } from "../../config/comment";
-import { cdnConfig } from "../../config/cdn";
 import "../../styles/twikoo.css";
 ---
 
 {commentConfig.enabled && (
   <div class="comments-section">
     <h2 class="comments__heading">评论</h2>
-    <div id="tcomment" class="comments__container"></div>
+    <div id="twikoo" class="comments__container"></div>
   </div>
 )}
 
@@ -35,108 +34,72 @@ import "../../styles/twikoo.css";
 </style>
 
 {commentConfig.enabled && (
-  <script define:vars={{
-    envId: commentConfig.twikoo.envId,
-    cdnUrl: cdnConfig.resources.twikoo,
-  }}>
-    function getTwikooTheme() {
+  <script define:vars={{ envId: commentConfig.twikoo.envId }}>
+    var TWIKOO_SRC = "/js/twikoo.min.js";
+
+    function getTheme() {
       return document.documentElement.classList.contains("dark") ? "dark" : "light";
     }
 
     function initTwikoo() {
-      const container = document.getElementById("tcomment");
-      if (!container) return;
-      if (typeof twikoo === "undefined") return;
+      var el = document.getElementById("twikoo");
+      if (!el || typeof twikoo === "undefined" || typeof twikoo.init !== "function") return;
       try { twikoo.destroy(); } catch {}
-
       twikoo.init({
         envId: envId,
-        el: "#tcomment",
-        theme: getTwikooTheme(),
-        onCommentLoaded: function () {},
+        el: "#twikoo",
+        theme: getTheme(),
       });
-
-      // Twikoo CDN 的 Element UI 样式在运行时动态注入，覆盖了静态 CSS。
-      // 此处在 init 之后注入 <style>，确保优先级高于 CDN 样式。
-      injectTwikooOverrides();
+      /* 每次 init 后用 JS 兜底 Element UI 内联样式 */
+      injectOverrides();
     }
 
-    function injectTwikooOverrides() {
-      // 直接操作元素内联样式，绕过 Element UI 的内联样式优先级
+    function injectOverrides() {
       var root = document.documentElement;
       var cs = getComputedStyle(root);
-      var glassBg = cs.getPropertyValue("--glass-bg").trim() || "oklch(1 0 0 / 0.45)";
-      var glassBorder = cs.getPropertyValue("--glass-border").trim() || "oklch(1 0 0 / 0.2)";
-      var glassBlur = cs.getPropertyValue("--glass-blur").trim() || "20px";
-      var glassSat = cs.getPropertyValue("--glass-saturation").trim() || "180%";
-      var glassBri = cs.getPropertyValue("--glass-brightness").trim() || "1.08";
-      var foreground = cs.getPropertyValue("--foreground").trim() || "#1a1a1a";
-      var shadowSm = cs.getPropertyValue("--shadow-sm").trim() || "0 1px 2px rgba(0,0,0,0.05)";
+      var bg = cs.getPropertyValue("--glass-bg").trim();
+      var border = cs.getPropertyValue("--glass-border").trim();
+      var fg = cs.getPropertyValue("--foreground").trim();
 
-      function applyStyles(el, styles) {
-        for (var k in styles) {
-          el.style.setProperty(k, styles[k], "important");
-        }
-      }
-
-      function patchFormFields() {
-        var tcomment = document.getElementById("tcomment");
-        if (!tcomment) return;
-        // textarea / input — glass 样式
-        var glassSelectors = [".el-textarea__inner", ".el-input__inner"];
-        glassSelectors.forEach(function(sel) {
-          tcomment.querySelectorAll(sel).forEach(function(el) {
-            applyStyles(el, {
-              "background": glassBg,
-              "backdrop-filter": "blur(" + glassBlur + ") saturate(" + glassSat + ") brightness(" + glassBri + ")",
-              "-webkit-backdrop-filter": "blur(" + glassBlur + ") saturate(" + glassSat + ") brightness(" + glassBri + ")",
-              "color": foreground,
-              "border-color": glassBorder,
-              "box-shadow": shadowSm + ", inset 0 0.5px 0 oklch(1 0 0 / 0.2)",
-            });
-          });
-        });
-        // prepend 标签
-        tcomment.querySelectorAll(".el-input-group__prepend").forEach(function(el) {
-          applyStyles(el, {
-            "background": glassBg,
-            "backdrop-filter": "blur(" + glassBlur + ") saturate(" + glassSat + ")",
-            "-webkit-backdrop-filter": "blur(" + glassBlur + ") saturate(" + glassSat + ")",
-            "color": foreground,
-            "border-color": glassBorder,
+      function patch() {
+        var c = document.getElementById("twikoo");
+        if (!c) return;
+        [".el-textarea__inner", ".el-input__inner"].forEach(function(s) {
+          c.querySelectorAll(s).forEach(function(el) {
+            el.style.setProperty("background", bg, "important");
+            el.style.setProperty("color", fg, "important");
+            el.style.setProperty("border-color", border, "important");
           });
         });
       }
 
-      patchFormFields();
-      // Twikoo DOM 可能延迟渲染，用 MutationObserver 持续监听
-      var observer = new MutationObserver(patchFormFields);
-      observer.observe(document.getElementById("tcomment") || document.body, {
-        childList: true, subtree: true,
-      });
-      // 5 秒后停止监听（DOM 已稳定）
-      setTimeout(function() { observer.disconnect(); }, 5000);
+      patch();
+      var mo = new MutationObserver(patch);
+      mo.observe(document.getElementById("twikoo") || document.body, { childList: true, subtree: true });
+      setTimeout(function() { mo.disconnect(); }, 5000);
     }
 
     function loadTwikoo() {
-      if (document.querySelector(`script[src="${cdnUrl}"]`)) {
-        initTwikoo();
+      if (typeof twikoo !== "undefined") { initTwikoo(); return; }
+      if (document.querySelector('script[src="' + TWIKOO_SRC + '"]')) {
+        /* script 标签已存在但还没加载完，等 onload */
         return;
       }
-      const script = document.createElement("script");
-      script.src = cdnUrl;
-      script.onload = initTwikoo;
-      script.onerror = () => console.error("Failed to load Twikoo CDN");
-      document.head.appendChild(script);
+      var s = document.createElement("script");
+      s.src = TWIKOO_SRC;
+      s.onload = initTwikoo;
+      s.onerror = function() { console.error("[Twikoo] 加载失败:", TWIKOO_SRC); };
+      document.head.appendChild(s);
     }
 
+    /* View Transitions 兼容：首次 + SPA 导航后均触发 */
     document.addEventListener("DOMContentLoaded", loadTwikoo);
     document.addEventListener("astro:page-load", loadTwikoo);
 
-    // 主题切换时更新 Twikoo 主题
-    new MutationObserver(() => {
-      if (typeof twikoo !== "undefined") {
-        try { twikoo.setTheme(getTwikooTheme()); } catch {}
+    /* 主题跟随 */
+    new MutationObserver(function() {
+      if (typeof twikoo !== "undefined" && typeof twikoo.setTheme === "function") {
+        try { twikoo.setTheme(getTheme()); } catch {}
       }
     }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
   </script>

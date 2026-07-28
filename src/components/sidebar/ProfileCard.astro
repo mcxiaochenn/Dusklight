@@ -16,6 +16,7 @@ import { profileConfig } from "@/config";
       height="88"
       loading="eager"
       decoding="async"
+      onerror="this.src='/images/avatar-fallback.svg';this.onerror=null"
     />
   </a>
   <h2 class="profile-card__name">{profileConfig.name}</h2>

@@ -1,24 +1,8 @@
 /**
  * CDN 配置
- * 中国大陆优先使用 jsdelivr
+ * 所有第三方库已自托管至 public/vendor/，本文件仅保留结构供 index.ts 重导出。
+ * 如需新增自托管资源，在 public/vendor/ 放文件后在此记录即可。
  */
 export const cdnConfig = {
-  // 主 CDN（优先使用 jsdelivr）
-  primary: "https://cdn.jsdelivr.net",
-
-  // 备用 CDN
-  fallback: "https://cdnjs.cloudflare.com",
-
-  // 具体资源地址
-  resources: {
-    // Twikoo 评论系统
-    twikoo: "https://cdn.jsdelivr.net/npm/twikoo@1.6.42/dist/twikoo.all.min.js",
-
-    // KaTeX 数学公式
-    katexCss: "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css",
-    katexJs: "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js",
-
-    // Mermaid 图表
-    mermaid: "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js",
-  },
+  resources: {} as Record<string, string>,
 } as const;

@@ -87,7 +87,7 @@ const displayDesc = post.data.description || autoExcerpt || "";
 
   .post-card__link {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     text-decoration: none;
     color: inherit;
     height: 100%;
@@ -95,7 +95,9 @@ const displayDesc = post.data.description || autoExcerpt || "";
 
   .post-card__cover {
     overflow: hidden;
-    aspect-ratio: 16 / 9;
+    width: 35%;
+    min-height: 140px;
+    flex-shrink: 0;
   }
 
   .post-card__cover img {
@@ -114,8 +116,9 @@ const displayDesc = post.data.description || autoExcerpt || "";
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    padding: var(--space-5);
+    padding: var(--space-4);
     flex: 1;
+    min-width: 0;
   }
 
   .post-card__tags {
@@ -206,14 +209,9 @@ const displayDesc = post.data.description || autoExcerpt || "";
     font-weight: 600;
   }
 
-  /* Hero variant — horizontal */
-  .post-card--hero .post-card__link {
-    flex-direction: row;
-  }
-
+  /* Hero variant — wider cover */
   .post-card--hero .post-card__cover {
     width: 45%;
-    aspect-ratio: auto;
     min-height: 200px;
   }
 
@@ -226,12 +224,14 @@ const displayDesc = post.data.description || autoExcerpt || "";
   }
 
   @media (max-width: 768px) {
-    .post-card--hero .post-card__link {
+    .post-card__link {
       flex-direction: column;
     }
 
+    .post-card__cover,
     .post-card--hero .post-card__cover {
       width: 100%;
+      min-height: 160px;
     }
   }
 </style>

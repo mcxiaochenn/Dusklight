@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm install          # Install dependencies
 pnpm dev              # Start dev server (localhost:4321)
-pnpm build            # update-anime (fail-soft) → astro build → dist/
+pnpm build            # sync-content (fail-soft) → update-anime → astro build → postbuild (obfuscate-anti-mirror)
 pnpm preview          # Preview production build
 pnpm sync-content     # Manually sync content repository
 pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (gitignored)
@@ -72,6 +72,19 @@ Content repo layout: `blog/posts/**` (articles, `年/月/序号.标题.md`) + `b
 
 **Editing content-repo files: commit + push in `content/` FIRST, then build.** The prebuild sync runs `git stash + git reset --hard origin/main` inside `content/` — any uncommitted edit there is silently discarded by the next `pnpm dev`/`pnpm build` (this actually happened; the edit survived only in `git stash`). `sync-content.js` reads `.env` first and falls back to `process.env` — CI passes `CONTENT_REPO_URL` via workflow `env:` (for the private repo the secret must embed a PAT: `https://<PAT>@github.com/...`).
 
+### Self-Hosted Libraries
+
+All third-party browser-side libraries are self-hosted (no CDN requests except friend avatars and self-hosted Umami analytics):
+
+| Path | Library | Used by |
+|------|---------|---------|
+| `public/vendor/mermaid.min.js` | Mermaid 11.x | `mermaid-render-script.js` (client-side dynamic render + SSR Playwright page) |
+| `public/vendor/fclite.min.css` | Friend-Circle-Lite | `Friend-Circle-Lite.astro` |
+| `public/vendor/fclite.min.js` | Friend-Circle-Lite | `Friend-Circle-Lite.astro` |
+| `public/js/twikoo.min.js` | Twikoo 1.7.15 | `TwikooComments.astro` (dynamic script injection) |
+
+KaTeX CSS/JS is bundled at build time by `rehype-katex` (npm), not loaded from a CDN. The `src/config/cdn.ts` file is an empty placeholder kept for barrel-export compatibility.
+
 **abbrlink fidelity**: all 31 migrated posts carry `abbrlink` in frontmatter (30 legacy values preserved verbatim from the live site; one computed with Mizuki's exact CRC-32 rule `"p" + (CRC32(path) >>> 0).toString(36)`, validated against 3 known pairs). Never regenerate or edit a published abbrlink — it is the URL, and Twikoo threads key on it.
 
 ### Anti-Mirror System
@@ -86,6 +99,28 @@ The site includes a build-time anti-mirror mechanism to redirect visitors on una
 
 Articles can be password-encrypted via frontmatter (`password`, `hint` fields). The `Encryptor.astro` component renders a password prompt and decrypts content client-side using `src/utils/crypto-utils.ts`. Encrypted posts use a separate stylesheet (`src/styles/encrypted-content.css`).
 
+### Twikoo Comments (Self-Hosted 1.7.15)
+
+Twikoo is loaded from `public/js/twikoo.min.js` (standard build, not the Tencent-Cloud-only `.all` variant). The loading architecture handles three concerns:
+
+**Dynamic script injection** (`TwikooComments.astro`):
+- Creates a `<script>` tag pointing to `/js/twikoo.min.js` on first load
+- On View Transitions navigation, re-runs `initTwikoo()` without re-creating the script tag
+- Theme change detection via `MutationObserver` on `<html>` class → `twikoo.setTheme()`
+
+**Style overrides** (`src/styles/twikoo.css`, ~750 lines):
+- All selectors use `#twikoo` prefix (specificity 1,0,0) to beat Twikoo's built-in `.twikoo` (0,1,0)
+- Element UI inline styles (`.el-textarea__inner`, `.el-input__inner`) are patched via JS `setProperty(..., "important")` — CSS alone cannot override them
+- Full glass-card treatment: comments, submit area, tags, code blocks all use `--glass-bg` + `backdrop-filter`
+- Action button icon swap on hover/liked/disliked (`.tk-action-icon` ↔ `.tk-action-icon-solid`)
+- Dark mode: shadows only via `:root.dark`; colors auto-switch through design tokens
+- `@media (prefers-reduced-transparency)` fallback for accessibility
+
+**View Transitions compatibility**:
+- Both `DOMContentLoaded` and `astro:page-load` trigger `loadTwikoo()`
+- `injectOverrides()` re-runs after each init (5s MutationObserver window) to catch Element UI's delayed DOM injection
+- The `twikoo` global persists across navigations; only re-initialization is needed
+
 ### Remark/Rehype Plugin Architecture
 
 Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These are **project-specific transforms**, not third-party packages:
@@ -93,6 +128,7 @@ Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These ar
 | Plugin | Purpose |
 |---|---|
 | `remark-content.mjs` | Injects `excerpt`, `minutes` (reading time), `words` into frontmatter. CJK-aware: Latin counted at 200 wpm, CJK characters at 400 cpm |
+| `remark-pangu.mjs` | Inserts whitespace between CJK and Western characters at build time (`pangu.spacingText` on mdast text nodes). Runs before `remarkContent` so excerpts/word counts see the corrected text. Also contains a directive-head repair pass: pangu would insert a space into `:::note[标题]` → `:::note [标题]` and break directive parsing, so the plugin reverts that one space |
 | `remark-mermaid.js` | Extracts Mermaid code blocks for build-time rendering |
 | `remark-fix-github-admonitions.js` | Normalizes GitHub-style `> [!NOTE]` syntax |
 | `remark-directive-rehype.js` | Bridges remark-directive to rehype custom components |
@@ -103,7 +139,7 @@ Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These ar
 | `rehype-component-admonition.mjs` | Custom admonition component (`:::note`, `:::tip`, etc.) |
 | `rehype-component-github-card.mjs` | `<github repo="owner/repo">` embed cards |
 | `rehype-component-image-grid.mjs` | `<grid>` image grid layout |
-| `mermaid-render-script.js` | Browser-side script the Playwright page runs to rasterize Mermaid to SVG |
+| `mermaid-render-script.js` | **Dual-role**: (1) browser-side script loaded by Playwright during SSR build (`rehype-mermaid.mjs`) to rasterize Mermaid → SVG; (2) client-side runtime script for dynamic Mermaid rendering with zoom, pan, and fullscreen overlay |
 | `expressive-code/language-badge.ts` | Expressive Code plugin — language badge on code block frames (registered) |
 
 **Mermaid rendering** requires Playwright (Chromium) at build time — this is why the CI workflow installs `npx playwright install --with-deps chromium`.
@@ -116,7 +152,7 @@ Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These ar
 
 Configured in `astro.config.mjs`:
 - **remark-math** → parse `$...$` and `$$...$$` math expressions
-- **rehype-katex** → render math with KaTeX (CSS loaded from CDN in `cdn.ts`)
+- **rehype-katex** → render math with KaTeX (CSS bundled at build time, no CDN)
 - **rehype-slug** → add `id` attributes to headings
 - **rehype-autolink-headings** → wrap headings in anchor links
 - **rehype-external-links** → open external links in new tab with `noopener noreferrer`
@@ -144,6 +180,7 @@ src/components/
 ├── common/     # Header, Footer, ThemeToggle, BackToTop, ScrollProgress, SiteBackdrop, GlobalScripts, AntiMirror
 ├── blog/       # PostCard, PostCardList, ArticleMeta, TOC, TwikooComments, Encryptor
 ├── seo/        # SEOHead (meta/OG/canonical), JsonLd
+├── sidebar/    # Sidebar, ProfileCard, Announcement, SiteStats, Calendar, BoringBay
 └── ui/         # Button, Tag, Divider, Card, CodeBlock, Blockquote, Pagination
 ```
 
@@ -249,7 +286,7 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 | `src/config/profile.ts` | Name, avatar, bio, location, MBTI, socials, skills, intro |
 | `src/config/nav.ts` | Navigation menu structure + social links |
 | `src/config/comment.ts` | Twikoo comment system envId |
-| `src/config/cdn.ts` | CDN resource URLs (Twikoo, KaTeX, Mermaid) |
+| `src/config/cdn.ts` | ⚠️ Now an empty placeholder — all third-party libraries are self-hosted (see Self-Hosted Libraries below). Kept for barrel export compatibility |
 | `src/config/seo.ts` | SEO defaults, JSON-LD, search engine verification |
 | `src/config/theme.ts` | ⚠️ Exported but **consumed by nothing** — see Gotchas. Real values live in `tokens.css` |
 | `src/config/index.ts` | Barrel export for all config modules |
@@ -287,6 +324,8 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 
 - **Build cache**: If CSS changes don't appear, delete `.astro/` and `dist/` before rebuilding.
 - **`backdrop-filter` MUST be declared with `-webkit-backdrop-filter` FIRST and the standard property LAST.** The production CSS minifier treats the pair as duplicates of one property and keeps only the **last** declaration. With the standard-first order this codebase used to have, every built stylesheet shipped *only* `-webkit-backdrop-filter` — which Chromium/Firefox ignore — so **all glass blur was silently dead in `pnpm build`/`preview` while looking perfectly fine in `astro dev`** (dev serves unminified CSS with both declarations). The discrepancy is invisible to computed-style checks in dev and to screenshot checks over the pre-blurred wallpaper; the reliable probes are: `getComputedStyle(el).backdropFilter` on a **built** page (was `none`), and grepping the built output: `grep -oh '[{;]backdrop-filter:' dist/_astro/*.css` (a bare-substring grep matches inside `-webkit-…` and lies). Current order (prefix first) makes the minifier keep the standard property; pre-18 Safari degrades to translucency without blur, which is acceptable.
+- **`lightningcss` cannot parse `oklch(from var(--x) l c h / alpha)` relative color syntax.** The production build uses lightningcss for CSS minification, and `oklch(from ...)` is a CSS Color Level 5 feature it does not support (as of lightningcss 1.33.0). Use `color-mix(in oklch, var(--x) X%, transparent)` instead — semantically equivalent and lightningcss-compatible. Also avoid `var(--token / 0.5)` shorthand (invalid CSS regardless); use `color-mix(in oklch, var(--token) 50%, transparent)`.
+  Build failure signature: `Unexpected token Delim('/')` in CSS.
 - **`node_modules/.astro/` is a THIRD cache, and `rm -rf .astro dist` does not touch it.** Its `data-store.json` holds the *rendered HTML* of every content entry — including the `<link rel="stylesheet" href="/_astro/ec.<hash>.css">` that `astro-expressive-code` injects into the rendered markdown AST. The hash is content-derived, so whenever EC's generated CSS changes but the markdown does not, the cached HTML keeps pointing at the **old** hash while the build emits the **new** file. Result: every page requests a stylesheet that 404s, all syntax highlighting silently dies, and code renders flat in `--foreground`. This actually shipped and was mistaken for a contrast bug. Diagnose with:
   ```bash
   echo "ref: $(grep -o 'ec\.[a-z0-9]*\.css' dist/posts/<any>/index.html | head -1)"
@@ -300,6 +339,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
 - **Mermaid requires Playwright**: Building with Mermaid diagrams needs Chromium installed (`npx playwright install --with-deps chromium`). The `rehype-mermaid.mjs` plugin launches a headless browser to render diagrams to SVG at build time. Without Playwright, the build will fail on posts containing Mermaid code blocks.
+- **`mermaid-render-script.js` has a known bug in `loadMermaid()`**: the CDN → vendor migration left two issues: (1) line 648 references `fallbackScript` which is undefined (dead code from the removed CDN fallback), and (2) `document.head.appendChild(script)` is outside the Promise executor on line 651 where `script` is out of scope. The script currently works because the first error is inside the Promise (caught as a rejection), but the Mermaid global may already be available from the SSR build step's Playwright page — masking the loading path failure. If Mermaid diagrams stop rendering client-side, fix this function first.
 - **Encrypted post slugs**: The `Encryptor` component needs the `slug` prop passed explicitly from the page — it's not available from context inside the layout.
 - **`src/config/theme.ts` is inert — do not edit it expecting visual change.** `themeConfig` is re-exported from `src/config/index.ts` but imported by **zero** components or pages. Its values actively contradict the real ones: it declares `accentHue: 250` and `glass.blur: 20` while `tokens.css` uses `--hue: 170` and `--glass-blur: 24px`. To change theme colors, glass, or typography, edit `src/styles/tokens.css`.
 - **`Temp/` is not project code.** It is gitignored (`.gitignore:30`, zero tracked files) and holds a vendored copy of the Mizuki theme kept for reference. Never edit it, and exclude it when searching — its `biome.json` / `tsconfig.json` / `.env.example` are not this project's.

@@ -49,6 +49,14 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
       <dt>最后活动</dt>
       <dd data-stat="active">—</dd>
     </div>
+    <div class="site-stats__item" data-stat-row="total-pv" style="display:none">
+      <dt>总访问</dt>
+      <dd data-stat="total-pv">—</dd>
+    </div>
+    <div class="site-stats__item" data-stat-row="total-uv" style="display:none">
+      <dt>总访客</dt>
+      <dd data-stat="total-uv">—</dd>
+    </div>
   </dl>
 </div>
 
@@ -64,6 +72,23 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
       const diff = Math.floor((Date.now() - new Date(root.dataset.latest).getTime()) / DAY);
       active.textContent = diff <= 0 ? "今天" : `${diff} 天前`;
     }
+
+    // Umami 站点统计
+    fetch("https://rainyun-apiumami.mcxiaochen.top/")
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var pvRow = root.querySelector('[data-stat-row="total-pv"]');
+        var uvRow = root.querySelector('[data-stat-row="total-uv"]');
+        if (data.total_pv && pvRow) {
+          pvRow.style.display = "";
+          root.querySelector('[data-stat="total-pv"]').textContent = data.total_pv.toLocaleString("zh-CN");
+        }
+        if (data.total_uv && uvRow) {
+          uvRow.style.display = "";
+          root.querySelector('[data-stat="total-uv"]').textContent = data.total_uv.toLocaleString("zh-CN");
+        }
+      })
+      .catch(function() {});
   })();
 </script>
 

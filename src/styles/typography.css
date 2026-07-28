@@ -18,17 +18,18 @@
   margin-bottom: 1.25em;
 }
 
-/* ── 标题 ── */
+/* ── 标题 ──
+   参照 Mizuki 源站：紧凑间距 + 逐级递减 line-height + 分级 font-weight
+   font-size 改为固定值（源站用 Tailwind 默认），clamp 流式缩放在窄内容区过大 ── */
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4,
 .prose h5,
 .prose h6 {
-  margin-top: 2.6em;
-  margin-bottom: 0.75em;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
   color: var(--foreground);
-  font-weight: 600;
   font-optical-sizing: auto;
 }
 
@@ -38,15 +39,35 @@
   margin-top: 0;
 }
 
-.prose h1 { font-size: var(--text-2xl); letter-spacing: var(--tracking-tight); }
+.prose h1 {
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: var(--tracking-tight);
+}
+
 .prose h2 {
-  font-size: var(--text-xl);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
   letter-spacing: var(--tracking-snug);
-  padding-bottom: 0.5em;
+  padding-bottom: 0.4em;
   border-bottom: 1px solid var(--border-subtle);
 }
-.prose h3 { font-size: var(--text-lg); letter-spacing: var(--tracking-normal); }
-.prose h4 { font-size: var(--text-md); letter-spacing: var(--tracking-normal); }
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-normal);
+}
+
+.prose h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-normal);
+}
 
 /* ── 链接 ── */
 .prose a {
@@ -491,9 +512,24 @@
   }
 }
 
-/* ── Mermaid 图表容器 ── */
+/* ── Mermaid 图表容器 — 玻璃卡片框 ── */
 .prose .mermaid-diagram-container {
   margin: 1.5rem 0;
+  padding: var(--space-6);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  overflow: hidden;
+  transition: box-shadow var(--duration-fast) var(--ease-material);
+}
+
+@media (hover: hover) {
+  .prose .mermaid-diagram-container:hover {
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+  }
 }
 
 .prose .mermaid {
@@ -505,6 +541,11 @@
 .prose .mermaid svg {
   max-width: 100%;
   height: auto;
+  border-radius: var(--radius-sm);
+}
+
+:root.dark .prose .mermaid svg {
+  filter: brightness(0.9) contrast(1.1);
 }
 
 .prose .mermaid-loading {
@@ -516,9 +557,9 @@
 .prose .mermaid-error {
   padding: var(--space-4);
   color: var(--danger);
-  background: oklch(0.6 0.2 25 / 0.08);
+  background: color-mix(in oklch, var(--danger) 8%, transparent);
   border-radius: var(--radius-md);
-  border: 1px solid oklch(0.6 0.2 25 / 0.2);
+  border: 1px solid color-mix(in oklch, var(--danger) 20%, transparent);
 }
 
 /* ── GitHub 卡片 ── */

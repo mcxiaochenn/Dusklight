@@ -630,28 +630,17 @@
 
 		return new Promise((resolve, reject) => {
 			const script = document.createElement("script");
-			script.src =
-				"https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
+			script.src = "/vendor/mermaid.min.js";
 
 			script.onload = () => {
 				console.log("Mermaid library loaded successfully");
 				resolve();
 			};
 
-			script.onerror = (error) => {
-				console.error("Failed to load Mermaid library:", error);
-				const fallbackScript = document.createElement("script");
-				fallbackScript.src = "https://unpkg.com/mermaid@11/dist/mermaid.min.js";
-
-				fallbackScript.onload = () => {
-					console.log("Mermaid library loaded from fallback CDN");
-					resolve();
-				};
-
-				fallbackScript.onerror = () => {
-					reject(
-						new Error(
-							"Failed to load Mermaid from both primary and fallback CDNs",
+			script.onerror = () => {
+				reject(
+					new Error(
+						"Failed to load local Mermaid library (/vendor/mermaid.min.js)",
 						),
 					);
 				};

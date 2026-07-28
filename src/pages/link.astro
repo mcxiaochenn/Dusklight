@@ -33,6 +33,7 @@ import { friendsData } from "@/data/friends";
               loading="lazy"
               decoding="async"
               referrerpolicy="no-referrer"
+              onerror="this.src='/images/avatar-fallback.svg';this.onerror=null"
             />
             <div class="link-card__body">
               <span class="link-card__title">{f.title}</span>

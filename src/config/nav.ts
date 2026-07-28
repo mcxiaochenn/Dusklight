@@ -4,6 +4,7 @@
 export interface NavItem {
   label: string;
   href: string;
+  icon?: string;
   /** 外部链接：新标签页打开 */
   external?: boolean;
   children?: NavItem[];
@@ -20,21 +21,21 @@ export const navConfig = {
       label: "关于",
       href: "/about/",
       children: [
-        { label: "我的追番", href: "/anime/" },
-        { label: "设备", href: "/devices/" },
-        { label: "技术栈", href: "/skills/" },
-        { label: "Timeline", href: "/timeline/" },
-        { label: "赞助", href: "/sponsors/" },
-        { label: "关于本站", href: "/about/" },
+        { label: "我的追番", href: "/anime/", icon: "ph:television-simple" },
+        { label: "设备", href: "/devices/", icon: "ph:monitor" },
+        { label: "技术栈", href: "/skills/", icon: "ph:code" },
+        { label: "Timeline", href: "/timeline/", icon: "ph:clock" },
+        { label: "赞助", href: "/sponsors/", icon: "ph:hand-heart" },
+        { label: "关于本站", href: "/about/", icon: "ph:user-circle" },
       ],
     },
     {
       label: "外链",
       href: "#",
       children: [
-        { label: "开往", href: "https://www.travellings.cn/go.html", external: true },
-        { label: "Umami", href: "https://umami.mcxiaochen.top/share/JQO3UR9vAhjfqs96", external: true },
-        { label: "AI 提示词生成器", href: "https://t2iprompt.mcxiaochen.top/", external: true },
+        { label: "开往", href: "https://www.travellings.cn/go.html", external: true, icon: "ph:train" },
+        { label: "Umami", href: "https://umami.mcxiaochen.top/share/JQO3UR9vAhjfqs96", external: true, icon: "ph:chart-bar" },
+        { label: "AI 提示词生成器", href: "https://t2iprompt.mcxiaochen.top/", external: true, icon: "ph:robot" },
       ],
     },
   ] as NavItem[],
