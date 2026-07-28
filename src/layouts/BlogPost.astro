@@ -63,7 +63,10 @@ const isEncrypted = !!password;
           </div>
         )}
         <h1 class="article__title">{title}</h1>
-        <ArticleMeta date={date} updated={displayUpdated} category={category} readingTime={readingTime} wordCount={wordCount} />
+        {/* 传 frontmatter 原值而非 displayUpdated —— 后者以 date 兜底，
+            会让每篇没写 updated 的文章都并排显示「更新于 <同一天>」。
+            兜底语义只对上方 JSON-LD 的 dateModified 有意义。 */}
+        <ArticleMeta date={date} updated={updated} category={category} readingTime={readingTime} wordCount={wordCount} />
       </header>
 
       {isEncrypted ? (
@@ -81,7 +84,10 @@ const isEncrypted = !!password;
       {showComment && <TwikooComments />}
     </article>
 
-    {showToc && headings.length > 0 && (
+    {/* 加密文章不渲染目录：headings 来自 render(post) 的明文结果，
+        Encryptor 只加密 slot 正文，目录会把全部小标题以静态 HTML
+        暴露给未解锁的访客（搜索引擎同样能索引到）。 */}
+    {showToc && !isEncrypted && headings.length > 0 && (
       <aside class="article__sidebar">
         <TOC headings={headings} />
       </aside>
@@ -189,10 +195,12 @@ const isEncrypted = !!password;
 </style>
 
 <script>
+  let jumpMO: MutationObserver | null = null;
   function initJumpComments() {
     const btn = document.getElementById("jump-comments");
     const backToTop = document.getElementById("back-to-top");
-    if (!btn || !backToTop) return;
+    if (!btn || !backToTop || (btn as HTMLElement).dataset.jcInit) return;
+    (btn as HTMLElement).dataset.jcInit = "1";
 
     // 与 back-to-top 同步显示/隐藏
     function syncVisibility() {
@@ -203,8 +211,9 @@ const isEncrypted = !!password;
       }
     }
 
-    const observer = new MutationObserver(syncVisibility);
-    observer.observe(backToTop, { attributes: true, attributeFilter: ["class"] });
+    jumpMO?.disconnect();
+    jumpMO = new MutationObserver(syncVisibility);
+    jumpMO.observe(backToTop, { attributes: true, attributeFilter: ["class"] });
     syncVisibility();
 
     btn.addEventListener("click", () => {

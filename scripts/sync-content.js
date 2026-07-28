@@ -15,7 +15,7 @@
  *   CONTENT_BRANCH      - 内容仓库分支 (默认 main)
  */
 
-import { execSync } from "child_process";
+import { execSync, execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { join, resolve } from "path";
 
@@ -54,10 +54,10 @@ function loadEnv() {
   return env;
 }
 
-// ===== 执行 Git 命令 =====
-function git(cmd, cwd) {
+// ===== 执行 Git 命令（参数数组，避免 shell 注入）=====
+function git(args, cwd) {
   try {
-    return execSync(`git ${cmd}`, {
+    return execFileSync("git", Array.isArray(args) ? args : args.split(" "), {
       cwd: cwd || process.cwd(),
       stdio: "pipe",
       encoding: "utf-8",
@@ -90,7 +90,9 @@ async function main() {
   const branch = env.CONTENT_BRANCH || "main";
 
   console.log("🔄 同步内容仓库...");
-  console.log(`   仓库: ${repoUrl}`);
+  // CONTENT_REPO_URL 按约定内嵌 PAT（https://<PAT>@github.com/...），
+  // 原样打印会让构建日志携带凭据 —— 打印前抹掉 userinfo 段
+  console.log(`   仓库: ${repoUrl.replace(/\/\/[^@/]+@/, "//***@")}`);
   console.log(`   分支: ${branch}`);
   console.log(`   目录: ${contentDir}\n`);
 
@@ -98,10 +100,9 @@ async function main() {
   if (!existsSync(join(contentDir, ".git"))) {
     console.log(`📥 克隆内容仓库...`);
     try {
-      execSync(
-        `git clone --depth 1 -b ${branch} "${repoUrl}" "${contentDir}"`,
-        { stdio: "inherit" }
-      );
+      execFileSync("git", ["clone", "--depth", "1", "-b", branch, repoUrl, contentDir], {
+        stdio: "inherit",
+      });
     } catch (err) {
       console.error("❌ 克隆失败:", err.message);
       process.exit(1);
@@ -110,7 +111,8 @@ async function main() {
     console.log("📥 更新内容仓库...");
     try {
       // 暂存本地修改
-      execSync(`cd "${contentDir}" && git stash push --include-untracked`, {
+      execFileSync("git", ["stash", "push", "--include-untracked"], {
+        cwd: contentDir,
         stdio: "pipe",
       });
     } catch {
@@ -118,13 +120,18 @@ async function main() {
     }
 
     try {
-      execSync(`cd "${contentDir}" && git fetch --all --prune`, {
+      execFileSync("git", ["fetch", "--all", "--prune"], {
+        cwd: contentDir,
         stdio: "pipe",
       });
-      execSync(
-        `cd "${contentDir}" && git checkout ${branch} && git reset --hard origin/${branch}`,
-        { stdio: "inherit" }
-      );
+      execFileSync("git", ["checkout", branch], {
+        cwd: contentDir,
+        stdio: "pipe",
+      });
+      execFileSync("git", ["reset", "--hard", `origin/${branch}`], {
+        cwd: contentDir,
+        stdio: "inherit",
+      });
     } catch (err) {
       console.error("❌ 更新失败:", err.message);
       console.log("   将使用本地缓存的内容继续\n");

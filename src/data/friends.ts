@@ -162,7 +162,7 @@ export const friendsData: FriendItem[] = [
 	{
 		id: 19,
 		title: "Wer Blog",
-		imgurl: " https://blog.isyyo.com/favicon/logo.png",
+		imgurl: "https://blog.isyyo.com/favicon/logo.png",
 		desc: "The only way to do great is to love what you do",
 		siteurl: "https://blog.isyyo.com",
 		tags: ["技术"],
@@ -210,15 +210,6 @@ export const friendsData: FriendItem[] = [
 		tags: ["技术"],
 	},
 	{
-		id: 25,
-		title: "初之音",
-		imgurl:
-			"https://gravatar.com/avatar/2fc4cf3560ff5a1cc64ea029896ab235?s=400",
-		desc: "聆听心中最初的声音",
-		siteurl: "https://www.himiku.com",
-		tags: ["生活"],
-	},
-	{
 		id: 26,
 		title: "前尘小筑",
 		imgurl: "https://image.mnchen.cn/2023/12/mnochen.jpg",
@@ -242,15 +233,6 @@ export const friendsData: FriendItem[] = [
 		desc: "一个初中生搭建的小网站",
 		siteurl: "https://www.xiguacaizimi.top",
 		tags: ["个人"],
-	},
-	{
-		id: 29,
-		title: "天影大侠",
-		imgurl:
-			"https://weavatar.com/avatar/7388ea4765a319d5f83fea61c3236384?s=1000",
-		desc: "在互联网留下一个脚印",
-		siteurl: "https://blog.skyshadow.fun",
-		tags: ["生活"],
 	},
 	{
 		id: 30,

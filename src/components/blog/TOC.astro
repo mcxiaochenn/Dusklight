@@ -126,9 +126,11 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
 </style>
 
 <script>
+  let tocIO: IntersectionObserver | null = null;
   function initTOC() {
     const toc = document.querySelector(".toc");
-    if (!toc) return;
+    if (!toc || (toc as HTMLElement).dataset.tocInit) return;
+    (toc as HTMLElement).dataset.tocInit = "1";
 
     const toggle = toc.querySelector(".toc__toggle");
     const links = toc.querySelectorAll(".toc__link");
@@ -140,7 +142,8 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
       toc.classList.toggle("collapsed");
     });
 
-    const observer = new IntersectionObserver(
+    tocIO?.disconnect();
+    tocIO = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -154,7 +157,7 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
       { rootMargin: "-80px 0px -80% 0px", threshold: 0 }
     );
 
-    headings.forEach((h) => { if (h.id) observer.observe(h); });
+    headings.forEach((h) => { if (h.id) tocIO!.observe(h); });
 
     links.forEach((link) => {
       link.addEventListener("click", (e) => {
