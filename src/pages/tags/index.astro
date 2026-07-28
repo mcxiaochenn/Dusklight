@@ -6,7 +6,9 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Tag from "../../components/ui/Tag.astro";
 
-const posts = await getCollection("blog");
+// 与首页/归档/RSS 保持一致地排除草稿 —— Astro 5+ 的 content layer 对
+// draft 无内置语义，不过滤的话草稿会被计入标签云与各标签的文章数
+const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
 const tagMap = new Map<string, number>();
 posts.forEach((post) => {
   (post.data.tags || []).forEach((tag) => {

@@ -95,7 +95,8 @@ const navIcons: Record<string, string> = {
   </div>
 
   {/* 移动端菜单 */}
-  <div id="mobile-menu" class="mobile-menu" hidden>
+  {/* 关闭态由 CSS 的 visibility 控制，不能用 HTML hidden 属性 —— 见样式块说明 */}
+  <div id="mobile-menu" class="mobile-menu">
     <div class="mobile-menu__backdrop"></div>
     <div class="mobile-menu__panel">
       <div class="mobile-menu__header">
@@ -395,10 +396,29 @@ const navIcons: Record<string, string> = {
   }
 
   /* ── Mobile menu ── */
+  /* 关闭态必须用 visibility，不能用 HTML 的 hidden 属性。抽屉的滑入/滑出靠下面
+     .mobile-menu[data-open="true"] .mobile-menu__panel 的 transform 过渡实现，
+     容器本身需要一直保持 fixed 布局；而 hidden 会命中 UA 样式表的
+     [hidden]{display:none}，本组件又从未给 .mobile-menu 声明过 display，没有
+     作者样式与之竞争，于是整个抽屉连遮罩一起不进渲染树 —— 移动端实测（390×844）
+     点击汉堡按钮后 data-open/aria-expanded 都正常翻到 true，但 display 恒为 none、
+     盒子恒为 0×0，导航完全不可用。visibility 既在关闭态移出无障碍树与 Tab 序，
+     又不打断 transform 过渡；隐藏延迟到过渡结束，滑出动画才播得完。
+
+     z-index 用 110 而非 100：utilities.css 的 .scroll-progress 同为 100，且
+     BaseLayout 里 <ScrollProgress /> 排在 <Header /> 之后，同层级下后来者居上，
+     会让进度条压在遮罩顶部露出一条彩色线。110 仍低于 skip-link 与灯箱的 200。 */
   .mobile-menu {
     position: fixed;
     inset: 0;
-    z-index: 100;
+    z-index: 110;
+    visibility: hidden;
+    transition: visibility 0s linear var(--duration-normal);
+  }
+
+  .mobile-menu[data-open="true"] {
+    visibility: visible;
+    transition-delay: 0s;
   }
 
   .mobile-menu__backdrop {

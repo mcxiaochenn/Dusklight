@@ -61,8 +61,17 @@ function generateObfuscated() {
     '<a href="https://blog.mcxiaochen.top">前往官方站点</a></div></body>';
   const htmlEnc = xorEncode(html, xorKey);
 
-  const dead = () => `\nvar ${randId()}=${randInt(100,999)};var ${randId()}=[];
-for(var ${randId()}=0;${randId()}<${randInt(3,7)};${randId()}++){${randId()}.push(${randInt(0,255)}^${randInt(0,255)})}\n`;
+  // 每个标识符必须先取名再复用 —— randId() 每次调用都返回新名字，
+  // 若在同一个变量的声明处与引用处分别调用，产出的是引用未声明变量的死代码，
+  // 求值即抛 ReferenceError。而 dead() 展开在 IIFE 顶部，会让整段防镜像逻辑
+  // 在跑到 hostname 比对之前就终止（曾导致全站 94 页控制台报错且保护失效）。
+  const dead = () => {
+    const num = randId();
+    const arr = randId();
+    const idx = randId();
+    return `\nvar ${num}=${randInt(100, 999)};var ${arr}=[];
+for(var ${idx}=0;${idx}<${randInt(3, 7)};${idx}++){${arr}.push(${randInt(0, 255)}^${randInt(0, 255)})}\n`;
+  };
 
   return `(function(${v.arr},${v.key}){
 ${dead()}

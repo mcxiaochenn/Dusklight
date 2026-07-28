@@ -5,7 +5,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/blog/PostCard.astro";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await getCollection("blog");
+  // 排除草稿：不过滤的话，草稿独有的标签会被生成独立标签页，
+  // 且草稿卡片（标题/描述/日期）会出现在公开标签列表里
+  const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
   const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
 
   const excerpts: Record<string, string> = {};

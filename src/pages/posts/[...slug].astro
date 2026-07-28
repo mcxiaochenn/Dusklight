@@ -4,7 +4,10 @@ import BlogPost from "../../layouts/BlogPost.astro";
 import { getPostSlug } from "@/utils/abbrlink";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  // 排除草稿：这里决定「是否生成 HTML 页面」。首页/归档/RSS 都已过滤，
+  // 唯独这里不过滤的话，草稿正文仍会产出 dist/posts/<slug>/index.html
+  // 并被 sitemap 收录（sitemap() 无 filter，默认收录全部构建产物页面）
+  const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
   return posts.map((post) => ({
     // 有 abbrlink 用 abbrlink，没有回退文件路径 —— 与线上老博客规则一致
     params: { slug: getPostSlug(post) },

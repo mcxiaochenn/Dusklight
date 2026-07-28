@@ -128,7 +128,9 @@ const encryptedContent = encryptContent(htmlContent, String(password));
 	}
 
 	.password-modal__error {
-		color: var(--error, #ef4444);
+		/* tokens.css 里的语义色叫 --danger（178 行），没有 --error —— 原写法恒走
+		   fallback，密码错误提示色被钉死在硬编码 #ef4444，不随 --hue 走 */
+		color: var(--danger);
 		font-size: var(--text-sm);
 		margin-top: var(--space-3);
 	}
@@ -149,8 +151,17 @@ const encryptedContent = encryptContent(htmlContent, String(password));
 	}
 </style>
 
+{/* data-astro-rerun 不能省：本脚本因 define:vars 必须 is:inline，而同一篇文章
+    每次构建出的脚本正文字节级相同。Astro 的 swap-functions.js 里
+    detectScriptExecuted() 用内联脚本的 textContent 作 key 存进全局
+    scriptsAlreadyRan，第二次遇到同样内容就打上 data-astro-exec 跳过执行
+    （router.js: `if (script.dataset.astroExec === "") continue`）。
+    本组件的解锁逻辑全写在脚本体里、没有挂 astro:page-load，一旦被跳过，
+    再次访问同一篇加密文章时密码框将完全无响应，只能整页刷新才能恢复。
+    data-astro-rerun 是该判定唯一的豁免开关。 */}
 <script
 	is:inline
+	data-astro-rerun
 	define:vars={{
 		encryptedContent,
 	}}

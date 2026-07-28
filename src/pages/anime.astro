@@ -28,7 +28,11 @@ let animeList: AnimeItem[] = [];
 if (existsSync(DATA_FILE)) {
   try {
     animeList = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
-  } catch {
+  } catch (err) {
+    // 必须留痕：文件存在却解析失败（写入中断、内容损坏）时，页面表现与
+    // 「从未抓取过」完全一致，构建日志静默无差别，排查会被引向 update-anime.mjs
+    // 的抓取逻辑，而真正的问题是数据文件本身已损坏
+    console.warn(`⚠️  bilibili-data.json 解析失败，追番页将显示空态: ${err instanceof Error ? err.message : err}`);
     animeList = [];
   }
 }

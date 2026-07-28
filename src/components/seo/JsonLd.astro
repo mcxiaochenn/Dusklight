@@ -40,7 +40,8 @@ const schema =
           url: seoConfig.jsonLd.organization.url,
           logo: {
             "@type": "ImageObject",
-            url: seoConfig.jsonLd.organization.logo,
+            // schema.org 要求绝对 URL；配置里存的是站内相对路径
+            url: new URL(seoConfig.jsonLd.organization.logo, Astro.site).href,
           },
         },
         mainEntityOfPage: {

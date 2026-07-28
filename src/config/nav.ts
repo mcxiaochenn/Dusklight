@@ -43,7 +43,7 @@ export const navConfig = {
   social: [
     {
       label: "GitHub",
-      href: "https://github.com/mcxiaochen",
+      href: "https://github.com/mcxiaochenn",
       icon: "github",
     },
     {
