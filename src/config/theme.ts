@@ -1,5 +1,7 @@
 /**
  * 主题配置
+ * ⚠️ DEPRECATED — 此文件不被任何组件消费，真实值在 src/styles/tokens.css。
+ *    accentHue: 250 ≠ 实际 --hue: 170，glass.blur: 20 ≠ 实际 --glass-blur: 24px。
  */
 export const themeConfig = {
   // 默认主题：light | dark | auto

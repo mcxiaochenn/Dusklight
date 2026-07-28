@@ -138,8 +138,8 @@
   border-left: 3px solid var(--accent);
   border-radius: var(--radius-lg);
   background: color-mix(in oklab, var(--accent) 10%, var(--glass-bg));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   box-shadow: var(--glass-highlight);
   color: var(--foreground-secondary);
   font-style: normal;

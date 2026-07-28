@@ -6,6 +6,7 @@ import { getPostUrl } from '@/utils/abbrlink';
 export async function GET(context) {
 	const posts = (await getCollection('blog'))
 		.filter((p) => !p.data.draft)
+		.filter((p) => !p.data.password)
 		.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 	// 显式映射字段，不展开 post.data：
