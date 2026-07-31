@@ -5,10 +5,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-7.x-BC52EE.svg)](https://astro.build)
 
-<!-- 截图：替换为实际截图后取消注释
-![桌面端预览](public/images/preview-desktop.png)
-![移动端预览](public/images/preview-mobile.png)
--->
+![桌面端预览](https://github.com/user-attachments/assets/7d7beeef-e36d-46fe-8ea6-2ebe2724298f
+)
+![移动端预览](https://github.com/user-attachments/assets/e3ec0007-9598-4f2d-aa42-7cb0ec636d56
+)
 
 ## 特性
 
