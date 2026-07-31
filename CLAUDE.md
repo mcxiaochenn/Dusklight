@@ -22,6 +22,8 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 **Deployment**: GitHub Actions deploys to GitHub Pages. The build step installs Playwright (Chromium) because Mermaid diagram rendering requires it at build time.
 
+**Background dev server** (from `AGENTS.md`): `astro dev --background`, managed with `astro dev stop` / `astro dev status` / `astro dev logs`.
+
 **No test or lint tooling exists.** `package.json` defines no `test`/`lint`/`format` script, and there is no ESLint / Prettier / Biome config in the repo. Verification means `pnpm build` completes + visual check in the browser. Do not invent or assume a test command.
 
 **Background dev server** (from `AGENTS.md`): `astro dev --background`, managed with `astro dev stop` / `astro dev status` / `astro dev logs`.
@@ -351,3 +353,19 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
 - **`DOMContentLoaded` and `astro:page-load` BOTH fire on the first page load.** Any init function registered on both runs twice on first load. For idempotent work that is harmless; for `addEventListener` it is not. A double-bound toggle handler cancels itself out — this actually shipped, and made the desktop nav dropdown unopenable on first load until a client-side navigation re-ran init on a fresh DOM. Element-level bindings need an idempotency guard (`header.dataset.headerInit`); the flag resets naturally because View Transitions replace the element. Verified by A/B test against a headless browser.
 - **`window` and `document` survive View Transitions; page elements do not.** Listeners bound to them belong at module top level (module scripts execute once per document), never inside a per-navigation init function — otherwise they accumulate one per navigation and their closures pin swapped-out DOM nodes in memory. See the top of `Header.astro`'s script for the intended shape.
+
+<!--
+🎉 Congratulations!
+
+恭喜你找到了这个彩蛋的终点
+
+这里并不是真的漏洞，
+只是一个给探索者准备的小惊喜。
+
+奖励：3 元人民币
+
+找到我领取吧。
+
+如果你觉得太简单，
+我可以准备下一关 :)
+-->
