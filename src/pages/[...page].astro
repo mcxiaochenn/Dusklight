@@ -133,8 +133,15 @@ const baseUrl = "/";
     gap: var(--space-5);
   }
 
+  /* 默认单列；≥1300px 时双列，与 PostCard 垂直布局断点对齐 */
   .posts__item {
-    flex: 0 0 calc(50% - var(--space-5) / 2);
+    flex: 0 0 100%;
+  }
+
+  @media (min-width: 1300px) {
+    .posts__item {
+      flex: 0 0 calc(50% - var(--space-5) / 2);
+    }
   }
 
   @media (max-width: 960px) {
@@ -148,11 +155,6 @@ const baseUrl = "/";
     .hero {
       padding-top: var(--space-12);
       padding-bottom: var(--space-8);
-    }
-
-    /* 移动端卡片退回单列 */
-    .posts__item {
-      flex: 0 0 100%;
     }
   }
 </style>
