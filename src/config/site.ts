@@ -3,12 +3,12 @@
  */
 export const siteConfig = {
   // 站点信息
-  title: "Dusklight Blog",
-  subtitle: "mcxiaochen 的个人博客",
+  title: "辰渊尘の博客",
+  subtitle: "辰渊尘 的个人博客",
   description: "分享技术、生活与思考",
   site: "https://blog.mcxiaochen.top",
   lang: "zh-CN",
-  author: "mcxiaochen",
+  author: "辰渊尘",
 
   // 时区
   timezone: "Asia/Shanghai",

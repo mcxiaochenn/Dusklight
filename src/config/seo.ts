@@ -1,29 +1,19 @@
+import { siteConfig } from "./site";
+
 /**
- * SEO 配置
+ * SEO 配置 — 仅保留 site.ts 无法派生的字段
+ * 站点标题、描述、URL 等统一从 siteConfig 读取
  */
 export const seoConfig = {
-  // 默认 Meta 标签
+  // 默认 OG 图片。必须指向 public/ 下真实存在的文件
   defaults: {
-    title: "Dusklight Blog",
-    description: "分享技术、生活与思考 - mcxiaochen 的个人博客",
-    // 默认 OG 图片。必须指向 public/ 下真实存在的文件 —— 原值
-    // /images/og-default.jpg 并不存在，导致所有无 cover 的页面
-    // og:image / twitter:image 恒 404，分享卡片没有预览图。
-    // 建议后续换成专门的 1200×630 分享图（放进 public/images/ 即可）。
     image: "/favicon/favicon.png",
   },
 
-  // JSON-LD 结构化数据
+  // JSON-LD 中 logo 需要单独配置（site.ts 无此字段）
   jsonLd: {
     organization: {
-      name: "Dusklight Blog",
-      url: "https://blog.mcxiaochen.top",
-      // 同上：/images/logo.png 不存在，JSON-LD 的 publisher.logo 抓取 404
       logo: "/favicon/favicon.png",
-    },
-    person: {
-      name: "mcxiaochen",
-      url: "https://blog.mcxiaochen.top",
     },
   },
 
@@ -38,6 +28,6 @@ export const seoConfig = {
   robots: {
     allow: ["/"],
     disallow: ["/api/", "/admin/"],
-    sitemap: "https://blog.mcxiaochen.top/sitemap-index.xml",
+    sitemap: `${siteConfig.site}/sitemap-index.xml`,
   },
 } as const;
