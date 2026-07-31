@@ -1,3 +1,5 @@
+import { siteConfig } from "./site";
+
 /**
  * 个人信息配置 — 所有文案集中在此
  */
@@ -25,7 +27,7 @@ export const profileConfig = {
   // ─── 社交链接（icon 为 astro-icon 名称） ───
   socials: [
     { label: "GitHub", url: "https://github.com/mcxiaochenn", icon: "simple-icons:github" },
-    { label: "Bilibili", url: "https://space.bilibili.com/123757127", icon: "simple-icons:bilibili" },
+    { label: "Bilibili", url: `https://space.bilibili.com/${siteConfig.anime.vmid}`, icon: "simple-icons:bilibili" },
     { label: "QQ", url: "https://qm.qq.com/q/KZKEcWKVSq", icon: "simple-icons:qq" },
     { label: "Telegram", url: "https://t.me/mcxiaochenn", icon: "simple-icons:telegram" },
     { label: "酷安", url: "https://www.coolapk.com/u/21508887", icon: "ph:link" },

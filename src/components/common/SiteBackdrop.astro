@@ -5,9 +5,10 @@
  * 网格纹理 + 噪点 + 缓加载背景图。
  * 背景图在页面加载完成后才开始下载，不阻断首屏渲染。
  */
+import { siteConfig } from "../../config/site";
 ---
 
-<div class="site-backdrop" aria-hidden="true" transition:persist>
+<div class="site-backdrop" aria-hidden="true" transition:persist data-bg-light={siteConfig.backgroundImages.light} data-bg-dark={siteConfig.backgroundImages.dark}>
   <div class="site-backdrop__image" id="backdrop-image"></div>
   <div class="site-backdrop__grid"></div>
   <div class="site-backdrop__grain"></div>
@@ -84,9 +85,10 @@
   }
 
   function getBackdropSource() {
-    return isDarkMode()
-      ? "/images/bg/xiowo-bg-dark.webp"
-      : "/images/bg/xiowo-bg-light.webp";
+    const backdrop = document.querySelector(".site-backdrop");
+    const light = backdrop?.getAttribute("data-bg-light") || "/images/bg/xiowo-bg-light.webp";
+    const dark = backdrop?.getAttribute("data-bg-dark") || "/images/bg/xiowo-bg-dark.webp";
+    return isDarkMode() ? dark : light;
   }
 
   function loadBackdropImage() {

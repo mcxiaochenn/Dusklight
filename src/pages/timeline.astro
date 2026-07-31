@@ -5,6 +5,7 @@
  */
 import { execSync } from "node:child_process";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "@/config";
 import { Icon } from "astro-icon/components";
 
 interface Commit {
@@ -39,7 +40,7 @@ for (const c of commits) {
   months.get(key)!.push(c);
 }
 
-const REPO_URL = "https://github.com/mcxiaochenn/Dusklight";
+const REPO_URL = siteConfig.repoUrl;
 
 // Conventional Commits 类型 → 徽章
 function commitType(subject: string): string {

@@ -1,3 +1,6 @@
+import { siteConfig } from "../config/site";
+import { profileConfig } from "../config/profile";
+
 // 友情链接数据配置
 // 排序规则：前 46 条沿用 xcAnzhiyu 站 link.yml 手排顺序，新增友链追加在后
 // 分组依据：tags[0]（"个人"标签已按简介归入"技术"或"生活"）
@@ -12,20 +15,20 @@ export interface FriendItem {
 
 /** 本站友链信息 — 用于 link 页"我的信息"卡 */
 export const siteInfo = {
-	name: "辰渊尘站",
-	url: "https://blog.mcxiaochen.top/",
-	avatar: "https://blog.mcxiaochen.top/images/congyu/touxiang.webp",
-	motto: "有志不在年高，无志空活百岁。",
+	name: `${profileConfig.name}站`,
+	url: `${siteConfig.site}/`,
+	avatar: `${siteConfig.site}${profileConfig.avatar}`,
+	motto: profileConfig.bio,
 	tags: ["技术", "生活"],
 };
 
 // 友情链接数据（按原始手排顺序）
 export const friendsData: FriendItem[] = [
 	{
-		title: "辰渊尘の个人博客",
-		imgurl: "https://blog.mcxiaochen.top/favicon.ico",
+		title: `${siteConfig.title}の个人博客`,
+		imgurl: `${siteConfig.site}/favicon.ico`,
 		desc: "一个高中生UP搭的博客 QwQ",
-		siteurl: "https://blog.mcxiaochen.top",
+		siteurl: siteConfig.site,
 		tags: ["技术", "生活"],
 	},
 	{

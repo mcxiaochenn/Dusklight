@@ -60,7 +60,7 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
   </dl>
 </div>
 
-<script is:inline data-astro-rerun>
+<script is:inline data-astro-rerun define:vars={{ analyticsApiUrl: siteConfig.analytics.apiUrl }}>
   (() => {
     const root = document.querySelector(".site-stats");
     if (!root) return;
@@ -74,7 +74,7 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
     }
 
     // Umami 站点统计
-    fetch("https://rainyun-apiumami.mcxiaochen.top/")
+    fetch(analyticsApiUrl)
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var pvRow = root.querySelector('[data-stat-row="total-pv"]');

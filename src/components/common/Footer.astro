@@ -71,13 +71,16 @@ const socialIcons: Record<string, string> = {
       <p class="footer__copyright">
         &copy; {year} {siteConfig.author}. 由&nbsp;
         <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="footer__powered">Astro</a>&nbsp;&amp;&nbsp;
-        <a href="https://github.com/mcxiaochenn/Dusklight" target="_blank" rel="noopener noreferrer" class="footer__powered">Dusklight</a>
+        <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="footer__powered">Dusklight</a>
         &nbsp;强力驱动
       </p>
       <p class="footer__icp">
-        <a href="https://icp.gov.moe/?keyword=20257721" target="_blank" rel="noopener noreferrer">萌ICP备20257721号</a>
-        <span class="footer__icp-sep">/</span>
-        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">浙ICP备2026011009号</a>
+        {siteConfig.icp.map((item, i) => (
+          <>
+            {i > 0 && <span class="footer__icp-sep">/</span>}
+            <a href={item.url} target="_blank" rel="noopener noreferrer">{item.label}</a>
+          </>
+        ))}
       </p>
     </div>
   </div>

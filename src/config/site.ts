@@ -13,6 +13,9 @@ export const siteConfig = {
   // 时区
   timezone: "Asia/Shanghai",
 
+  // 项目仓库地址
+  repoUrl: "https://github.com/mcxiaochenn/Dusklight",
+
   // 建站日期 — 侧栏「运行天数」的起点
   siteStartDate: "2025-07-17",
 
@@ -23,6 +26,28 @@ export const siteConfig = {
   // 追番页 — scripts/update-anime.mjs 构建期从 Bilibili 拉取（vmid = B 站 UID）
   anime: {
     vmid: "123757127",
+  },
+
+  // 背景图（相对 public/ 的路径）
+  backgroundImages: {
+    light: "/images/bg/xiowo-bg-light.webp",
+    dark: "/images/bg/xiowo-bg-dark.webp",
+  },
+
+  // ICP 备案
+  icp: [
+    { label: "萌ICP备20257721号", url: "https://icp.gov.moe/?keyword=20257721" },
+    { label: "浙ICP备2026011009号", url: "https://beian.miit.gov.cn/" },
+  ],
+
+  // Friend-Circle-Lite API
+  fcliteApiUrl: "https://fc.mcxiaochen.top/",
+
+  // Umami 访问统计
+  analytics: {
+    url: "https://umami.mcxiaochen.top/script.js",
+    websiteId: "9b066975-f44d-4b3c-bd7a-7077c58e2bdd",
+    apiUrl: "https://rainyun-apiumami.mcxiaochen.top/",
   },
 
   // 分页

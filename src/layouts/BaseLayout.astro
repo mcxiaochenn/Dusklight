@@ -13,6 +13,7 @@ import SiteBackdrop from "../components/common/SiteBackdrop.astro";
 import GlobalScripts from "../components/common/GlobalScripts.astro";
 import AntiMirror from "../components/common/AntiMirror.astro";
 import SEOHead from "../components/seo/SEOHead.astro";
+import { siteConfig } from "../config/site";
 import { ClientRouter } from "astro:transitions";
 import "../styles/twikoo.css";
 
@@ -31,7 +32,9 @@ const { title, description, image } = Astro.props;
     <SEOHead title={title} description={description} image={image} />
     <AntiMirror />
     <ClientRouter />
-    <script defer src="https://umami.mcxiaochen.top/script.js" data-website-id="9b066975-f44d-4b3c-bd7a-7077c58e2bdd"></script>
+    {siteConfig.features.analytics && (
+      <script defer src={siteConfig.analytics.url} data-website-id={siteConfig.analytics.websiteId}></script>
+    )}
   </head>
 
   <body>

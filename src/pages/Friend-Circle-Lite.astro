@@ -4,6 +4,7 @@
  * URL /Friend-Circle-Lite/ 与生产站一致；入口在 /link/ 页
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "@/config";
 ---
 
 <BaseLayout title="友链朋友圈" description="朋友们的最新文章">
@@ -21,10 +22,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   </section>
 </BaseLayout>
 
-<script is:inline>
+<script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
   if (typeof UserConfig === "undefined") {
     var UserConfig = {
-      private_api_url: "https://fc.mcxiaochen.top/",
+      private_api_url: fcliteApiUrl,
       page_turning_number: 24,
       error_img: "https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg",
     };

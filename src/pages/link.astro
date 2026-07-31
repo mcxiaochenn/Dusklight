@@ -6,6 +6,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
 import { friendsData, siteInfo } from "@/data/friends";
+import { siteConfig } from "@/config";
 
 const groupOrder = ["技术", "生活", "企业"] as const;
 
@@ -199,9 +200,9 @@ for (const f of friendsData) {
 </BaseLayout>
 
 {/* ── 朋友圈摘要客户端 fetch ── */}
-<script is:inline>
+<script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
   (function () {
-    var API = "https://fc.mcxiaochen.top/all.json";
+    var API = fcliteApiUrl + "all.json";
     var COUNT = 6;
     var grid = document.getElementById("fcl-summary-grid");
     if (!grid) return;
