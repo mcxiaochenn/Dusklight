@@ -115,29 +115,30 @@ const baseUrl = "/";
     margin: 0;
   }
 
-  /* 双栏：文章流居左，侧栏固定宽度居右（fuwari 式单侧） */
+  /* 双栏：文章流居左，侧栏固定宽度居右 */
   .home-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 300px;
     gap: var(--space-8);
-    max-width: 1200px;
+    max-width: var(--page-width);
     margin: 0 auto;
     padding: 0 var(--space-4);
     align-items: start;
   }
 
+  /* flex-wrap 双列布局，配合 PostCard 的响应式断点 */
   .posts__list {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: var(--space-5);
   }
 
   .posts__item {
-    /* reveal 动画由 IntersectionObserver 驱动 */
+    flex: 0 0 calc(50% - var(--space-5) / 2);
   }
 
   @media (max-width: 960px) {
-    /* 窄屏单列：侧栏堆到文章流下方 */
+    /* 窄屏：侧栏堆到文章流下方 */
     .home-grid {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -147,6 +148,11 @@ const baseUrl = "/";
     .hero {
       padding-top: var(--space-12);
       padding-bottom: var(--space-8);
+    }
+
+    /* 移动端卡片退回单列 */
+    .posts__item {
+      flex: 0 0 100%;
     }
   }
 </style>

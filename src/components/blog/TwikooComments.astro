@@ -4,7 +4,6 @@
  * 动态加载 + View Transitions 兼容 + CSS 本地强制覆盖
  */
 import { commentConfig } from "../../config/comment";
-import "../../styles/twikoo.css";
 ---
 
 {commentConfig.enabled && (
@@ -35,72 +34,130 @@ import "../../styles/twikoo.css";
 
 {commentConfig.enabled && (
   <script define:vars={{ envId: commentConfig.twikoo.envId }}>
-    var TWIKOO_SRC = "/js/twikoo.min.js";
+    (() => {
+      var TWIKOO_SRC = "/js/twikoo.min.js";
+      var STATE_KEY = "__dusklightTwikoo";
+      var state = window[STATE_KEY];
 
-    function getTheme() {
-      return document.documentElement.classList.contains("dark") ? "dark" : "light";
-    }
+      if (!state) {
+        state = {
+          loadPromise: null,
+          observer: null,
+          mountVersion: 0,
+          currentEl: null,
+          eventsBound: false,
+        };
+        window[STATE_KEY] = state;
+      }
 
-    function initTwikoo() {
-      var el = document.getElementById("twikoo");
-      if (!el || typeof twikoo === "undefined" || typeof twikoo.init !== "function") return;
-      try { twikoo.destroy(); } catch {}
-      twikoo.init({
-        envId: envId,
-        el: "#twikoo",
-        theme: getTheme(),
-      });
-      /* 每次 init 后用 JS 兜底 Element UI 内联样式 */
-      injectOverrides();
-    }
+      function getTheme() {
+        return document.documentElement.classList.contains("dark") ? "dark" : "light";
+      }
 
-    function injectOverrides() {
-      var root = document.documentElement;
-      var cs = getComputedStyle(root);
-      var bg = cs.getPropertyValue("--glass-bg").trim();
-      var border = cs.getPropertyValue("--glass-border").trim();
-      var fg = cs.getPropertyValue("--foreground").trim();
+      function loadTwikoo() {
+        if (window.twikoo && typeof window.twikoo.init === "function") {
+          return Promise.resolve(window.twikoo);
+        }
+        if (state.loadPromise) return state.loadPromise;
 
-      function patch() {
-        var c = document.getElementById("twikoo");
-        if (!c) return;
-        [".el-textarea__inner", ".el-input__inner"].forEach(function(s) {
-          c.querySelectorAll(s).forEach(function(el) {
-            el.style.setProperty("background", bg, "important");
-            el.style.setProperty("color", fg, "important");
-            el.style.setProperty("border-color", border, "important");
-          });
+        state.loadPromise = new Promise(function(resolve, reject) {
+          var existing = document.querySelector('script[src="' + TWIKOO_SRC + '"]');
+          var script = existing || document.createElement("script");
+
+          function loaded() {
+            if (window.twikoo && typeof window.twikoo.init === "function") {
+              resolve(window.twikoo);
+            } else {
+              reject(new Error("Twikoo script loaded without an init API"));
+            }
+          }
+
+          script.addEventListener("load", loaded, { once: true });
+          script.addEventListener("error", function() {
+            state.loadPromise = null;
+            reject(new Error("Failed to load Twikoo: " + TWIKOO_SRC));
+          }, { once: true });
+
+          if (!existing) {
+            script.src = TWIKOO_SRC;
+            script.async = true;
+            document.head.appendChild(script);
+          }
+        });
+
+        return state.loadPromise;
+      }
+
+      function stopOverrides() {
+        state.observer?.disconnect();
+        state.observer = null;
+      }
+
+      function patchInputs(container) {
+        var cs = getComputedStyle(document.documentElement);
+        var bg = cs.getPropertyValue("--glass-bg").trim();
+        var border = cs.getPropertyValue("--glass-border").trim();
+        var fg = cs.getPropertyValue("--foreground").trim();
+
+        container.querySelectorAll(".el-textarea__inner, .el-input__inner").forEach(function(input) {
+          input.style.setProperty("background", bg, "important");
+          input.style.setProperty("color", fg, "important");
+          input.style.setProperty("border-color", border, "important");
         });
       }
 
-      patch();
-      var mo = new MutationObserver(patch);
-      mo.observe(document.getElementById("twikoo") || document.body, { childList: true, subtree: true });
-      setTimeout(function() { mo.disconnect(); }, 5000);
-    }
+      function mount() {
+        var version = ++state.mountVersion;
+        var container = document.getElementById("twikoo");
+        if (!container) return;
 
-    function loadTwikoo() {
-      if (typeof twikoo !== "undefined") { initTwikoo(); return; }
-      if (document.querySelector('script[src="' + TWIKOO_SRC + '"]')) {
-        /* script 标签已存在但还没加载完，等 onload */
-        return;
+        loadTwikoo().then(function(client) {
+          if (version !== state.mountVersion || !container.isConnected) return;
+
+          stopOverrides();
+          try { client.destroy(); } catch {}
+          client.init({ envId: envId, el: "#twikoo", theme: getTheme() });
+          state.currentEl = container;
+
+          patchInputs(container);
+          state.observer = new MutationObserver(function() { patchInputs(container); });
+          state.observer.observe(container, { childList: true, subtree: true });
+        }).catch(function(error) {
+          console.error("[Twikoo] 初始化失败：", error);
+        });
       }
-      var s = document.createElement("script");
-      s.src = TWIKOO_SRC;
-      s.onload = initTwikoo;
-      s.onerror = function() { console.error("[Twikoo] 加载失败:", TWIKOO_SRC); };
-      document.head.appendChild(s);
-    }
 
-    /* View Transitions 兼容：首次 + SPA 导航后均触发 */
-    document.addEventListener("DOMContentLoaded", loadTwikoo);
-    document.addEventListener("astro:page-load", loadTwikoo);
-
-    /* 主题跟随 */
-    new MutationObserver(function() {
-      if (typeof twikoo !== "undefined" && typeof twikoo.setTheme === "function") {
-        try { twikoo.setTheme(getTheme()); } catch {}
+      function unmount() {
+        state.mountVersion++;
+        stopOverrides();
+        state.currentEl = null;
+        if (window.twikoo && typeof window.twikoo.destroy === "function") {
+          try { window.twikoo.destroy(); } catch {}
+        }
       }
-    }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+      function syncTheme() {
+        if (window.twikoo && typeof window.twikoo.setTheme === "function") {
+          try { window.twikoo.setTheme(getTheme()); } catch {}
+        }
+        if (state.currentEl?.isConnected) patchInputs(state.currentEl);
+      }
+
+      if (!state.eventsBound) {
+        state.eventsBound = true;
+        document.addEventListener("astro:before-swap", unmount);
+        document.addEventListener("astro:page-load", mount);
+        new MutationObserver(syncTheme).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["class"],
+        });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mount, { once: true });
+      } else {
+        mount();
+      }
+    })();
   </script>
 )}

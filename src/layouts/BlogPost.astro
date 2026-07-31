@@ -94,12 +94,37 @@ const isEncrypted = !!password;
     )}
   </div>
 
-  {/* 评论跳转按钮 — 固定定位，在 grid 外部 */}
+  {/* 浮动操作按钮组 — TOC / 跳评论 / 回顶部
+      三个按钮共享 .fab 基类，入场时从右边缘逐个弹入，出场时逐个缩回。
+      顺序（自下而上）：回顶部 → 跳评论 → TOC */}
   {showComment && (
-    <button class="jump-comments" id="jump-comments" aria-label="跳转到评论">
+    <button class="fab fab--comments" id="jump-comments" aria-label="跳转到评论">
       <Icon name="ph:chat-circle-text" />
     </button>
   )}
+  {showToc && !isEncrypted && headings.length > 0 && (
+    <button class="fab fab--toc" id="fab-toc" aria-label="文章目录">
+      <Icon name="ph:list-bullets" />
+    </button>
+  )}
+  {/* TOC 弹出面板 */}
+  <div class="toc-overlay" id="toc-overlay">
+    <div class="toc-overlay__panel glass-panel">
+      <div class="toc-overlay__header">
+        <span class="toc-overlay__title">目录</span>
+        <button class="toc-overlay__close" id="toc-overlay-close" aria-label="关闭目录">
+          <Icon name="ph:x" />
+        </button>
+      </div>
+      <nav class="toc-overlay__nav">
+        {headings.filter(h => h.depth >= 2 && h.depth <= 4).map((h) => (
+          <a href={`#${h.slug}`} class={`toc-overlay__link toc-overlay__link--h${h.depth}`}>
+            {h.text.replace(/\s*#$/, "").trim()}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </div>
 </BaseLayout>
 
 <style>
@@ -150,10 +175,15 @@ const isEncrypted = !!password;
     .article__title { font-size: var(--text-xl); }
   }
 
-  /* ── 评论跳转按钮 ── */
-  .jump-comments {
+  /* ── 浮动操作按钮组（TOC / 跳评论 / 回顶部） ──
+     三个 FAB 共享 .fab 基类玻璃 pill 样式。
+     动画：入场时从右边缘逐个弹入（自下而上），出场反向。
+     Bottom 偏移（自底向上堆叠）：
+     - 回顶部 (BackToTop)：--space-10 + 20px
+     - 跳评论：+ 44px + --space-2
+     - TOC：   + 44px + --space-2 */
+  .fab {
     position: fixed;
-    bottom: calc(var(--space-10) + 20px + 44px + var(--space-2));
     right: var(--space-4);
     z-index: 80;
     width: 44px;
@@ -165,7 +195,7 @@ const isEncrypted = !!password;
     color: var(--foreground-secondary);
     cursor: pointer;
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateX(calc(100% + 20px));
     pointer-events: none;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -173,55 +203,267 @@ const isEncrypted = !!password;
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-md), var(--glass-highlight);
     transition:
-      opacity var(--duration-normal) var(--ease-material),
-      transform var(--duration-normal) var(--ease-decelerate),
-      color var(--duration-fast) var(--ease-material);
+      opacity 0.22s var(--ease-decelerate),
+      transform 0.22s var(--ease-decelerate);
   }
 
-  .jump-comments--visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
+  .fab--top { bottom: calc(var(--space-10) + 20px); }
+  .fab--comments { bottom: calc(var(--space-10) + 20px + 44px + var(--space-2)); }
+  .fab--toc { bottom: calc(var(--space-10) + 20px + 88px + var(--space-4)); }
 
-  .jump-comments:hover {
+  .fab:hover {
     color: var(--foreground);
   }
 
-  .jump-comments svg {
+  .fab svg {
     width: 18px;
     height: 18px;
+  }
+
+  /* 可见态 —— 从边缘弹入 */
+  .fab--visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  /* 退场态 —— 缩回边缘 */
+  .fab--hiding {
+    opacity: 0;
+    transform: translateX(calc(100% + 20px));
+    transition:
+      opacity 0.18s var(--ease-accelerate),
+      transform 0.18s var(--ease-accelerate);
+  }
+
+  /* 出场交错延迟（自上而下消失） */
+  .fab--hiding.fab--top { transition-delay: 0s; }
+  .fab--hiding.fab--comments { transition-delay: 0.06s; }
+  .fab--hiding.fab--toc { transition-delay: 0.12s; }
+
+  /* ── TOC 弹出面板 ── */
+  .toc-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: var(--space-4);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s var(--ease-standard);
+  }
+
+  .toc-overlay--open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .toc-overlay__panel {
+    width: min(320px, calc(100vw - var(--space-8)));
+    max-height: 60vh;
+    padding: var(--space-4);
+    overflow-y: auto;
+    transform: translateY(12px) scale(0.96);
+    transition: transform 0.22s var(--ease-decelerate);
+  }
+
+  .toc-overlay--open .toc-overlay__panel {
+    transform: translateY(0) scale(1);
+  }
+
+  .toc-overlay__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .toc-overlay__title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .toc-overlay__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    color: var(--foreground-muted);
+    transition: background var(--duration-fast) var(--ease-material);
+  }
+
+  .toc-overlay__close:hover {
+    background: var(--accent-subtle);
+  }
+
+  .toc-overlay__close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .toc-overlay__nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .toc-overlay__link {
+    display: block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--foreground-muted);
+    text-decoration: none;
+    transition:
+      color var(--duration-fast) var(--ease-material),
+      background var(--duration-fast) var(--ease-material);
+  }
+
+  .toc-overlay__link:hover {
+    color: var(--foreground);
+    background: var(--accent-subtle);
+  }
+
+  .toc-overlay__link--h3 { padding-left: calc(var(--space-2) + var(--space-4)); }
+  .toc-overlay__link--h4 { padding-left: calc(var(--space-2) + var(--space-8)); }
+
+  .toc-overlay__panel::-webkit-scrollbar { width: 4px; }
+  .toc-overlay__panel::-webkit-scrollbar-track { background: transparent; }
+  .toc-overlay__panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-sm); }
+
+  @media (max-width: 768px) {
+    .fab { width: 40px; height: 40px; }
+    .fab svg { width: 16px; height: 16px; }
+    .fab--top { bottom: calc(var(--space-8) + 16px); }
+    .fab--comments { bottom: calc(var(--space-8) + 16px + 40px + var(--space-2)); }
+    .fab--toc { bottom: calc(var(--space-8) + 16px + 80px + var(--space-4)); }
   }
 </style>
 
 <script>
-  let jumpMO: MutationObserver | null = null;
-  function initJumpComments() {
-    const btn = document.getElementById("jump-comments");
-    const backToTop = document.getElementById("back-to-top");
-    if (!btn || !backToTop || (btn as HTMLElement).dataset.jcInit) return;
-    (btn as HTMLElement).dataset.jcInit = "1";
+  /*
+   * 浮动操作按钮组管理
+   * ─────────────────────────────────────────────────────────
+   * 三个 FAB（自下而上）：BackToTop → 跳评论 → TOC
+   * 入场：从右边缘逐个弹入，自下而上（BackToTop 最先出现）
+   * 出场：缩回右边缘，自上而下（TOC 最先消失）
+   */
+  let fabMO: MutationObserver | null = null;
+  let fabTimer: ReturnType<typeof setTimeout> | null = null;
+  const FAB_ENTRANCE_STAGGER = 60; // 每层入场间隔 ms
+  const FAB_EXIT_STAGGER = 50;     // 每层出场间隔 ms
 
-    // 与 back-to-top 同步显示/隐藏
-    function syncVisibility() {
-      if (backToTop.classList.contains("back-to-top--visible")) {
-        btn.classList.add("jump-comments--visible");
-      } else {
-        btn.classList.remove("jump-comments--visible");
-      }
+  function initFabs() {
+    const backToTop = document.getElementById("back-to-top");
+    const jumpComments = document.getElementById("jump-comments");
+    const fabToc = document.getElementById("fab-toc");
+    const tocOverlay = document.getElementById("toc-overlay");
+    const tocClose = document.getElementById("toc-overlay-close");
+
+    if (!backToTop || (backToTop as HTMLElement).dataset.fabInit) return;
+    (backToTop as HTMLElement).dataset.fabInit = "1";
+
+    // 按距离底部的顺序排列（最近的先出现）
+    const fabs = [backToTop, jumpComments, fabToc].filter(Boolean) as HTMLElement[];
+
+    let visible = false;
+
+    function showFabs() {
+      if (visible) return;
+      visible = true;
+      if (fabTimer) clearTimeout(fabTimer);
+      fabs.forEach((fab, i) => {
+        setTimeout(() => {
+          fab.classList.remove("fab--hiding");
+          fab.classList.add("fab--visible");
+        }, i * FAB_ENTRANCE_STAGGER);
+      });
     }
 
-    jumpMO?.disconnect();
-    jumpMO = new MutationObserver(syncVisibility);
-    jumpMO.observe(backToTop, { attributes: true, attributeFilter: ["class"] });
-    syncVisibility();
+    function hideFabs() {
+      if (!visible) return;
+      visible = false;
+      if (fabTimer) clearTimeout(fabTimer);
+      // 关闭 TOC 面板（如果打开着）
+      if (tocOverlay) tocOverlay.classList.remove("toc-overlay--open");
+      // 自上而下消失（index 反转）
+      fabs.forEach((fab, i) => {
+        setTimeout(() => {
+          fab.classList.remove("fab--visible");
+          fab.classList.add("fab--hiding");
+          // 动画完成后清除 hiding 类，避免下次入场冲突
+          setTimeout(() => fab.classList.remove("fab--hiding"), 200);
+        }, (fabs.length - 1 - i) * FAB_EXIT_STAGGER);
+      });
+    }
 
-    btn.addEventListener("click", () => {
+    // 监听 BackToTop 的可见性变化（由 GlobalScripts 控制）
+    fabMO?.disconnect();
+    fabMO = new MutationObserver(() => {
+      if (backToTop.classList.contains("fab--visible")) {
+        showFabs();
+      } else {
+        hideFabs();
+      }
+    });
+    fabMO.observe(backToTop, { attributes: true, attributeFilter: ["class"] });
+
+    // 初始同步
+    if (backToTop.classList.contains("fab--visible")) {
+      showFabs();
+    }
+
+    // 跳评论按钮点击
+    jumpComments?.addEventListener("click", () => {
       const target = document.getElementById("comments-anchor") || document.getElementById("twikoo");
       target?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
+
+    // TOC 面板 开/关
+    if (fabToc && tocOverlay) {
+      fabToc.addEventListener("click", () => {
+        tocOverlay.classList.toggle("toc-overlay--open");
+      });
+
+      tocClose?.addEventListener("click", () => {
+        tocOverlay.classList.remove("toc-overlay--open");
+      });
+
+      // 点击遮罩层关闭
+      tocOverlay.addEventListener("click", (e) => {
+        if (e.target === tocOverlay) {
+          tocOverlay.classList.remove("toc-overlay--open");
+        }
+      });
+
+      // 点击 TOC 链接 → 关闭面板 + 平滑滚动
+      tocOverlay.querySelectorAll(".toc-overlay__link").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          tocOverlay.classList.remove("toc-overlay--open");
+          const id = (link as HTMLAnchorElement).getAttribute("href")?.slice(1);
+          const target = id ? document.getElementById(id) : null;
+          target?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      // ESC 关闭
+      document.addEventListener("keydown", function onEsc(e) {
+        if (e.key === "Escape" && tocOverlay.classList.contains("toc-overlay--open")) {
+          tocOverlay.classList.remove("toc-overlay--open");
+        }
+      });
+    }
   }
 
-  document.addEventListener("DOMContentLoaded", initJumpComments);
-  document.addEventListener("astro:page-load", initJumpComments);
+  document.addEventListener("DOMContentLoaded", initFabs);
+  document.addEventListener("astro:page-load", initFabs);
 </script>

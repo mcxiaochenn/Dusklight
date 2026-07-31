@@ -24,24 +24,6 @@
 		const style = document.createElement("style");
 		style.id = "mermaid-fullscreen-style";
 		style.textContent = `
-		:where(.mermaid[data-mermaid-code]) { position: relative; }
-		.mermaid-fullscreen-btn {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			height: 36px;
-			width: 36px;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			opacity: 0;
-			transition: opacity 0.2s ease;
-			z-index: 3;
-		}
-		.mermaid:hover .mermaid-fullscreen-btn,
-		.mermaid:focus-within .mermaid-fullscreen-btn {
-			opacity: 1;
-		}
 		.mermaid-fullscreen-overlay {
 			position: fixed;
 			inset: 0;
@@ -74,13 +56,6 @@
 			top: 10px;
 			right: 10px;
 			z-index: 4;
-		}
-		.mermaid-fullscreen-overlay .mermaid-zoom-controls {
-			position: absolute;
-			left: 12px;
-			bottom: 12px;
-			display: flex;
-			gap: 8px;
 		}
 		body.mermaid-fullscreen-open { overflow: hidden; }
 		`;
@@ -170,7 +145,7 @@
 		}
 		const btn = document.createElement("button");
 		btn.type = "button";
-		btn.className = "mermaid-fullscreen-btn";
+		btn.className = "mermaid-fullscreen-btn ec-control-btn";
 		btn.title = "全屏查看";
 		btn.setAttribute("aria-label", "全屏查看 Mermaid 图表");
 		btn.innerHTML = "⛶";
@@ -279,9 +254,9 @@
 		const controls = document.createElement("div");
 		controls.className = "mermaid-zoom-controls";
 		controls.innerHTML = `
-			<button data-action="zoom-in" title="Zoom in">+</button>
-			<button data-action="zoom-out" title="Zoom out">−</button>
-			<button data-action="reset" title="Reset">⤾</button>
+			<button class="ec-control-btn" data-action="zoom-in" title="Zoom in">+</button>
+			<button class="ec-control-btn" data-action="zoom-out" title="Zoom out">−</button>
+			<button class="ec-control-btn" data-action="reset" title="Reset">⤾</button>
 		`;
 		element.appendChild(controls);
 
@@ -641,11 +616,8 @@
 				reject(
 					new Error(
 						"Failed to load local Mermaid library (/vendor/mermaid.min.js)",
-						),
-					);
-				};
-
-				document.head.appendChild(fallbackScript);
+				),
+			);
 			};
 
 			document.head.appendChild(script);

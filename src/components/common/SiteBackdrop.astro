@@ -74,6 +74,8 @@
 </style>
 
 <script>
+  let backdropRequest = 0;
+
   function isDarkMode(): boolean {
     const root = document.documentElement;
     if (root.classList.contains("dark")) return true;
@@ -81,16 +83,24 @@
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
 
+  function getBackdropSource() {
+    return isDarkMode()
+      ? "/images/bg/xiowo-bg-dark.webp"
+      : "/images/bg/xiowo-bg-light.webp";
+  }
+
   function loadBackdropImage() {
     const el = document.getElementById("backdrop-image");
     if (!el) return;
 
-    const src = isDarkMode()
-      ? "/images/bg/xiowo-bg-dark.webp"
-      : "/images/bg/xiowo-bg-light.webp";
+    const src = getBackdropSource();
+    const request = ++backdropRequest;
 
     const img = new Image();
     img.onload = () => {
+      // Image requests complete out of order when the theme is toggled quickly.
+      // Only the latest request for the currently selected theme may update DOM.
+      if (request !== backdropRequest || !el.isConnected || src !== getBackdropSource()) return;
       el.style.backgroundImage = `url(${img.src})`;
       el.classList.add("site-backdrop__image--loaded");
       el.parentElement?.classList.add("site-backdrop--has-image");
@@ -100,18 +110,7 @@
 
   // 主题切换时更换背景图
   function switchBackdropImage() {
-    const el = document.getElementById("backdrop-image");
-    if (!el) return;
-
-    const src = isDarkMode()
-      ? "/images/bg/xiowo-bg-dark.webp"
-      : "/images/bg/xiowo-bg-light.webp";
-
-    const img = new Image();
-    img.onload = () => {
-      el.style.backgroundImage = `url(${img.src})`;
-    };
-    img.src = src;
+    loadBackdropImage();
   }
 
   // 首次加载 + View Transitions 页面切换后重新初始化

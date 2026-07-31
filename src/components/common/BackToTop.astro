@@ -1,66 +1,80 @@
 ---
 /**
  * 回到顶部按钮 — 全局可用
- * 玻璃效果内联，避免 .glass 类冲突。
- * 逻辑在 GlobalScripts.astro 中统一管理。
+ * 使用 .fab 基类（定义在 BlogPost.astro 样式中），
+ * 与跳评论、TOC 按钮共享统一的玻璃 pill 动画系统。
+ * 显示/隐藏逻辑仍在 GlobalScripts.astro 中管理。
  */
 import { Icon } from "astro-icon/components";
 ---
 
 <button
   id="back-to-top"
-  class="back-to-top"
+  class="fab fab--top"
   aria-label="回到顶部"
   title="回到顶部"
 >
   <Icon name="ph:arrow-up" />
 </button>
 
-<style>
-  .back-to-top {
+<!--
+  BackToTop lives in BaseLayout, while the article-only FAB styles live in
+  BlogPost. Keep this small global baseline here so the persistent button is
+  styled on every route, including non-article pages.
+-->
+<style is:global>
+  #back-to-top.fab {
     position: fixed;
     right: var(--space-4);
     bottom: calc(var(--space-10) + 20px);
     z-index: 80;
-
     display: flex;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: var(--radius-full);
+    padding: 0;
     border: 1px solid var(--glass-border);
-
+    border-radius: var(--radius-full);
     background: var(--glass-bg);
+    color: var(--foreground-secondary);
+    box-shadow: var(--shadow-md), var(--glass-highlight);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    box-shadow: var(--shadow-md), var(--glass-highlight);
-
-    color: var(--foreground-secondary);
     cursor: pointer;
     opacity: 0;
-    visibility: hidden;
-    transform: translateY(12px);
+    pointer-events: none;
+    transform: translateX(calc(100% + 20px));
     transition:
-      opacity var(--duration-normal) var(--ease-material),
-      visibility var(--duration-normal) var(--ease-material),
-      transform var(--duration-normal) var(--ease-decelerate),
+      opacity 0.22s var(--ease-decelerate),
+      transform 0.22s var(--ease-decelerate),
       color var(--duration-fast) var(--ease-material);
   }
 
-  :global(.back-to-top--visible) {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-  }
+  #back-to-top.fab:hover { color: var(--foreground); }
 
-  .back-to-top:hover {
-    color: var(--foreground);
-    background: var(--glass-bg);
-  }
-
-  .back-to-top svg {
+  #back-to-top.fab svg {
     width: 18px;
     height: 18px;
+  }
+
+  #back-to-top.fab--visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  @media (max-width: 768px) {
+    #back-to-top.fab {
+      right: var(--space-3);
+      bottom: calc(var(--space-8) + 16px);
+      width: 40px;
+      height: 40px;
+    }
+
+    #back-to-top.fab svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 </style>

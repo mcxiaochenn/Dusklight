@@ -18,24 +18,31 @@
   margin-bottom: 1.25em;
 }
 
-/* ── 标题 ──
-   参照 Mizuki 源站：紧凑间距 + 逐级递减 line-height + 分级 font-weight
-   font-size 改为固定值（源站用 Tailwind 默认），clamp 流式缩放在窄内容区过大 ── */
+/* ── 标题间距 ──
+   参照 Mizuki 源站 Tailwind prose：mt-4 mb-2 (≈ 1rem / 0.5rem)。
+   使用 rem 而非 em —— 否则 h1 (1.875rem) 的 1.5em 顶边距 = 2.8rem，
+   而 h3 (1.25rem) 的 1.5em = 1.9rem，垂直节奏不一致。
+   rem 让各级标题拥有统一的内边距感，元素间距由前序元素的
+   margin-bottom 自然决定。
+   注：em → rem 后各标题仍然保留视觉层级 —— 字号越大，
+   实际占据空间越大，只是白色空间不随字号非线性放大。 */
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4,
 .prose h5,
 .prose h6 {
-  margin-top: 1.5em;
-  margin-bottom: 1em;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
   color: var(--foreground);
   font-optical-sizing: auto;
 }
 
-.prose h1:first-child,
-.prose h2:first-child,
-.prose h3:first-child {
+/* 首个子元素不要顶边距 —— 避免文章正文第一行与 header 之间出现空白 */
+.prose > h1:first-child,
+.prose > h2:first-child,
+.prose > h3:first-child,
+.prose > h4:first-child {
   margin-top: 0;
 }
 
@@ -51,8 +58,6 @@
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: var(--tracking-snug);
-  padding-bottom: 0.4em;
-  border-bottom: 1px solid var(--border-subtle);
 }
 
 .prose h3 {
@@ -208,6 +213,12 @@
   font-size: var(--text-sm);
   line-height: 1.7;
   position: relative;
+}
+
+/* Expressive Code 容器间距 —— .expressive-code 是 div，不是 pre，
+   prose 的 > * + * 规则对其有效但默认间距偏小，显式设置为与 pre 一致 */
+.prose .expressive-code {
+  margin: 1.5rem 0;
 }
 
 .prose pre > code {

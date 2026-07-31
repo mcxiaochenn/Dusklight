@@ -1,7 +1,9 @@
 /*
  * Expressive Code 样式 — 基于 Mizuki 实现
  * ─────────────────────────────────────────────────────────
- * 使用内置 .copy 按钮，通过 CSS 样式化
+ * 使用内置 .copy 按钮，通过 CSS 样式化。
+ * 所有控件按钮（copy / collapse / mermaid 全屏 / zoom）
+ * 共享 .ec-control-btn 基类 —— 统一玻璃 pill 视觉。
  */
 
 .expressive-code {
@@ -43,13 +45,69 @@
   font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* 隐藏自定义插件残留按钮 */
+/* ═══════════════════════════════════════════════════════════
+   统一控件按钮基类
+   ─────────────────────────────────────────────────────────
+   4 类按钮共享同一套视觉令牌：
+   - .expressive-code .copy button        复制按钮
+   - .collapse-toggle-btn                 折叠切换按钮
+   - .mermaid-fullscreen-btn              全屏按钮
+   - .mermaid-zoom-controls button        Zoom +/-/⤾ 按钮
+   ═══════════════════════════════════════════════════════════ */
+.ec-control-btn,
+.expressive-code .copy button,
+.expressive-code.collapsible .collapse-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border: 1px solid var(--glass-border);
+  color: var(--foreground-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-material);
+}
+
+.ec-control-btn:hover,
+.expressive-code .copy button:hover,
+.expressive-code.collapsible .collapse-toggle-btn:hover {
+  background: color-mix(in oklch, var(--glass-bg) 70%, transparent);
+  color: var(--foreground);
+}
+
+.ec-control-btn:active,
+.expressive-code .copy button:active,
+.expressive-code.collapsible .collapse-toggle-btn:active {
+  transform: scale(0.9);
+}
+
+.ec-control-btn svg,
+.expressive-code .copy button svg,
+.expressive-code.collapsible .collapse-toggle-btn svg {
+  width: 1rem;
+  height: 1rem;
+  fill: var(--foreground-secondary);
+  transition: fill var(--duration-fast) var(--ease-material);
+  pointer-events: none;
+}
+
+.ec-control-btn:hover svg,
+.expressive-code .copy button:hover svg,
+.expressive-code.collapsible .collapse-toggle-btn:hover svg {
+  fill: var(--foreground);
+}
+
+/* ── 隐藏自定义插件残留按钮 ── */
 .expressive-code .copy-btn,
 .expressive-code .ec-copy-btn {
   display: none !important;
 }
 
-/* ── 内置复制按钮样式 ── */
+/* ── 内置复制按钮 ── */
 .expressive-code .copy {
   position: absolute;
   top: 0.75rem;
@@ -61,29 +119,6 @@
 
 .expressive-code .frame:hover .copy {
   opacity: 1;
-}
-
-.expressive-code .copy button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2rem;
-  width: 2rem;
-  border-radius: var(--radius-md);
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  border: 1px solid var(--glass-border);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-material);
-}
-
-.expressive-code .copy button:hover {
-  background: oklch(from var(--glass-bg) l c h / 0.3);
-}
-
-.expressive-code .copy button:active {
-  transform: scale(0.9);
 }
 
 /* ── 代码块折叠功能 ── */
@@ -101,51 +136,20 @@
   user-select: none;
 }
 
-.expressive-code.collapsible .frame:hover {
-  background-color: oklch(from var(--accent) l c h / 0.03);
-}
-
 /* 折叠切换按钮 */
 .expressive-code.collapsible .collapse-toggle-btn {
-  all: initial;
   opacity: 0;
   position: absolute;
   top: 0.75rem;
   right: 3.5rem;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2rem;
-  width: 2rem;
-  border-radius: var(--radius-md);
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  border: 1px solid var(--glass-border);
-  color: var(--foreground-secondary);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-material);
-}
-
-.expressive-code.collapsible .collapse-toggle-btn:hover {
-  background: oklch(from var(--glass-bg) l c h / 0.3);
-}
-
-.expressive-code.collapsible .collapse-toggle-btn:active {
-  transform: scale(0.9);
+  transition:
+    opacity 0.15s ease-in-out,
+    all var(--duration-fast) var(--ease-material);
 }
 
 .expressive-code.collapsible .frame:hover .collapse-toggle-btn {
   opacity: 1;
-}
-
-.expressive-code.collapsible .collapse-toggle-btn svg {
-  width: 1rem;
-  height: 1rem;
-  fill: var(--foreground-secondary);
-  transition: transform 0.3s ease;
-  pointer-events: none;
 }
 
 .expressive-code.collapsed .collapse-toggle-btn svg {
@@ -178,51 +182,86 @@
 }
 
 /* ── Mermaid 全屏按钮 ── */
-.expressive-code .mermaid-fullscreen-btn {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  color: var(--foreground-secondary);
-  box-shadow: var(--shadow-sm), var(--glass-highlight);
-  border: 1px solid var(--glass-border);
+.mermaid-fullscreen-btn {
+  position: absolute;
+  top: 8px;
+  /* Zoom controls occupy the right edge; reserve their full width so reset
+     and fullscreen remain independently clickable. */
+  right: 7.5rem;
+  opacity: 0;
+  z-index: 3;
+  cursor: pointer;
 }
 
-.expressive-code .mermaid-fullscreen-btn:hover {
-  background: oklch(from var(--glass-bg) l c h / 0.3);
+.mermaid:hover .mermaid-fullscreen-btn,
+.mermaid:focus-within .mermaid-fullscreen-btn {
+  opacity: 1;
+}
+
+/* ── Mermaid Zoom 控件 ── */
+.mermaid-zoom-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.mermaid-zoom-controls button {
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1;
+  user-select: none;
 }
 
 /* ── 移动端适配 ── */
 @media (max-width: 768px) {
+  .ec-control-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .ec-control-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
   .expressive-code .copy {
     top: 0.5rem;
     right: 0.5rem;
   }
 
-  .expressive-code .copy button {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-
   .expressive-code.collapsible .collapse-toggle-btn {
-    width: 1.75rem;
-    height: 1.75rem;
     top: 0.5rem;
     right: 3rem;
-  }
-
-  .expressive-code.collapsible .collapse-toggle-btn svg {
-    width: 0.875rem;
-    height: 0.875rem;
   }
 
   .expressive-code.collapsed .frame pre {
     max-height: 4.5rem;
   }
+
+  .mermaid-fullscreen-btn {
+    top: 4px;
+    right: 3.75rem;
+  }
+
+  .mermaid-zoom-controls {
+    top: 4px;
+    right: 4px;
+    gap: 2px;
+  }
+
+  .mermaid-zoom-controls button {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.8rem;
+  }
 }
 
 /* ── 主题适配 ── */
-:root:not(.dark) .expressive-code.collapsible .collapse-toggle-btn,
-:root:not(.dark) .expressive-code .copy button {
+:root:not(.dark) .ec-control-btn {
   box-shadow:
     0 1px 3px 0 rgba(0, 0, 0, 0.1),
     0 1px 2px -1px rgba(0, 0, 0, 0.1);
@@ -238,8 +277,10 @@
     display: none !important;
   }
 
+  .expressive-code .copy,
   .expressive-code.collapsible .collapse-toggle-btn,
-  .expressive-code .copy {
+  .mermaid-fullscreen-btn,
+  .mermaid-zoom-controls {
     display: none !important;
   }
 }

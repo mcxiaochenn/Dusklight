@@ -72,7 +72,7 @@
   function toggleBackToTop() {
     const btn = document.getElementById("back-to-top");
     if (!btn) return;
-    btn.classList.toggle("back-to-top--visible", window.scrollY > 1);
+    btn.classList.toggle("fab--visible", window.scrollY > 1);
   }
   window.addEventListener("scroll", toggleBackToTop, { passive: true });
   document.addEventListener("click", (e) => {
