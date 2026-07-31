@@ -14,6 +14,16 @@
   line-height: 1.7;
 }
 
+/* View Transitions 导航后 Twikoo 重新渲染时，部分 SVG
+   图标缺少 width/height 属性，会按 viewBox 原始尺寸
+   （如 648px）渲染，撑爆整个评论布局。 */
+#twikoo svg[width="0"],
+#twikoo svg:not([width]),
+#twikoo svg:not([height]) {
+  width: 1em;
+  height: 1em;
+}
+
 /* ── 标题区 ── */
 #twikoo .tk-comments-title {
   font-family: var(--font-display), var(--font-cjk);
