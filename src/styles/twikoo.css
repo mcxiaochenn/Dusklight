@@ -196,7 +196,8 @@
 /* ── Meta 行 ── */
 #twikoo .tk-extras { color: var(--foreground-muted); font-size: var(--text-xs); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 #twikoo .tk-extra { display: flex; align-items: center; gap: var(--space-1); }
-#twikoo .tk-time { font-size: var(--text-xs); color: var(--foreground-muted); }
+#twikoo .tk-meta { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+#twikoo .tk-time { font-size: var(--text-xs); color: var(--foreground-muted); flex-shrink: 0; }
 
 /* ── 标签 ── */
 #twikoo .tk-tag {
@@ -294,7 +295,7 @@
 }
 
 /* ── 操作按钮 ── */
-#twikoo .tk-actions { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3); }
+#twikoo .tk-actions { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; }
 #twikoo .tk-action { display: flex; align-items: center; }
 
 #twikoo .tk-action-link {
