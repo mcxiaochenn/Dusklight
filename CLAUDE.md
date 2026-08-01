@@ -16,17 +16,15 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 **Package manager**: pnpm (not npm/yarn). Lockfile is `pnpm-lock.yaml`.
 **Node requirement**: `>=22.12.0`
 
+**Background dev server** (from `AGENTS.md`): `astro dev --background`, managed with `astro dev stop` / `astro dev status` / `astro dev logs`.
+
 **After editing `.astro` or CSS files**: rebuild and visually verify. Astro caches aggressively in `.astro/` — if changes don't appear, delete `.astro/` and `dist/` before rebuilding.
 
 **Content sync**: `pnpm dev` and `pnpm build` automatically run `scripts/sync-content.js` via `predev`/`prebuild` hooks. This clones/updates the private content repository into `./content/` (gitignored). No symlinks — `src/content.config.ts` reads `content/blog/` directly when it exists. If no `.env` exists, the sync is skipped and the built-in demo content in `src/content/` is used.
 
 **Deployment**: GitHub Actions deploys to GitHub Pages. The build step installs Playwright (Chromium) because Mermaid diagram rendering requires it at build time.
 
-**Background dev server** (from `AGENTS.md`): `astro dev --background`, managed with `astro dev stop` / `astro dev status` / `astro dev logs`.
-
 **No test or lint tooling exists.** `package.json` defines no `test`/`lint`/`format` script, and there is no ESLint / Prettier / Biome config in the repo. Verification means `pnpm build` completes + visual check in the browser. Do not invent or assume a test command.
-
-**Background dev server** (from `AGENTS.md`): `astro dev --background`, managed with `astro dev stop` / `astro dev status` / `astro dev logs`.
 
 ## Architecture
 
@@ -279,6 +277,10 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 ### Navigation
 
 `src/config/nav.ts` supports nested dropdowns via `children?: NavItem[]`. Header renders desktop dropdowns with hover + click toggle, mobile as grouped sections.
+
+## Design Reference
+
+`DESIGN.md` is a comprehensive design constitution documenting the visual philosophy, layout principles, typography rules, color system, motion system, glass specifications, component architecture, and responsive strategy. **Important caveat**: it was written as a planning document and some values diverge from the actual implementation (e.g., it specifies `--hue: 250` while `tokens.css` uses `--hue: 170`; it describes an asymmetric homepage layout that was later simplified to a standard post stream + sidebar). When in doubt, **`tokens.css` and the actual `.astro` components are the source of truth**, not `DESIGN.md`.
 
 ## Key Configuration Files
 
