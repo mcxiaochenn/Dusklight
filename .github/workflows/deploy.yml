@@ -53,10 +53,6 @@ jobs:
           CONTENT_REPO_URL: ${{ secrets.CONTENT_REPO_URL }}
           CONTENT_BRANCH: main
 
-      # 安装 Playwright（Mermaid 图表渲染需要）
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-
       # 构建 Astro 站点（build 链前置追番数据拉取，BILI_SESSDATA 可选）
       - name: Build Astro site
         run: pnpm build
