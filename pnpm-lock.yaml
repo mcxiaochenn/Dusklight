@@ -97,8 +97,8 @@ importers:
         specifier: ^1.2.11
         version: 1.2.11
       pangu:
-        specifier: ^8.2.0
-        version: 8.2.0
+        specifier: ^9.0.0
+        version: 9.0.0
 
 packages:
 
@@ -1777,9 +1777,9 @@ packages:
   package-manager-detector@1.7.0:
     resolution: {integrity: sha512-xg1eHpwYL/D/HEdWw2goFZP6vV0FH7W+PZ5rFkGjdIDLtxq7EkzBUeT3m+lndYCt8wKbmofUu1MUdMCXkCk9ZQ==}
 
-  pangu@8.2.0:
-    resolution: {integrity: sha512-zhpZN89y2VYxDTX5wt91Ag0M0phIB/ISUFv81ksSsSS3ryRlfW/uVsHwA+hol6L4yVz/3em+A0VM49B4yUi/wA==}
-    engines: {node: '>=18.0.0'}
+  pangu@9.0.0:
+    resolution: {integrity: sha512-VEkgcpBLXV6anBj/ZOgDhdWtmmewNd5OpJHC9L3Aa6WoLondpPF3uYlpZKBJt9qxv0pj23TB4knaQe+ntTZEYg==}
+    engines: {node: '>=20.0.0'}
     hasBin: true
 
   parse-entities@4.0.2:
@@ -4427,7 +4427,7 @@ snapshots:
 
   package-manager-detector@1.7.0: {}
 
-  pangu@8.2.0: {}
+  pangu@9.0.0: {}
 
   parse-entities@4.0.2:
     dependencies:
