@@ -1,10 +1,10 @@
 ---
 /**
  * 标签索引页 — 展示所有标签及文章数量
+ * 与分类索引页同构：玻璃圆形 pill 样式
  */
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Tag from "../../components/ui/Tag.astro";
 
 // 与首页/归档/RSS 保持一致地排除草稿 —— Astro 5+ 的 content layer 对
 // draft 无内置语义，不过滤的话草稿会被计入标签云与各标签的文章数
@@ -27,8 +27,8 @@ const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
       </div>
       <div class="tags-index__cloud">
         {sortedTags.map(([tag, count]) => (
-          <a href={`/tags/${tag}/`} class="tags-index__item">
-            <Tag>{tag}</Tag>
+          <a href={`/tags/${encodeURIComponent(tag)}/`} class="tags-index__item">
+            <span class="tags-index__name">{tag}</span>
             <span class="tags-index__num">{count}</span>
           </a>
         ))}
@@ -62,17 +62,36 @@ const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
   .tags-index__item {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    color: var(--foreground);
     text-decoration: none;
-    transition: transform var(--duration-fast) var(--ease-material);
+    transition: transform var(--duration-fast) var(--ease-material),
+                border-color var(--duration-fast) var(--ease-material);
   }
 
   .tags-index__item:hover {
     transform: translateY(-1px);
+    border-color: var(--accent);
+  }
+
+  .tags-index__name {
+    font-size: var(--text-sm);
+    font-weight: 600;
   }
 
   .tags-index__num {
     font-size: var(--text-xs);
-    color: var(--foreground-muted);
+    color: var(--accent);
+    font-weight: 700;
+    background: oklch(from var(--accent) l c h / 0.12);
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-full);
   }
 </style>
