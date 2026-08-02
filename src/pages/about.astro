@@ -1,16 +1,17 @@
 ---
 /**
- * 关于页面 — liushen 风格：头像行 + 信息卡片网格 + Markdown
+ * 关于页面 — 头像行 + 信息卡片网格 + 玻璃卡片板块 + 致谢 + 评论
+ * 借鉴 blog.zhheo.com/about/ 的图片卡片与玻璃面板风格；
+ * 原 spec/about.md 内容已结构化进 profileConfig.aboutCards。
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Tag from "../components/ui/Tag.astro";
+import TwikooComments from "../components/blog/TwikooComments.astro";
 import { Icon } from "astro-icon/components";
 import { profileConfig } from "../config/profile";
 import { skillsData } from "@/data/skills";
-import { getEntry, render } from "astro:content";
+import { getSortedSponsors } from "@/data/sponsors";
 
-const aboutEntry = await getEntry("spec", "about");
-const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
+const sponsors = getSortedSponsors();
 ---
 
 <BaseLayout title="关于" description={`关于 ${profileConfig.name}`}>
@@ -61,37 +62,55 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
           <p class="about__mbti-desc">{profileConfig.mbtiDesc}</p>
         </div>
 
-        {/* 技能墙 — 与 /skills/ 页同源数据 */}
+        {/* 技能墙 — 点击任意图标跳转 /skills/ 详情页 */}
         <div class="about__card about__card--wide">
           <h2 class="about__card-title">
             <Icon name="ph:code" /> 技能
           </h2>
           <div class="about__skill-wall">
             {skillsData.map((s) => (
-              <span class="about__skill-icon" title={s.name}>
+              <a href="/skills/" class="about__skill-icon" title={s.name}>
                 <Icon name={s.icon} />
-              </span>
+              </a>
             ))}
           </div>
         </div>
 
-        {/* 喜欢的番 */}
-        <div class="about__card">
+        {/* 喜欢的番 — 图片卡片横向滚动 */}
+        <div class="about__card about__card--wide">
           <h2 class="about__card-title">
             <Icon name="ph:television-simple" /> 喜欢的番
           </h2>
-          <div class="about__fav-tags">
-            {profileConfig.favorites.anime.map((a) => <Tag>{a}</Tag>)}
+          <div class="about__fav-scroll">
+            {profileConfig.favorites.anime.map((a) => (
+              <figure class="about__fav-card">
+                {a.image ? (
+                  <img src={a.image} alt={a.name} loading="lazy" decoding="async" />
+                ) : (
+                  <div class="about__fav-placeholder"><Icon name="ph:television-simple" /></div>
+                )}
+                <figcaption class="about__fav-name">{a.name}</figcaption>
+              </figure>
+            ))}
           </div>
         </div>
 
-        {/* 喜欢的游戏 */}
-        <div class="about__card">
+        {/* 喜欢的游戏 — 横版封面（Steam capsule 16:9）横向滚动 */}
+        <div class="about__card about__card--wide">
           <h2 class="about__card-title">
             <Icon name="ph:game-controller" /> 喜欢的游戏
           </h2>
-          <div class="about__fav-tags">
-            {profileConfig.favorites.games.map((g) => <Tag>{g}</Tag>)}
+          <div class="about__fav-scroll">
+            {profileConfig.favorites.games.map((g) => (
+              <figure class:list={["about__fav-card", "about__fav-card--landscape"]}>
+                {g.image ? (
+                  <img src={g.image} alt={g.name} loading="lazy" decoding="async" />
+                ) : (
+                  <div class="about__fav-placeholder"><Icon name="ph:game-controller" /></div>
+                )}
+                <figcaption class="about__fav-name">{g.name}</figcaption>
+              </figure>
+            ))}
           </div>
         </div>
 
@@ -116,27 +135,125 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
         </div>
       </div>
 
-      {/* ── Markdown 内容区 ── */}
-      {Content && (
-        <div class="about__md prose">
-          <Content />
-        </div>
-      )}
+      {/* ── 玻璃卡片板块（原 about.md 内容结构化） ── */}
+      <div class="about__cards">
+        {profileConfig.aboutCards.map((card) => (
+          <div class="about__card">
+            <h2 class="about__card-title">
+              <Icon name={card.icon} /> {card.title}
+            </h2>
+            {card.body && (
+              <div class="about__card-body">
+                {card.body.split("\n\n").map((para) => (
+                  <p>{para}</p>
+                ))}
+              </div>
+            )}
+            {card.links && (
+              <ul class="about__card-links">
+                {card.links.map((l) => (
+                  <li>
+                    {l.href ? (
+                      <a href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}>
+                        {l.text}
+                      </a>
+                    ) : (
+                      <span>{l.text}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
 
-      {!Content && (
-        <div class="about__sections">
-          {profileConfig.sections.map((sec) => (
-            <article class="about__section">
-              <h2 class="about__section-title">{sec.title}</h2>
-              <p class="about__section-content">{sec.content}</p>
-            </article>
-          ))}
+      {/* ── 致谢（赞助名单 + 打赏） ── */}
+      <div class="about__card about__card--wide about__thanks">
+        <h2 class="about__card-title">
+          <Icon name="ph:hand-heart" /> 致谢
+        </h2>
+        <p class="about__thanks-note">感谢每一位支持者的慷慨解囊，你们的支持是我持续创作最大的动力 ❤️</p>
+        <div class="about__thanks-row">
+          <ul class="about__thanks-list">
+            {sponsors.length > 0 ? sponsors.map((s) => (
+              <li class="about__thanks-item">
+                {s.avatar ? (
+                  <img src={s.avatar} alt={s.name} class="about__thanks-avatar" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+                ) : (
+                  <span class="about__thanks-avatar about__thanks-avatar--fallback">{s.name.slice(0, 1)}</span>
+                )}
+                <span class="about__thanks-name">{s.name}</span>
+                <span class="about__thanks-date">{s.date}</span>
+                <span class="about__thanks-amount">{s.amount}</span>
+              </li>
+            )) : (
+              <li class="about__thanks-empty">还没有赞助记录，第一个支持者就是你~</li>
+            )}
+          </ul>
+          <button class="about__donate-btn" id="btn-donate">
+            <Icon name="ph:coffee" /> 打赏作者
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* ── 评论区 ── */}
+      <div class="about__comments">
+        <TwikooComments />
+      </div>
 
     </div>
   </section>
+
+  {/* ── 打赏二维码弹层 ── */}
+  <div class="donate-modal" id="donate-modal">
+    <div class="donate-modal__backdrop" id="donate-modal-backdrop"></div>
+    <div class="donate-modal__card glass-panel">
+      <div class="donate-modal__header">
+        <span class="donate-modal__title">打赏作者</span>
+        <button class="donate-modal__close" id="donate-modal-close" aria-label="关闭">
+          <Icon name="ph:x" />
+        </button>
+      </div>
+      <p class="donate-modal__sub">扫描二维码，请小尘喝杯咖啡 ☕</p>
+      <div class="donate-modal__qrs">
+        <figure class="donate-modal__qr">
+          <img src="/sponsors/wechat.svg" alt="微信收款码" loading="lazy" />
+          <figcaption>微信</figcaption>
+        </figure>
+        <figure class="donate-modal__qr">
+          <img src="/sponsors/alipay.svg" alt="支付宝收款码" loading="lazy" />
+          <figcaption>支付宝</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
 </BaseLayout>
+
+<script>
+  /* 打赏弹层开关 */
+  function initDonateModal() {
+    const modal = document.getElementById("donate-modal");
+    const btn = document.getElementById("btn-donate");
+    const close = document.getElementById("donate-modal-close");
+    const backdrop = document.getElementById("donate-modal-backdrop");
+    if (!modal || !btn) return;
+
+    function open() { modal.classList.add("open"); modal.classList.add("visible"); }
+    function closeModal() {
+      modal.classList.remove("visible");
+      setTimeout(() => modal.classList.remove("open"), 200);
+    }
+    btn.addEventListener("click", open);
+    close?.addEventListener("click", closeModal);
+    backdrop?.addEventListener("click", closeModal);
+    document.addEventListener("keydown", function onEsc(e) {
+      if (e.key === "Escape" && modal.classList.contains("visible")) closeModal();
+    });
+  }
+  document.addEventListener("DOMContentLoaded", initDonateModal);
+  document.addEventListener("astro:page-load", initDonateModal);
+</script>
 
 <style>
   /* ── Hero ── */
@@ -185,6 +302,13 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
 
   /* ── 卡片网格 ── */
   .about__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-10);
+  }
+
+  .about__cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-4);
@@ -284,7 +408,7 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
     font-weight: 600;
   }
 
-  /* ── 技能图标墙 ── */
+  /* ── 技能图标墙（整块可点跳 /skills/） ── */
   .about__skill-wall {
     display: flex;
     flex-wrap: wrap;
@@ -300,7 +424,8 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
     border-radius: var(--radius-md);
     background: oklch(1 0 0 / 0.35);
     border: 1px solid var(--glass-border);
-    transition: transform var(--duration-fast) var(--ease-material);
+    transition: transform var(--duration-fast) var(--ease-material),
+                border-color var(--duration-fast) var(--ease-material);
   }
 
   :global(.dark) .about__skill-icon {
@@ -309,6 +434,7 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
 
   .about__skill-icon:hover {
     transform: translateY(-2px) scale(1.06);
+    border-color: oklch(from var(--accent) l c h / 0.35);
   }
 
   .about__skill-icon [data-icon] {
@@ -316,11 +442,79 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
     height: 24px;
   }
 
-  /* ── 番 / 游戏 ── */
-  .about__fav-tags {
+  /* ── 番 / 游戏 — 图片卡片横向滚动 ── */
+  .about__fav-scroll {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .about__fav-scroll::-webkit-scrollbar { height: 6px; }
+  .about__fav-scroll::-webkit-scrollbar-track { background: transparent; }
+  .about__fav-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-sm); }
+
+  /* 竖版卡片（番剧，MAL 封面 3:4） */
+  .about__fav-card {
+    flex: 0 0 150px;
+    margin: 0;
+    scroll-snap-align: start;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    background: var(--surface-2);
+    border: 1px solid var(--glass-border);
+  }
+
+  .about__fav-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* 横版卡片（游戏，Steam capsule 16:9） */
+  .about__fav-card--landscape {
+    flex-basis: 220px;
+  }
+
+  .about__fav-card--landscape img {
+    aspect-ratio: 16 / 9;
+  }
+
+  .about__fav-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    color: var(--foreground-muted);
+    background: linear-gradient(160deg, var(--surface-2), var(--surface-3));
+  }
+
+  .about__fav-card--landscape .about__fav-placeholder {
+    aspect-ratio: 16 / 9;
+  }
+
+  .about__fav-placeholder [data-icon] { width: 32px; height: 32px; }
+
+  .about__fav-name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: var(--space-2) var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: #fff;
+    text-align: center;
+    background: linear-gradient(transparent, oklch(0 0 0 / 0.75));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── 社交 ── */
@@ -354,39 +548,231 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
     height: 14px;
   }
 
-  /* ── 简介 ── */
-  .about__intro-text {
-    font-size: var(--text-base);
-    color: var(--foreground-secondary);
+  /* ── 玻璃卡片板块 ── */
+  .about__card-body p {
+    font-size: var(--text-sm);
     line-height: 1.75;
-    margin: 0;
-  }
-
-  /* ── Markdown ── */
-  .about__md {
-    max-width: var(--content-width);
-    margin: 0 auto var(--space-16);
-  }
-
-  /* ── Fallback ── */
-  .about__sections {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-8);
-    padding-bottom: var(--space-16);
-  }
-
-  .about__section-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
+    color: var(--foreground-secondary);
     margin: 0 0 var(--space-2);
   }
+  .about__card-body p:last-child { margin-bottom: 0; }
 
-  .about__section-content {
-    font-size: var(--text-base);
-    color: var(--foreground-secondary);
-    line-height: 1.8;
+  .about__card-links {
+    list-style: none;
     margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .about__card-links li {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    line-height: 1.6;
+  }
+  .about__card-links a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .about__card-links a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── 致谢 ── */
+  .about__thanks {
+    margin-bottom: var(--space-10);
+  }
+  .about__thanks-note {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0 0 var(--space-4);
+    line-height: 1.7;
+  }
+  .about__thanks-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+  .about__thanks-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 0;
+  }
+  .about__thanks-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: oklch(1 0 0 / 0.35);
+    border: 1px solid var(--glass-border);
+  }
+  :global(.dark) .about__thanks-item {
+    background: oklch(1 0 0 / 0.06);
+  }
+  .about__thanks-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--glass-border);
+    background: var(--surface-2);
+  }
+  .about__thanks-avatar--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: var(--text-sm);
+  }
+  .about__thanks-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .about__thanks-date {
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+  }
+  .about__thanks-amount {
+    margin-left: auto;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .about__thanks-empty {
+    font-size: var(--text-sm);
+    color: var(--foreground-muted);
+  }
+  .about__donate-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: transform var(--duration-fast) var(--ease-material),
+                opacity var(--duration-fast) var(--ease-material);
+  }
+  .about__donate-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+  }
+  .about__donate-btn [data-icon] {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ── 评论区（加宽后限宽保证评论列表可读） ── */
+  .about__comments {
+    max-width: var(--content-width);
+    margin: 0 auto;
+  }
+
+  /* ── 打赏弹层 ── */
+  .donate-modal {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s var(--ease-material);
+  }
+  .donate-modal.open { pointer-events: auto; }
+  .donate-modal.visible { opacity: 1; }
+  .donate-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+  .donate-modal__card {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-5);
+    min-width: 320px;
+    max-width: 480px;
+    text-align: center;
+    transform: scale(0.92) translateY(8px);
+    transition: transform 0.2s var(--ease-material);
+  }
+  .donate-modal.visible .donate-modal__card {
+    transform: scale(1) translateY(0);
+  }
+  .donate-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+  }
+  .donate-modal__title {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--foreground);
+  }
+  .donate-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    color: var(--foreground-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-material);
+  }
+  .donate-modal__close:hover { background: var(--accent-subtle); }
+  .donate-modal__close svg { width: 16px; height: 16px; }
+  .donate-modal__sub {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0 0 var(--space-4);
+  }
+  .donate-modal__qrs {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-5);
+  }
+  .donate-modal__qr {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .donate-modal__qr img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    background: #fff;
+    padding: var(--space-2);
+  }
+  .donate-modal__qr figcaption {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground);
   }
 
   /* ── Responsive ── */
@@ -398,13 +784,18 @@ const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
       text-align: center;
     }
 
-    .about__grid {
+    .about__grid,
+    .about__cards {
       grid-template-columns: 1fr;
     }
 
     .about__avatar {
       width: 72px;
       height: 72px;
+    }
+
+    .about__thanks-row {
+      flex-direction: column;
     }
   }
 </style>
