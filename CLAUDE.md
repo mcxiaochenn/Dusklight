@@ -316,6 +316,8 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - Runs `pnpm sync-content` to fetch content, then `pnpm build`
 - Deploys `dist/` to GitHub Pages
 
+**`pnpm-workspace.yaml` 的 `packages: ['.']` 字段不能删。** 2026-07 曾因缺失该字段导致 CI 全挂:更新后的 pnpm 9 在 `actions/setup-node` 的 `cache: pnpm` 步骤(内部执行 `pnpm store path`)报 `packages field missing or empty`,构建从未越过 Setup Node。同文件里的 `allowBuilds` 是 **pnpm 10 专用字段**(放行 esbuild/sharp 构建脚本)——本地开发是 pnpm 10 靠它生效,而 CI 装 pnpm 9 会静默忽略它(pnpm 9 默认放行所有构建脚本)。这是刻意的版本漂移,不要顺手统一,除非同时验证两边。
+
 `.github/content-repo-trigger.yml` is a template to copy into the content repo — it sends `repository_dispatch` events when content changes.
 
 ## Conventions
