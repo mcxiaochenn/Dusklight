@@ -1,21 +1,13 @@
 ---
 /**
- * 全局页脚 — 参考 blog.zhheo.com 风格
- * 分栏布局 + 渐变装饰 + 站点信息
+ * 全局页脚 — 底部单行布局：左（logo+版权+ICP）右（站点导航+CC）
+ * 参考 blog.zhheo.com + blog.mcxiaochen.top 风格
  */
 import { siteConfig } from "../../config/site";
-import { navConfig } from "../../config/nav";
-import { Icon } from "astro-icon/components";
 
-const year = new Date().getFullYear();
-
-const socialIcons: Record<string, string> = {
-  github: "simple-icons:github",
-  rss: "ph:rss",
-  twitter: "simple-icons:x",
-  bilibili: "simple-icons:bilibili",
-  email: "ph:envelope",
-};
+const startYear = new Date(siteConfig.siteStartDate).getFullYear();
+const currentYear = new Date().getFullYear();
+const yearRange = startYear === currentYear ? `${currentYear}` : `${startYear}-${currentYear}`;
 ---
 
 <footer class="footer">
@@ -26,62 +18,56 @@ const socialIcons: Record<string, string> = {
   </div>
 
   <div class="footer__body">
-    <div class="footer__inner">
-      <!-- 左：站点信息 -->
-      <div class="footer__brand">
-        <div class="footer__logo">
+    <div class="footer__bottom">
+
+      <!-- 左侧：logo + 版权 + ICP -->
+      <div class="footer__left">
+        <a class="footer__logo" href="https://github.com/mcxiaochenn" target="_blank" rel="noopener noreferrer" data-tooltip="前往作者的 GitHub">
           <img src="/favicon/favicon.ico" alt="" aria-hidden="true" class="footer__logo-img" />
           <span class="footer__logo-text">{siteConfig.title}</span>
-        </div>
-        <p class="footer__slogan">{siteConfig.description}</p>
+        </a>
+        <p class="footer__copyright">
+          &copy;&nbsp;{yearRange}&nbsp;
+          <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="footer__link" data-tooltip="本站源码">{siteConfig.author}</a>
+          &nbsp;&#xB7;&nbsp;Powered by&nbsp;
+          <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="footer__link" data-tooltip="Astro 框架官网">Astro</a>
+          &nbsp;&amp;&nbsp;
+          <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="footer__link" data-tooltip="Dusklight 主题仓库">Dusklight</a>
+        </p>
+        <p class="footer__icp">
+          {siteConfig.icp.map((item, i) => (
+            <>
+              {i > 0 && <span class="footer__icp-sep">/</span>}
+              <a href={item.url} target="_blank" rel="noopener noreferrer">{item.label}</a>
+            </>
+          ))}
+        </p>
       </div>
 
-      <!-- 中：导航 -->
-      <nav class="footer__nav" aria-label="页脚导航">
-        <h3 class="footer__nav-title">导航</h3>
-        <div class="footer__nav-links">
-          {navConfig.main.filter((item) => !item.children).map((item) => (
-            <a href={item.href} class="footer__nav-link">{item.label}</a>
-          ))}
-        </div>
-      </nav>
+      <!-- 右侧：运行时间 + 站点导航 + CC -->
+      <div class="footer__right">
+        <p class="footer__uptime">
+          <span class="footer__uptime-label">小站已存活：</span>
+          <span class="footer__uptime-value" id="site-uptime" data-start={siteConfig.siteStartDate}>--</span>
+        </p>
+        <nav class="footer__legal" aria-label="站点辅助链接">
+          <div class="footer__legal-row">
+            <a href="/privacy/" class="footer__legal-link">隐私政策</a>
+            <span class="footer__legal-sep">·</span>
+            <a href="/cookies/" class="footer__legal-link">Cookie</a>
+            <span class="footer__legal-sep">·</span>
+            <a href="/cc/" class="footer__legal-link">版权协议</a>
+          </div>
+          <div class="footer__legal-row">
+            <a href="/rss.xml" class="footer__legal-link" data-tooltip="RSS 订阅源">RSS</a>
+            <span class="footer__legal-sep">·</span>
+            <a href="/atom.xml" class="footer__legal-link" data-tooltip="Atom 订阅源">Atom</a>
+            <span class="footer__legal-sep">·</span>
+            <a href="/sitemap-index.xml" class="footer__legal-link" data-tooltip="站点地图">Sitemap</a>
+          </div>
+        </nav>
+      </div>
 
-      <!-- 右：社交 -->
-      <nav class="footer__social" aria-label="社交链接">
-        <h3 class="footer__nav-title">社交</h3>
-        <div class="footer__social-links">
-          {navConfig.social.map((item) => (
-            <a
-              href={item.href}
-              class="footer__social-link"
-              target={item.href.startsWith("http") ? "_blank" : undefined}
-              rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              title={item.label}
-            >
-              <Icon name={socialIcons[item.icon] || "ph:link"} aria-hidden="true" />
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </div>
-      </nav>
-    </div>
-
-    <!-- 底部版权 -->
-    <div class="footer__bottom">
-      <p class="footer__copyright">
-        &copy; {year} {siteConfig.author}. 由&nbsp;
-        <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="footer__powered">Astro</a>&nbsp;&amp;&nbsp;
-        <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="footer__powered">Dusklight</a>
-        &nbsp;强力驱动
-      </p>
-      <p class="footer__icp">
-        {siteConfig.icp.map((item, i) => (
-          <>
-            {i > 0 && <span class="footer__icp-sep">/</span>}
-            <a href={item.url} target="_blank" rel="noopener noreferrer">{item.label}</a>
-          </>
-        ))}
-      </p>
     </div>
   </div>
 </footer>
@@ -114,163 +100,251 @@ const socialIcons: Record<string, string> = {
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border-top: 1px solid var(--border-subtle);
-    padding: var(--space-10) var(--space-4) var(--space-6);
+    padding: var(--space-6) var(--space-4);
   }
 
-  .footer__inner {
+  /* ─── 底部单行布局 ─── */
+  .footer__bottom {
     max-width: var(--page-width);
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: var(--space-10);
-  }
-
-  /* 品牌区 */
-  .footer__logo {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+
+  .footer__left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .footer__right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ─── Logo ─── */
+  .footer__logo {
+    display: inline-flex;
+    align-items: center;
     gap: var(--space-2);
-    margin-bottom: var(--space-3);
+    text-decoration: none;
+    color: inherit;
+    width: fit-content;
+    transition: color var(--duration-fast) var(--ease-material);
+    position: relative;
+  }
+
+  .footer__logo:hover {
+    color: var(--accent);
   }
 
   .footer__logo-img {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     border-radius: var(--radius-sm);
   }
 
   .footer__logo-text {
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     font-weight: 700;
     color: var(--foreground);
     letter-spacing: -0.02em;
   }
 
-  .footer__slogan {
-    font-size: var(--text-sm);
-    color: var(--foreground-muted);
-    line-height: 1.6;
-    margin: 0;
-    max-width: 320px;
-  }
-
-  /* 导航 */
-  .footer__nav-title {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    color: var(--foreground-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 0 0 var(--space-3);
-  }
-
-  .footer__nav-links {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .footer__nav-link {
-    font-size: var(--text-sm);
-    color: var(--foreground-secondary);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-material);
-    width: fit-content;
-  }
-
-  .footer__nav-link:hover {
+  .footer__logo:hover .footer__logo-text {
     color: var(--accent);
   }
 
-  /* 社交链接 */
-  .footer__social-links {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .footer__social-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    color: var(--foreground-secondary);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-material);
-    width: fit-content;
-  }
-
-  .footer__social-link:hover {
-    color: var(--accent);
-  }
-
-  .footer__social-link svg {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-  }
-
-  /* 底部版权 */
-  .footer__bottom {
-    max-width: var(--page-width);
-    margin: var(--space-8) auto 0;
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--border-subtle);
-    text-align: center;
-  }
-
+  /* ─── 版权 + ICP ─── */
   .footer__copyright {
     font-size: var(--text-xs);
     color: var(--foreground-muted);
     margin: 0;
   }
 
-  .footer__powered {
-    color: var(--accent);
+  .footer__link {
+    color: var(--foreground-muted);
     text-decoration: none;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-material);
+    position: relative;
   }
 
-  .footer__powered:hover {
-    text-decoration: underline;
+  .footer__link:hover {
+    color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 10%, transparent);
   }
 
   .footer__icp {
     font-size: var(--text-xs);
     color: var(--foreground-muted);
-    margin: var(--space-1) 0 0;
+    margin: 0;
   }
 
   .footer__icp a {
     color: var(--foreground-muted);
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-material);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-material);
+    position: relative;
   }
 
   .footer__icp a:hover {
     color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 10%, transparent);
   }
 
   .footer__icp-sep {
     margin: 0 var(--space-1);
   }
 
+  /* ─── 运行时间 ─── */
+  .footer__uptime {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    margin: 0;
+    text-align: center;
+  }
+
+  .footer__uptime-label {
+    color: var(--foreground-muted);
+  }
+
+  .footer__uptime-value {
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── 站点辅助链接（法律信息 + 订阅/地图，双行小字） ─── */
+  .footer__legal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .footer__legal-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .footer__legal-link {
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-material);
+  }
+
+  .footer__legal-link:hover {
+    color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 10%, transparent);
+  }
+
+  .footer__legal-sep {
+    color: var(--foreground-muted);
+    font-size: var(--text-xs);
+  }
+
+  /* ─── 自定义 Tooltip ─── */
+  [data-tooltip] {
+    position: relative;
+  }
+
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    white-space: nowrap;
+    padding: 6px 12px;
+    background: var(--surface-2);
+    color: var(--foreground-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 4px 12px oklch(0 0 0 / 0.08);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 100;
+  }
+
+  [data-tooltip]::before {
+    content: "";
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--border-subtle);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+  }
+
+  [data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  [data-tooltip]:hover::before {
+    opacity: 1;
+  }
+
   /* ─── Responsive ─── */
-  @media (max-width: 768px) {
-    .footer__inner {
-      grid-template-columns: 1fr;
-      gap: var(--space-6);
+  @media (max-width: 640px) {
+    .footer__bottom {
+      flex-direction: column;
+      align-items: center;
       text-align: center;
     }
 
-    .footer__slogan {
-      max-width: none;
+    .footer__left {
+      align-items: center;
     }
 
-    .footer__nav-links,
-    .footer__social-links {
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
+    .footer__right {
+      flex-direction: column;
+      gap: var(--space-3);
     }
   }
 </style>
+
+<script is:inline>
+(function () {
+  let timer = null;
+  function initUptime() {
+    if (timer) clearInterval(timer);
+    const el = document.getElementById("site-uptime");
+    if (!el) return;
+    const start = new Date(el.dataset.start + "T00:00:00+08:00").getTime();
+    function tick() {
+      const diff = Date.now() - start;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      el.textContent = d + " 天 " + h + " 时 " + m + " 分 " + s + " 秒";
+    }
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+  initUptime();
+  document.addEventListener("astro:page-load", initUptime);
+})();
+</script>
