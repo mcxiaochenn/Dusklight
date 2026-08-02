@@ -15,7 +15,9 @@ const encryptedContent = encryptContent(htmlContent, String(password));
 
 <div id="password-protection" class="password-protection">
 	<div class="password-modal">
-		<div class="password-modal__icon">🔒</div>
+		<div class="password-modal__icon">
+			<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16M96 56a32 32 0 0 1 64 0v24H96Zm112 152H48V96h160zm-68-56a12 12 0 1 1-12-12a12 12 0 0 1 12 12"/></svg>
+		</div>
 		<h3 class="password-modal__title">此文章已加密</h3>
 		<p class="password-modal__desc">请输入密码以查看内容</p>
 		{hint && <p class="password-modal__hint">提示：{hint}</p>}
@@ -62,8 +64,13 @@ const encryptedContent = encryptContent(htmlContent, String(password));
 	}
 
 	.password-modal__icon {
-		font-size: 3rem;
 		margin-bottom: var(--space-4);
+	}
+
+	.password-modal__icon svg {
+		width: 3rem;
+		height: 3rem;
+		color: var(--accent);
 	}
 
 	.password-modal__title {

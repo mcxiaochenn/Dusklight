@@ -62,7 +62,7 @@ export const siteConfig = {
   features: {
     comments: true,
     search: true,
-    analytics: false,
+    analytics: true,
     rss: true,
   },
 } as const;

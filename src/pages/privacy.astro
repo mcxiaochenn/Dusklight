@@ -1,0 +1,254 @@
+---
+/**
+ * 隐私政策页
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "../config/site";
+---
+
+<BaseLayout title="隐私政策" description={`${siteConfig.title} 隐私政策`}>
+  <section class="privacy section">
+    <div class="page-container">
+
+      <div class="privacy__hero">
+        <h1 class="privacy__title">隐私政策</h1>
+        <p class="privacy__subtitle">Privacy Policy</p>
+        <p class="privacy__update">最后更新：2026 年 8 月</p>
+      </div>
+
+      <div class="privacy__card">
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">1. 概述</h2>
+          <p class="privacy__text">
+            本站（{siteConfig.title}，以下简称"本站"）尊重并保护您的隐私。本隐私政策说明了当您访问本站时，我们如何收集、使用和保护您的个人信息。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">2. 数据控制者</h2>
+          <p class="privacy__text">
+            本站由 {siteConfig.author} 独立运营。如您对本隐私政策有任何疑问，可通过本站页面底部的联系方式与我们取得联系。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">3. 我们收集的信息</h2>
+
+          <h3 class="privacy__sub-title">3.1 您主动提供的信息</h3>
+          <ul class="privacy__list">
+            <li><strong>评论信息</strong> — 当您通过 Twikoo 评论系统发表评论时，您提供的昵称、邮箱地址、网站地址（可选）以及评论内容将被存储。评论数据托管在我们自建的 Twikoo 服务端，不会被发送至第三方平台</li>
+            <li><strong>留言板 / 友链申请</strong> — 当您在留言板或友链页面提交信息时，您提供的联系方式和站点信息将被存储</li>
+          </ul>
+
+          <h3 class="privacy__sub-title">3.2 自动收集的信息</h3>
+          <ul class="privacy__list">
+            <li><strong>访问统计</strong> — 本站使用 Umami 进行匿名访问统计。Umami 不使用 Cookie，不收集个人身份信息，仅记录匿名的页面浏览数据（如访问页面、来源、浏览器类型、操作系统、国家/地区）。所有统计数据均汇总处理，无法追溯到个人</li>
+            <li><strong>服务器日志</strong> — 托管平台（GitHub Pages）可能会记录标准的服务器访问日志，包括 IP 地址、访问时间、请求的 URL 等。这些日志由托管平台管理，不在我们的直接控制范围内</li>
+          </ul>
+
+          <h3 class="privacy__sub-title">3.3 本地存储</h3>
+          <ul class="privacy__list">
+            <li><strong>主题偏好</strong> — 本站使用浏览器 localStorage 存储您的主题偏好（浅色 / 深色 / 跟随系统），以便在您下次访问时保持一致的视觉体验。该数据仅存储在您的浏览器中，不会上传至服务器</li>
+            <li><strong>加密文章密码</strong> — 对于设有密码保护的文章，您输入的密码会临时存储在浏览器 sessionStorage 中，仅在当前会话有效，关闭标签页后自动清除</li>
+          </ul>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">4. 信息的使用目的</h2>
+          <p class="privacy__text">我们收集的信息仅用于以下目的：</p>
+          <ul class="privacy__list">
+            <li>提供和维护评论功能</li>
+            <li>分析站点流量和内容表现（匿名汇总数据）</li>
+            <li>改善用户体验（如记住主题偏好）</li>
+            <li>防范滥用和垃圾评论</li>
+          </ul>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">5. 第三方服务</h2>
+          <p class="privacy__text">本站使用以下第三方服务：</p>
+          <ul class="privacy__list">
+            <li><strong>Umami</strong> — 自托管的匿名访问统计服务。不使用 Cookie，不收集个人数据。详见 <a href="https://umami.is/privacy" target="_blank" rel="noopener noreferrer">Umami 隐私政策</a></li>
+            <li><strong>Twikoo</strong> — 自托管的评论系统。评论数据存储在我们自建的服务端，不经过第三方。详见 <a href="https://twikoo.js.org/" target="_blank" rel="noopener noreferrer">Twikoo 官方文档</a></li>
+            <li><strong>GitHub Pages</strong> — 静态站点托管服务。可能记录标准服务器日志。详见 <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub 隐私声明</a></li>
+          </ul>
+          <p class="privacy__text">
+            本站<strong>不使用</strong>任何第三方广告、追踪器或社交插件。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">6. 数据保留</h2>
+          <ul class="privacy__list">
+            <li>评论数据 — 在您要求删除或站点关闭前持续保留</li>
+            <li>访问统计数据 — Umami 以匿名形式保留，不与个人关联</li>
+            <li>本地存储 — 由您自行管理，可随时通过浏览器设置清除</li>
+          </ul>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">7. 数据安全</h2>
+          <p class="privacy__text">
+            本站通过 HTTPS 加密传输所有数据。我们的自托管服务部署在安全的服务器环境中，并定期更新维护。尽管如此，互联网传输不存在绝对的安全性，我们无法保证数据传输的完全安全。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">8. 您的权利</h2>
+          <p class="privacy__text">作为用户，您享有以下权利：</p>
+          <ul class="privacy__list">
+            <li><strong>访问权</strong> — 了解我们持有的您的个人数据</li>
+            <li><strong>更正权</strong> — 要求更正不准确的个人数据</li>
+            <li><strong>删除权</strong> — 要求删除您的评论等个人数据</li>
+            <li><strong>撤回同意</strong> — 随时清除浏览器本地存储以撤回对本地数据处理的同意</li>
+          </ul>
+          <p class="privacy__text">
+            如需行使上述权利，请通过本站页面底部的联系方式联系我们。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">9. 儿童隐私</h2>
+          <p class="privacy__text">
+            本站不针对 13 岁以下的儿童，也不会有意收集 16 岁以下未成年人的个人信息。如果您认为我们可能无意中收集了未成年人的信息，请联系我们，我们将及时删除相关数据。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">10. 政策更新</h2>
+          <p class="privacy__text">
+            我们可能会不时更新本隐私政策。任何变更将在本页面发布，并更新"最后更新"日期。建议您定期查看本页面以了解最新信息。
+          </p>
+        </div>
+
+        <div class="privacy__section">
+          <h2 class="privacy__section-title">11. 联系方式</h2>
+          <p class="privacy__text">
+            如您对本隐私政策有任何疑问、建议或数据删除请求，请通过以下方式联系我们：
+          </p>
+          <ul class="privacy__list">
+            <li>在本站评论区留言</li>
+            <li>通过留言板提交信息</li>
+            <li>访问 <a href="https://github.com/mcxiaochenn" target="_blank" rel="noopener noreferrer">GitHub 主页</a> 发送消息</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .privacy__hero {
+    text-align: center;
+    padding: var(--space-16) 0 var(--space-10);
+  }
+
+  .privacy__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-2);
+  }
+
+  .privacy__subtitle {
+    font-size: var(--text-base);
+    color: var(--foreground-muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .privacy__update {
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    margin: 0;
+  }
+
+  .privacy__card {
+    max-width: 720px;
+    margin: 0 auto var(--space-16);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .privacy__section {
+    margin-bottom: var(--space-8);
+  }
+
+  .privacy__section:last-child {
+    margin-bottom: 0;
+  }
+
+  .privacy__section-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0 0 var(--space-3);
+  }
+
+  .privacy__sub-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--foreground);
+    margin: var(--space-4) 0 var(--space-2);
+  }
+
+  .privacy__text {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    line-height: 1.8;
+    margin: 0 0 var(--space-2);
+  }
+
+  .privacy__text a {
+    color: var(--accent);
+    text-decoration: none;
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-material);
+  }
+
+  .privacy__text a:hover {
+    background: color-mix(in oklch, var(--accent) 10%, transparent);
+  }
+
+  .privacy__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .privacy__list li {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    line-height: 1.7;
+    padding-left: var(--space-4);
+    position: relative;
+  }
+
+  .privacy__list li::before {
+    content: "·";
+    position: absolute;
+    left: var(--space-1);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .privacy__hero {
+      padding: var(--space-10) 0 var(--space-6);
+    }
+
+    .privacy__card {
+      padding: var(--space-5);
+    }
+  }
+</style>

@@ -1,0 +1,325 @@
+---
+/**
+ * Cookie 政策页
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "../config/site";
+---
+
+<BaseLayout title="Cookie 政策" description={`${siteConfig.title} Cookie 与本地存储政策`}>
+  <section class="cookies section">
+    <div class="page-container">
+
+      <div class="cookies__hero">
+        <h1 class="cookies__title">Cookie 政策</h1>
+        <p class="cookies__subtitle">Cookie Policy</p>
+        <p class="cookies__update">最后更新：2026 年 8 月</p>
+      </div>
+
+      <div class="cookies__card">
+        <div class="cookies__section">
+          <h2 class="cookies__section-title">1. 什么是 Cookie 和本地存储</h2>
+          <p class="cookies__text">
+            Cookie 是存储在您浏览器中的小型文本文件。本地存储（localStorage / sessionStorage）是浏览器提供的一种数据存储机制，功能类似但存储容量更大。这些技术帮助网站记住您的偏好和状态信息。
+          </p>
+        </div>
+
+        <div class="cookies__section">
+          <h2 class="cookies__section-title">2. 本站使用的存储</h2>
+          <p class="cookies__text">
+            本站使用以下存储机制。请注意，本站<strong>不使用传统 Cookie</strong>（即不通过 <code>document.cookie</code> 设置的键值对），所有数据均通过浏览器原生存储 API 管理。
+          </p>
+
+          <div class="cookies__table-wrap">
+            <table class="cookies__table">
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>类型</th>
+                  <th>用途</th>
+                  <th>有效期</th>
+                  <th>提供方</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>theme</code></td>
+                  <td>localStorage</td>
+                  <td>记住您的主题偏好（浅色 / 深色 / 跟随系统）</td>
+                  <td>永久（直到手动清除）</td>
+                  <td>本站</td>
+                </tr>
+                <tr>
+                  <td><code>page-password-*</code></td>
+                  <td>sessionStorage</td>
+                  <td>临时存储加密文章的解密密码，避免重复输入</td>
+                  <td>会话结束（关闭标签页）</td>
+                  <td>本站</td>
+                </tr>
+                <tr>
+                  <td>Twikoo 评论数据</td>
+                  <td>服务端存储</td>
+                  <td>存储评论内容、昵称、邮箱等信息，支持评论展示和管理</td>
+                  <td>持久化（服务端数据库）</td>
+                  <td>本站自托管 Twikoo</td>
+                </tr>
+                <tr>
+                  <td>Twikoo 登录态</td>
+                  <td>localStorage</td>
+                  <td>Twikoo 运行时可能将登录相关的会话数据（如登录 token）写入浏览器 localStorage，用于记住登录状态</td>
+                  <td>持久（直到手动清除）</td>
+                  <td>本站自托管 Twikoo</td>
+                </tr>
+                <tr>
+                  <td>Umami 匿名统计</td>
+                  <td>无 Cookie</td>
+                  <td>匿名页面浏览统计，不收集个人信息，不使用 Cookie</td>
+                  <td>不适用</td>
+                  <td>本站自托管 Umami</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cookies__section">
+          <h2 class="cookies__section-title">3. 详细说明</h2>
+
+          <h3 class="cookies__sub-title">3.1 主题偏好（localStorage）</h3>
+          <p class="cookies__text">
+            本站提供浅色、深色和跟随系统三种主题模式。当您切换主题时，您的选择会保存在浏览器的 localStorage 中（键名 <code>theme</code>），以便在下次访问时保持一致的视觉体验。该数据仅存储在您的浏览器本地，不会上传至任何服务器。
+          </p>
+
+          <h3 class="cookies__sub-title">3.2 加密文章密码（sessionStorage）</h3>
+          <p class="cookies__text">
+            部分文章设有密码保护。当您输入正确密码后，密码会临时存储在浏览器的 sessionStorage 中（键名格式 <code>page-password-{'{路径}'}</code>），仅在当前浏览器会话内有效。关闭标签页后，该数据会自动清除，不会持久保存。
+          </p>
+
+          <h3 class="cookies__sub-title">3.3 Twikoo 评论系统</h3>
+          <p class="cookies__text">
+            本站使用自托管的 <a href="https://twikoo.js.org/" target="_blank" rel="noopener noreferrer">Twikoo</a> 评论系统（版本 1.7.15）。当您发表评论时，您提供的昵称、邮箱地址、网站地址（可选）以及评论内容将存储在我们自建的服务端数据库中。Twikoo 本身不在您的浏览器中设置 Cookie，但其运行时可能会在浏览器 localStorage 中写入登录相关的会话数据（用于记住登录状态），该数据仅存于您的浏览器本地。
+          </p>
+
+          <h3 class="cookies__sub-title">3.4 Umami 访问统计</h3>
+          <p class="cookies__text">
+            本站使用自托管的 <a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami</a> 进行访问统计分析。Umami 的设计理念是隐私优先：
+          </p>
+          <ul class="cookies__list">
+            <li>不使用任何 Cookie</li>
+            <li>不收集个人身份信息（PII）</li>
+            <li>不追踪用户跨站点行为</li>
+            <li>仅记录匿名的页面浏览数据（访问页面、来源域名、浏览器类型、操作系统、国家/地区）</li>
+            <li>所有数据以汇总形式呈现，无法追溯到个人</li>
+          </ul>
+          <p class="cookies__text">
+            如您不希望被统计，可使用浏览器的"请勿跟踪"（DNT）功能或安装广告拦截插件。
+          </p>
+        </div>
+
+        <div class="cookies__section">
+          <h2 class="cookies__section-title">4. 如何管理存储数据</h2>
+          <p class="cookies__text">您可以通过以下方式管理本站存储在您浏览器中的数据：</p>
+          <ul class="cookies__list">
+            <li><strong>Chrome</strong> — 设置 → 隐私和安全 → 第三方 Cookie → 查看所有网站数据和权限</li>
+            <li><strong>Firefox</strong> — 设置 → 隐私与安全 → Cookie 和网站数据 → 管理数据</li>
+            <li><strong>Safari</strong> — 设置 → 隐私 → 管理网站数据</li>
+            <li><strong>Edge</strong> — 设置 → Cookie 和网站权限 → 管理和删除 Cookie</li>
+          </ul>
+          <p class="cookies__text">
+            清除 localStorage 后，您的主题偏好将重置为默认值（跟随系统）。清除 sessionStorage 后，加密文章需要重新输入密码。
+          </p>
+        </div>
+
+        <div class="cookies__section">
+          <h2 class="cookies__section-title">5. 第三方服务声明</h2>
+          <p class="cookies__text">
+            本站所有第三方服务（Umami、Twikoo）均为<strong>自托管</strong>，数据不会流向第三方平台。GitHub Pages 作为静态站点托管服务，可能会在其服务器端记录标准访问日志，但这不在本站的控制范围内。
+          </p>
+          <p class="cookies__text">
+            如需了解第三方服务的隐私政策，请参阅：
+          </p>
+          <ul class="cookies__list">
+            <li><a href="https://umami.is/privacy" target="_blank" rel="noopener noreferrer">Umami 隐私政策</a></li>
+            <li><a href="https://twikoo.js.org/" target="_blank" rel="noopener noreferrer">Twikoo 官方文档</a></li>
+            <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub 隐私声明</a></li>
+          </ul>
+        </div>
+
+        <div class="cookies__section">
+          <h2 class="cookies__section-title">6. 政策更新</h2>
+          <p class="cookies__text">
+            本 Cookie 政策可能会随本站功能变更而更新。任何变更将在本页面发布，并更新"最后更新"日期。
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cookies__hero {
+    text-align: center;
+    padding: var(--space-16) 0 var(--space-10);
+  }
+
+  .cookies__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--foreground);
+    margin: 0 0 var(--space-2);
+  }
+
+  .cookies__subtitle {
+    font-size: var(--text-base);
+    color: var(--foreground-muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .cookies__update {
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    margin: 0;
+  }
+
+  .cookies__card {
+    max-width: 720px;
+    margin: 0 auto var(--space-16);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+  }
+
+  .cookies__section {
+    margin-bottom: var(--space-8);
+  }
+
+  .cookies__section:last-child {
+    margin-bottom: 0;
+  }
+
+  .cookies__section-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0 0 var(--space-3);
+  }
+
+  .cookies__sub-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--foreground);
+    margin: var(--space-4) 0 var(--space-2);
+  }
+
+  .cookies__text {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    line-height: 1.8;
+    margin: 0 0 var(--space-2);
+  }
+
+  .cookies__text a {
+    color: var(--accent);
+    text-decoration: none;
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-material);
+  }
+
+  .cookies__text a:hover {
+    background: color-mix(in oklch, var(--accent) 10%, transparent);
+  }
+
+  .cookies__text code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--surface-1);
+    color: var(--accent);
+  }
+
+  .cookies__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .cookies__list li {
+    font-size: var(--text-sm);
+    color: var(--foreground-secondary);
+    line-height: 1.7;
+    padding-left: var(--space-4);
+    position: relative;
+  }
+
+  .cookies__list li::before {
+    content: "·";
+    position: absolute;
+    left: var(--space-1);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* 表格 */
+  .cookies__table-wrap {
+    overflow-x: auto;
+    margin: var(--space-4) 0;
+  }
+
+  .cookies__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .cookies__table th,
+  .cookies__table td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .cookies__table th {
+    font-weight: 600;
+    color: var(--foreground);
+    background: var(--surface-1);
+    white-space: nowrap;
+  }
+
+  .cookies__table td {
+    color: var(--foreground-secondary);
+  }
+
+  .cookies__table code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--surface-1);
+    color: var(--accent);
+  }
+
+  .cookies__table tr:last-child td {
+    border-bottom: none;
+  }
+
+  @media (max-width: 640px) {
+    .cookies__hero {
+      padding: var(--space-10) 0 var(--space-6);
+    }
+
+    .cookies__card {
+      padding: var(--space-5);
+    }
+  }
+</style>
