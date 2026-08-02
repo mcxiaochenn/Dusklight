@@ -22,7 +22,7 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 **Content sync**: `pnpm dev` and `pnpm build` automatically run `scripts/sync-content.js` via `predev`/`prebuild` hooks. This clones/updates the private content repository into `./content/` (gitignored). No symlinks — `src/content.config.ts` reads `content/blog/` directly when it exists. If no `.env` exists, the sync is skipped and the built-in demo content in `src/content/` is used.
 
-**Deployment**: GitHub Actions deploys to GitHub Pages. Mermaid diagrams render client-side (see the Remark/Rehype section), so no Playwright/browser is needed at build time.
+**Deployment**: GitHub Actions builds, then pushes `dist/` to the `gh-pages` branch. EdgeOne Pages imports from that branch and serves `blog.mcxiaochen.top` (Site URL is `https://blog.mcxiaochen.top`, `base` unset so links are root-relative). Mermaid diagrams render client-side (see the Remark/Rehype section), so no Playwright/browser is needed at build time.
 
 **No test or lint tooling exists.** `package.json` defines no `test`/`lint`/`format` script, and there is no ESLint / Prettier / Biome config in the repo. Verification means `pnpm build` completes + visual check in the browser. Do not invent or assume a test command.
 
@@ -314,7 +314,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - Triggers on push to `main` and `repository_dispatch` (content repo updates)
 - Installs pnpm 9, Node 22
 - Runs `pnpm sync-content` to fetch content, then `pnpm build`
-- Deploys `dist/` to GitHub Pages
+- Pushes `dist/` to the `gh-pages` branch via `peaceiris/actions-gh-pages` (`force_orphan: true`); EdgeOne Pages deploys that branch to `blog.mcxiaochen.top`. The workflow needs `permissions: contents: write` for the branch push — do NOT change it back to Pages-API style (`pages: write`/`id-token: write` + `deploy-pages`) unless the hosting model actually switches to GitHub Pages.
 
 **`pnpm-workspace.yaml` 的 `packages: ['.']` 字段不能删。** 2026-07 曾因缺失该字段导致 CI 全挂:更新后的 pnpm 9 在 `actions/setup-node` 的 `cache: pnpm` 步骤(内部执行 `pnpm store path`)报 `packages field missing or empty`,构建从未越过 Setup Node。同文件里的 `allowBuilds` 是 **pnpm 10 专用字段**(放行 esbuild/sharp 构建脚本)——本地开发是 pnpm 10 靠它生效,而 CI 装 pnpm 9 会静默忽略它(pnpm 9 默认放行所有构建脚本)。这是刻意的版本漂移,不要顺手统一,除非同时验证两边。
 

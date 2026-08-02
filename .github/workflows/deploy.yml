@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to gh-pages
 
 on:
   push:
@@ -9,15 +9,13 @@ on:
   # 手动触发
   workflow_dispatch:
 
-# GitHub Pages 部署权限
+# 推送 gh-pages 分支需要 contents: write（仅限 GITHUB_TOKEN 作用范围）
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 # 只允许一个并发部署
 concurrency:
-  group: "pages"
+  group: "deploy"
   cancel-in-progress: true
 
 jobs:
@@ -61,17 +59,26 @@ jobs:
 
       # 上传构建产物
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: site
           path: ./dist
 
+  # 推送到 gh-pages 分支 —— EdgeOne Pages 从该分支自动部署到 blog.mcxiaochen.top
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: ./dist
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
