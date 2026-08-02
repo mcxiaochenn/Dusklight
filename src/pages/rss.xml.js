@@ -12,10 +12,11 @@ export async function GET(context) {
 	// 显式映射字段，不展开 post.data：
 	// rss 的 schema 要的是 pubDate 而非 date，展开会让日期被静默丢弃；
 	// 同时避免把 password 等 frontmatter 私有字段送进外部输出。
-	return rss({
+	const response = rss({
 		title: siteConfig.title,
 		description: siteConfig.description,
 		site: context.site,
+		stylesheet: '/rss.xsl',
 		items: posts.map((post) => ({
 			title: post.data.title,
 			description: post.data.description,
@@ -25,4 +26,10 @@ export async function GET(context) {
 			link: getPostUrl(post),
 		})),
 	});
+	// 改 Content-Type 为 application/xml：application/rss+xml 下浏览器不应用
+	// rss.xsl 美化（Chrome 对 feed MIME 忽略 xml-stylesheet）。
+	// 静态生成环境 rss() 的 response.headers 可能为空，重建 Headers
+	const headers = new Headers(response.headers);
+	headers.set("Content-Type", "application/xml; charset=utf-8");
+	return new Response(response.body, { status: response.status, headers });
 }

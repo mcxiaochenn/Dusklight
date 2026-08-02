@@ -52,6 +52,7 @@ ${categories}
 	);
 
 	const xml = `<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="/atom.xsl"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>${esc(siteConfig.title)}</title>
   <subtitle>${esc(siteConfig.description)}</subtitle>
@@ -65,7 +66,9 @@ ${entries.join("\n")}
 
 	return new Response(xml, {
 		headers: {
-			"Content-Type": "application/atom+xml; charset=utf-8",
+			// application/atom+xml 下浏览器不应用 atom.xsl 美化（Chrome 对 feed MIME
+			// 忽略 xml-stylesheet），改 application/xml 让订阅页在浏览器中渲染样式
+			"Content-Type": "application/xml; charset=utf-8",
 		},
 	});
 }
