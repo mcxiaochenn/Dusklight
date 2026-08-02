@@ -21,6 +21,7 @@
     "@astrojs/mdx": "^7.0.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/svelte": "^9.0.1",
     "@expressive-code/core": "^0.44.1",
     "@expressive-code/plugin-collapsible-sections": "^0.44.1",
     "@expressive-code/plugin-line-numbers": "^0.44.1",
@@ -43,6 +44,7 @@
     "remark-math": "^6.0.0",
     "remark-sectionize": "^2.1.0",
     "sharp": "^0.35.0",
+    "svelte": "^5.56.8",
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
