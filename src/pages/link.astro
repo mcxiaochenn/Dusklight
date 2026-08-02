@@ -199,13 +199,14 @@ for (const f of friendsData) {
   </section>
 </BaseLayout>
 
-{/* ── 朋友圈摘要客户端 fetch ── */}
+{/* ── 朋友圈摘要客户端 fetch ──
+     View Transitions 下不能用纯 IIFE：导航时序中 DOM 可能未就绪导致
+     if (!grid) return 静默跳过。改为双事件监听 + dataset 防重入，
+     每次换页必然重新 fetch。 */}
 <script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
   (function () {
     var API = fcliteApiUrl + "all.json";
     var COUNT = 6;
-    var grid = document.getElementById("fcl-summary-grid");
-    if (!grid) return;
 
     function escapeHtml(s) {
       var d = document.createElement("div");
@@ -214,6 +215,8 @@ for (const f of friendsData) {
     }
 
     function render(articles) {
+      var grid = document.getElementById("fcl-summary-grid");
+      if (!grid) return;
       grid.innerHTML = "";
       for (var i = 0; i < Math.min(articles.length, COUNT); i++) {
         var a = articles[i];
@@ -232,12 +235,23 @@ for (const f of friendsData) {
       }
     }
 
-    fetch(API)
-      .then(function (r) { return r.json(); })
-      .then(function (d) { if (d.article_data && d.article_data.length) render(d.article_data); })
-      .catch(function () {
-        grid.innerHTML = '<p class="fcl-summary__error">朋友圈动态加载失败，<a href="/Friend-Circle-Lite/">前往查看 →</a></p>';
-      });
+    function initFclSummary() {
+      var grid = document.getElementById("fcl-summary-grid");
+      if (!grid || grid.dataset.fclInit === "1") return;
+      grid.dataset.fclInit = "1";
+
+      fetch(API)
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d.article_data && d.article_data.length) render(d.article_data); })
+        .catch(function () {
+          if (grid) {
+            grid.innerHTML = '<p class="fcl-summary__error">朋友圈动态加载失败，<a href="/Friend-Circle-Lite/">前往查看 →</a></p>';
+          }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", initFclSummary);
+    document.addEventListener("astro:page-load", initFclSummary);
   })();
 </script>
 

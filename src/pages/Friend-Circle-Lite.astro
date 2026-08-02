@@ -2,6 +2,12 @@
 /**
  * 友链朋友圈 — Friend-Circle-Lite（外部服务 fc.mcxiaochen.top + jsDelivr 前端）
  * URL /Friend-Circle-Lite/ 与生产站一致；入口在 /link/ 页
+ *
+ * fclite 初始化坑：fclite.min.js 只在加载时执行一次 whenDOMReady()，
+ * 重初始化仅监听 pjax:complete —— 本站导航是 Astro View Transitions
+ * （触发 astro:page-load，不是 pjax），客户端跳转过来时 fclite 不会重跑。
+ * 这里显式监听 astro:page-load + DOMContentLoaded，每次导航后重置
+ * UserConfig 再调全局 initialize_fc_lite()。
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { siteConfig } from "@/config";
@@ -9,7 +15,7 @@ import { siteConfig } from "@/config";
 
 <BaseLayout title="友链朋友圈" description="朋友们的最新文章">
   <section class="section">
-    <div class="content-container">
+    <div class="page-container">
       <header class="fcl__header">
         <h1 class="fcl__title">友链朋友圈</h1>
         <p class="fcl__subtitle">朋友们的最新动态</p>
@@ -22,15 +28,6 @@ import { siteConfig } from "@/config";
   </section>
 </BaseLayout>
 
-<script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
-  if (typeof UserConfig === "undefined") {
-    var UserConfig = {
-      private_api_url: fcliteApiUrl,
-      page_turning_number: 24,
-      error_img: "https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg",
-    };
-  }
-</script>
 <link
   rel="stylesheet"
   href="/vendor/fclite.min.css"
@@ -39,6 +36,31 @@ import { siteConfig } from "@/config";
   is:inline
   src="/vendor/fclite.min.js"
 ></script>
+
+<script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
+  (function () {
+    // 每次初始化前重置 UserConfig，保证 API 地址有效（fclite 内部读取全局 UserConfig）
+    function setupUserConfig() {
+      window.UserConfig = {
+        private_api_url: fcliteApiUrl,
+        page_turning_number: 24,
+        error_img: "https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg",
+      };
+    }
+
+    function initFcLite() {
+      setupUserConfig();
+      if (typeof window.initialize_fc_lite === "function") {
+        window.initialize_fc_lite();
+      }
+    }
+
+    // DOMContentLoaded 与 astro:page-load 首次都会触发，初始化幂等（fclite 内部
+    // 先清空 root 再重建），重复调用无害。
+    document.addEventListener("DOMContentLoaded", initFcLite);
+    document.addEventListener("astro:page-load", initFcLite);
+  })();
+</script>
 
 <script is:inline>
   // fclite 主题跟随站点 .dark（data-theme 是 fclite 的约定）
