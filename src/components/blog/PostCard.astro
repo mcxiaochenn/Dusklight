@@ -4,6 +4,11 @@
  * 响应式布局：中屏水平（左图右文），大屏/移动端垂直（图上文下）。
  * 学习 blog.zhheo.com 的三段式断点策略。
  * 无封面时降级到 /images/cover-fallback.svg。
+ *
+ * 可点击区域设计：HTML 不允许 <a> 嵌套 <a>，而卡片需要「整卡可点 +
+ * 标签/分类独立可点」同时成立。做法是主链接用绝对定位覆盖整卡
+ * （inset:0 + z-index:1），标签/分类用 z-index:2 浮在其上 —— 点卡片
+ * 空白进文章，点标签/分类进对应归档页。
  */
 import type { CollectionEntry } from "astro:content";
 import Tag from "../ui/Tag.astro";
@@ -22,52 +27,60 @@ const { post, class: className, excerpt: autoExcerpt } = Astro.props;
 // 优先使用 frontmatter description，fallback 到 remark-content 自动摘录
 const displayDesc = post.data.description || autoExcerpt || "";
 const coverSrc = post.data.cover || "/images/cover-fallback.svg";
+const postUrl = getPostUrl(post);
 ---
 
 <article class:list={["post-card", "reveal", className]}>
-  <a href={getPostUrl(post)} class="post-card__link">
-    <div class="post-card__cover">
-      <img
-        src={coverSrc}
-        alt={post.data.title}
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
+  {/* 整卡主链接 — 绝对定位覆盖层，承载除标签/分类外的全部点击 */}
+  <a href={postUrl} class="post-card__link" aria-label={post.data.title}></a>
 
-    <div class="post-card__body">
-      {(post.data.pinned || (post.data.tags && post.data.tags.length > 0)) && (
-        <div class="post-card__tags">
-          {post.data.pinned && (
-            <span class="post-card__pin">
-              <Icon name="ph:push-pin-fill" />置顶
-            </span>
-          )}
-          {(post.data.tags ?? []).slice(0, 3).map((t) => <Tag>{t}</Tag>)}
-        </div>
-      )}
+  <div class="post-card__cover">
+    <img
+      src={coverSrc}
+      alt={post.data.title}
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
 
-      <h3 class="post-card__title">{post.data.title}</h3>
-
-      {displayDesc && (
-        <p class="post-card__desc">{displayDesc}</p>
-      )}
-
-      <div class="post-card__meta">
-        <Icon name="ph:calendar" class="post-card__meta-icon" />
-        <FormattedDate date={post.data.date} />
-        {post.data.category && (
-          <span class="post-card__category">{post.data.category}</span>
+  <div class="post-card__body">
+    {(post.data.pinned || (post.data.tags && post.data.tags.length > 0)) && (
+      <div class="post-card__tags">
+        {post.data.pinned && (
+          <span class="post-card__pin">
+            <Icon name="ph:push-pin-fill" />置顶
+          </span>
         )}
+        {(post.data.tags ?? []).slice(0, 3).map((t) => (
+          <Tag href={`/tags/${encodeURIComponent(t)}/`}>{t}</Tag>
+        ))}
       </div>
+    )}
+
+    <h3 class="post-card__title">{post.data.title}</h3>
+
+    {displayDesc && (
+      <p class="post-card__desc">{displayDesc}</p>
+    )}
+
+    <div class="post-card__meta">
+      <Icon name="ph:calendar" class="post-card__meta-icon" />
+      <FormattedDate date={post.data.date} />
+      {post.data.category && (
+        <a href={`/categories/${encodeURIComponent(post.data.category.trim())}/`} class="post-card__category">
+          {post.data.category.trim()}
+        </a>
+      )}
     </div>
-  </a>
+  </div>
 </article>
 
 <style>
   /* Liquid glass card */
   .post-card {
     position: relative;
+    display: flex;
+    flex-direction: row;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -85,13 +98,12 @@ const coverSrc = post.data.cover || "/images/cover-fallback.svg";
     border-color: var(--border);
   }
 
-  /* 默认：水平布局（左图右文） */
+  /* 主链接覆盖层 — 承接整卡点击；标签/分类 z-index 浮在其上 */
   .post-card__link {
-    display: flex;
-    flex-direction: row;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     text-decoration: none;
-    color: inherit;
-    height: 100%;
   }
 
   /* 封面：默认水平，45%宽 + 16:9 比例 */
@@ -115,6 +127,7 @@ const coverSrc = post.data.cover || "/images/cover-fallback.svg";
   }
 
   .post-card__body {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -124,6 +137,8 @@ const coverSrc = post.data.cover || "/images/cover-fallback.svg";
   }
 
   .post-card__tags {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1);
@@ -184,6 +199,8 @@ const coverSrc = post.data.cover || "/images/cover-fallback.svg";
   }
 
   .post-card__meta {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -209,11 +226,19 @@ const coverSrc = post.data.cover || "/images/cover-fallback.svg";
     border-radius: var(--radius-sm);
     color: var(--accent);
     font-weight: 600;
+    text-decoration: none;
+    transition: background var(--duration-fast) var(--ease-material),
+                border-color var(--duration-fast) var(--ease-material);
+  }
+
+  .post-card__category:hover {
+    background: oklch(from var(--accent) l c h / 0.15);
+    border-color: oklch(from var(--accent) l c h / 0.35);
   }
 
   /* ── 大屏(≥1300px)：垂直布局，封面固定210px ── */
   @media (min-width: 1300px) {
-    .post-card__link {
+    .post-card {
       flex-direction: column;
     }
 
@@ -226,7 +251,7 @@ const coverSrc = post.data.cover || "/images/cover-fallback.svg";
 
   /* ── 移动端(≤768px)：垂直布局，封面固定170px ── */
   @media (max-width: 768px) {
-    .post-card__link {
+    .post-card {
       flex-direction: column;
     }
 
