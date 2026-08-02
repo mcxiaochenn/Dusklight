@@ -4,6 +4,7 @@
  * 动态加载 + View Transitions 兼容 + CSS 本地强制覆盖
  */
 import { commentConfig } from "../../config/comment";
+import { Icon } from "astro-icon/components";
 ---
 
 {commentConfig.enabled && (
@@ -11,6 +12,9 @@ import { commentConfig } from "../../config/comment";
     <h2 class="comments__heading">评论</h2>
     <div id="twikoo" class="comments__container"></div>
   </div>
+  <button class="comments__fab" id="jump-comments" aria-label="跳转到评论">
+    <Icon name="ph:chat-circle-text" />
+  </button>
 )}
 
 <style>
@@ -29,10 +33,89 @@ import { commentConfig } from "../../config/comment";
 
   .comments__container {
     min-height: 200px;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  /* 跳转评论 FAB */
+  .comments__fab {
+    position: fixed;
+    right: var(--space-4);
+    bottom: calc(var(--space-10) + 20px + 44px + var(--space-2));
+    z-index: 50;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+    color: var(--foreground-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 初始隐藏，滚动门控显示（跟随 BackToTop 可见性）——避免常驻遮住评论区 */
+    opacity: 0;
+    transform: translateX(calc(100% + 20px));
+    pointer-events: none;
+    transition: opacity 0.2s var(--ease-decelerate),
+                transform 0.2s var(--ease-decelerate);
+  }
+
+  .comments__fab--visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .comments__fab--visible:hover {
+    color: var(--accent);
+    transform: scale(1.05);
+  }
+
+  .comments__fab svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .comments__fab {
+      bottom: calc(var(--space-8) + 16px + 40px + var(--space-2));
+      right: var(--space-3);
+    }
   }
 </style>
 
 {commentConfig.enabled && (
+  <script is:inline>
+    (function() {
+      function bindFab() {
+        var fab = document.getElementById("jump-comments");
+        if (!fab || fab.dataset.bound) return;
+        fab.dataset.bound = "1";
+        fab.addEventListener("click", function() {
+          var el = document.getElementById("twikoo");
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        // 滚动门控：跟随 BackToTop 的可见性（GlobalScripts 控制 .fab--visible/.fab--hiding），
+        // 滚动到一定位置才显示 FAB，避免常驻遮住评论区
+        var btt = document.getElementById("back-to-top");
+        function sync() {
+          var show = btt && btt.classList.contains("fab--visible");
+          fab.classList.toggle("comments__fab--visible", !!show);
+        }
+        if (btt) {
+          new MutationObserver(sync).observe(btt, { attributes: true, attributeFilter: ["class"] });
+        }
+        sync();
+      }
+      bindFab();
+      document.addEventListener("astro:page-load", bindFab);
+    })();
+  </script>
   <script define:vars={{ envId: commentConfig.twikoo.envId }}>
     (() => {
       var TWIKOO_SRC = "/js/twikoo.min.js";

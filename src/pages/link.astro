@@ -193,7 +193,7 @@ for (const f of friendsData) {
 
     </div>
 
-    <div class="content-container">
+    <div class="link-comments">
       <TwikooComments />
     </div>
   </section>
@@ -326,6 +326,13 @@ for (const f of friendsData) {
 </script>
 
 <style>
+  /* ── 评论区：与友链卡墙同宽容器，但限宽 900px 保持评论列表可读 ── */
+  .link-comments {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+  }
+
   /* ── 页面标题 ── */
   .links-header {
     text-align: center;
@@ -629,6 +636,8 @@ for (const f of friendsData) {
     gap: var(--space-3);
     padding: var(--space-4);
     text-decoration: none;
+    overflow: hidden;
+    word-break: break-word;
     transition: box-shadow var(--duration-fast) var(--ease-material),
                 border-color var(--duration-fast) var(--ease-material),
                 transform var(--duration-fast) var(--ease-material);
