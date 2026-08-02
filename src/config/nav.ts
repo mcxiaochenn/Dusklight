@@ -14,18 +14,31 @@ export const navConfig = {
   // 主导航 — 结构对齐生产站（blog.mcxiaochen.top）
   main: [
     { label: "首页", href: "/" },
-    { label: "归档", href: "/archive/" },
+    {
+      label: "文库",
+      href: "/archive/",
+      children: [
+        { label: "全部文章", href: "/archive/", icon: "ph:archive" },
+        { label: "分类列表", href: "/categories/", icon: "ph:folder" },
+        { label: "标签列表", href: "/tags/", icon: "ph:tag" },
+      ],
+    },
     { label: "留言板", href: "/envelope/" },
-    { label: "友链", href: "/link/" },
+    {
+      label: "友链",
+      href: "/link/",
+      children: [
+        { label: "友链列表", href: "/link/", icon: "ph:users-three" },
+        { label: "友链朋友圈", href: "/Friend-Circle-Lite/", icon: "ph:newspaper" },
+      ],
+    },
     {
       label: "关于",
       href: "/about/",
       children: [
         { label: "我的追番", href: "/anime/", icon: "ph:television-simple" },
         { label: "设备", href: "/devices/", icon: "ph:monitor" },
-        { label: "技术栈", href: "/skills/", icon: "ph:code" },
-        { label: "Timeline", href: "/timeline/", icon: "ph:clock" },
-        { label: "赞助", href: "/sponsors/", icon: "ph:hand-heart" },
+        { label: "更新日志", href: "/timeline/", icon: "ph:clock" },
         { label: "关于本站", href: "/about/", icon: "ph:user-circle" },
       ],
     },

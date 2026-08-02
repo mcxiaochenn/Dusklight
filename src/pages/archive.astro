@@ -22,10 +22,10 @@ const postsByYear = posts.reduce((acc, post) => {
 const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
 ---
 
-<BaseLayout title="归档" description="所有文章归档">
+<BaseLayout title="全部文章" description="所有文章归档">
   <section class="archive section">
     <div class="content-container">
-      <h1 class="archive__title">文章归档</h1>
+      <h1 class="archive__title">全部文章</h1>
       <p class="archive__count">共 {posts.length} 篇文章</p>
 
       {years.map((year) => (
