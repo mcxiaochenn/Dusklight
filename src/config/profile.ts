@@ -18,9 +18,10 @@ export const profileConfig = {
   // ─── 身份标签（About 页 Hero 区 chips） ───
   identities: ["高中生", "半吊子开发者", "二次元"],
 
-  // ─── 喜欢的番 / 游戏（About 页图片卡片，image 为封面图 URL） ───
-  // 番剧封面来自 MyAnimeList CDN（竖版），游戏来自 Steam CDN（横版 capsule），
-  // 均验证可热链。图片经 CSS object-fit: cover 统一裁剪到卡片比例。
+  // ─── 喜欢的番 / 游戏（About 页图片卡片） ───
+  // 番剧封面来自 MyAnimeList CDN（竖版外链，保持热链）；
+  // 游戏封面已下载到 public/images/favorites/ 并转 webp（入库）。
+  // landscape: true 的横版图用 16:9 横卡，否则用 3:4 竖卡。
   favorites: {
     anime: [
       { name: "孤独摇滚", image: "https://cdn.myanimelist.net/images/anime/1448/127956l.jpg" },
@@ -30,13 +31,16 @@ export const profileConfig = {
       { name: "鬼灭之刃", image: "https://cdn.myanimelist.net/images/anime/1286/99889l.jpg" },
     ],
     games: [
-      { name: "各种旮旯给木（GalGame）", image: "https://cdn.myanimelist.net/images/anime/4/30327l.jpg" },
-      { name: "Minecraft", image: "https://minecraft.wiki/images/Minecraft_Xbox_Box.jpg" },
-      { name: "CS", image: "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_616x353.jpg" },
-      { name: "明日方舟：终末地", image: "https://cdn.akamai.steamstatic.com/steam/apps/2365050/capsule_616x353.jpg" },
-      { name: "鸣潮", image: "https://cdn.akamai.steamstatic.com/steam/apps/2162810/capsule_616x353.jpg" },
+      { name: "千恋＊万花", image: "/images/favorites/qianlian-huayu.webp" },
+      { name: "Minecraft", image: "/images/favorites/minecraft.webp" },
+      { name: "CS", image: "/images/favorites/cs.webp", landscape: true },
+      { name: "明日方舟：终末地", image: "/images/favorites/arknights-endfield.webp", landscape: true },
+      { name: "鸣潮", image: "/images/favorites/wuthering-waves.webp", landscape: true },
     ],
   },
+
+  // ─── 性格立绘（About 页性格板块） — 16Personalities 官方 INTP-T 形象 ───
+  personalityImage: "/images/intp.svg",
 
   // ─── 社交链接（icon 为 astro-icon 名称） ───
   socials: [
@@ -44,8 +48,8 @@ export const profileConfig = {
     { label: "Bilibili", url: `https://space.bilibili.com/${siteConfig.anime.vmid}`, icon: "simple-icons:bilibili" },
     { label: "QQ", url: "https://qm.qq.com/q/KZKEcWKVSq", icon: "simple-icons:qq" },
     { label: "Telegram", url: "https://t.me/mcxiaochenn", icon: "simple-icons:telegram" },
-    { label: "酷安", url: "https://www.coolapk.com/u/21508887", icon: "arcticons:coolapk" },
-    { label: "Email", url: "mailto:mcxiaochenn_yyds@163.com", icon: "ph:envelope" },
+    { label: "酷安", url: "https://www.coolapk.com/u/21508887", icon: "local:coolapk" },
+    { label: "Email", url: "mailto:mcxiaochenn_yyds@163.com", icon: "local:mail" },
   ] as ReadonlyArray<{ label: string; url: string; icon: string }>,
 
   // ─── 个人简介（Hero 区短文） ───
@@ -53,6 +57,33 @@ export const profileConfig = {
 
   // ─── 技能标签 ───
   skills: ["TypeScript", "React", "Vue", "Astro", "Node.js", "Docker"],
+
+  // ─── 作者框（anheyu 布局）：头像两侧漂浮标签 ───
+  authorTagsLeft: ["高中生", "半吊子开发者"],
+  authorTagsRight: ["二次元", "阿尘"],
+
+  // ─── 问候卡（anheyu myInfoAndSayHello） ───
+  hello: "嗨！欢迎来到我的小站",
+  helloName: "辰渊尘",
+
+  // ─── 站点关键词轮播（anheyu aboutsiteTips 遮罩动画） ───
+  aboutsiteTips: {
+    tips: "关于本站",
+    title1: "生活不止眼前的苟且",
+    title2: "还有诗和远方",
+    words: ["折腾", "热爱", "坚持", "分享", "前行"],
+  },
+
+  // ─── 自我信息行（anheyu selfInfo） ───
+  selfInfo: [
+    { label: "出生年份", value: "2009" },
+    { label: "现居", value: "浙江·嘉兴" },
+    { label: "身份", value: "高中生" },
+  ],
+
+  // ─── 技能卡标题（anheyu skills 区） ───
+  skillsTitle: "我的技能",
+  skillsTips: "技多不压身",
 
   // ─── 详细介绍（About 页玻璃卡片板块，替代 spec/about.md 渲染） ───
   // body 为段落文本（换行分段），links 为链接列表（href 可选，无则纯文本）
