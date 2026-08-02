@@ -16,7 +16,6 @@ export interface SidebarStats {
   totalWords: number;
   /** 最新文章的面值日 YYYY-MM-DD（UTC 读取） */
   latestDay: string;
-  postDates: string[];
 }
 
 interface Props {
@@ -36,7 +35,7 @@ const { stats } = Astro.props;
     totalWords={stats.totalWords}
     latestDay={stats.latestDay}
   />
-  <Calendar postDates={stats.postDates} />
+  <Calendar />
   <BoringBay />
 </aside>
 

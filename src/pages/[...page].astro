@@ -45,7 +45,6 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
     tagCount: new Set(allPosts.flatMap((p) => p.data.tags)).size,
     totalWords,
     latestDay: utcDay(latest),
-    postDates: allPosts.map((p) => utcDay(p.data.date)),
   };
 
   return paginate(allPosts, {
