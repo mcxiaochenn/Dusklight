@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/blog/PostCard.astro";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
+  const categories = [...new Set(posts.map((p) => p.data.category?.trim()).filter(Boolean))];
+
+  const excerpts: Record<string, string> = {};
+  await Promise.all(
+    posts.map(async (post) => {
+      const { remarkPluginFrontmatter } = await render(post);
+      excerpts[post.id] = remarkPluginFrontmatter?.excerpt || "";
+    })
+  );
+
+  return categories.map((category) => ({
+    params: { category },
+    props: {
+      category,
+      posts: posts
+        .filter((post) => post.data.category?.trim() === category)
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+      excerpts,
+    },
+  }));
+};
+
+const { category, posts, excerpts } = Astro.props;
+---
+
+<BaseLayout title={`分类: ${category}`} description={`分类 ${category} 下的 ${posts.length} 篇文章`}>
+  <section class="categories-page section">
+    <div class="content-container">
+      <div class="categories-page__header">
+        <h1 class="categories-page__title">分类: {category}</h1>
+        <p class="categories-page__count">共 {posts.length} 篇文章</p>
+      </div>
+      <div class="categories-page__list">
+        {posts.map((post) => <PostCard post={post} excerpt={excerpts[post.id]} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .categories-page__header { margin-bottom: var(--space-8); }
+  .categories-page__title { font-size: var(--text-xl); font-weight: 700; margin: 0 0 var(--space-2); }
+  .categories-page__count { color: var(--foreground-muted); margin: 0; }
+  .categories-page__list { display: flex; flex-direction: column; gap: var(--space-4); }
+</style>
