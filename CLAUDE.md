@@ -68,7 +68,7 @@ const synced = existsSync("./content/blog/posts");
 
 **Deliberately NO symlinks/junctions**: on Windows, git traverses junctions and recurses into their contents — a junction at `src/content` would surface every private article as untracked files in the framework repo's working tree, one careless `git add .` away from publishing them. The `existsSync` switch keeps private content entirely outside the framework's tracked tree. (The old junction-based sync also had a copy-fallback staleness gotcha; both are gone.)
 
-Content repo layout: `blog/posts/**` (articles, `年/月/序号.标题.md`) + `blog/spec/*` (about/envelope/sponsors/friends). Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, sync is skipped; whether real content is used depends only on `content/blog/` existing. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`.
+Content repo layout: `blog/posts/**` (articles, `年/月/序号.标题.md`) + `blog/spec/*` (about/envelope/sponsors/friends). Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, sync is skipped; whether real content is used depends only on `content/blog/` existing. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`. **spec 死文件**:about 页内容已迁入框架 `profileConfig.aboutCards`,spec/about.md 不再被渲染;sponsors 页已删除,spec/sponsors.md 同样无人消费(保留在内容仓库仅为历史)。
 
 **Editing content-repo files: commit + push in `content/` FIRST, then build.** The prebuild sync runs `git stash + git reset --hard origin/main` inside `content/` — any uncommitted edit there is silently discarded by the next `pnpm dev`/`pnpm build` (this actually happened; the edit survived only in `git stash`). `sync-content.js` reads `.env` first and falls back to `process.env` — CI passes `CONTENT_REPO_URL` via workflow `env:` (for the private repo the secret must embed a PAT: `https://<PAT>@github.com/...`).
 
@@ -210,7 +210,7 @@ Defined in `src/content.config.ts`:
   - `toc` (boolean, default `true`) — hidden, always-on unless explicitly set
   - `password` (string, optional) — presence turns the post into an encrypted post
   - `hint` (string, optional) — password hint shown by `Encryptor`
-- **`spec`**: `src/content/spec/` — untyped markdown pages (about.md, etc.) rendered via `getEntry()` + `render()`
+- **`spec`**: `src/content/spec/` — untyped markdown pages (about.md, etc.) rendered via `getEntry()` + `render()`。注意 about.astro 已不渲染 spec/about.md：关于页内容结构化在 `profileConfig.aboutCards`（关于我/当前系统/我的域名/关于本站），spec/about.md 在内容仓库里是死文件
 
 ### Remark-Injected Frontmatter (excerpt / reading time)
 
@@ -228,12 +228,13 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 | `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro`. Two-column: post stream left + `components/sidebar/Sidebar.astro` right (profile/announcement/site-stats/calendar/boringbay), stats computed in `getStaticPaths` |
 | `src/pages/posts/[...slug].astro` | `/posts/<abbrlink 或 post.id>/` — see Post URLs below |
 | `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
-| `src/pages/archive.astro`, `about.astro`, `404.astro` | static pages |
-| `src/pages/envelope.astro`, `link.astro`, `sponsors.astro` | 留言板 / 友链 / 赞助 — URLs match the live site verbatim so Twikoo threads survive; each embeds `TwikooComments` |
+| `src/pages/categories/index.astro`, `categories/[category].astro` | 分类索引 + 分类文章列表（nav「文库」下拉的「分类列表」入口） |
+| `src/pages/archive.astro`, `about.astro`, `404.astro` | static pages — archive 显示名「全部文章」（nav「文库」下拉入口） |
+| `src/pages/envelope.astro`, `link.astro` | 留言板 / 友链 — URLs match the live site verbatim so Twikoo threads survive; each embeds `TwikooComments`（`/sponsors/` 已并入 about 的「致谢」卡片并删除页面） |
 | `src/pages/devices.astro`, `skills.astro` | data-driven pages from `src/data/{devices,skills}.ts` |
 | `src/pages/anime.astro` | `/anime/` — reads gitignored `src/data/bilibili-data.json` fetched by `scripts/update-anime.mjs` in the build chain; empty-state when missing |
-| `src/pages/timeline.astro` | `/timeline/` — build-time `git log` grouped by month (CI needs `fetch-depth: 0`) |
-| `src/pages/Friend-Circle-Lite.astro` | `/Friend-Circle-Lite/` (case-sensitive, matches live) — external fclite JS/CSS + `fc.mcxiaochen.top` |
+| `src/pages/timeline.astro` | `/timeline/` — 显示名「更新日志」，build-time `git log` grouped by month (CI needs `fetch-depth: 0`) |
+| `src/pages/Friend-Circle-Lite.astro` | `/Friend-Circle-Lite/` (case-sensitive, matches live) — external fclite JS/CSS + `fc.mcxiaochen.top`。**初始化坑**:fclite.min.js 只在加载时初始化一次、重初始化仅监听 `pjax:complete`;本站是 Astro View Transitions(`astro:page-load`),所以页面显式在 `astro:page-load` + `DOMContentLoaded` 重置 `window.UserConfig` 并调全局 `initialize_fc_lite()`。link.astro 的朋友圈摘要同理(纯 IIFE 在导航时序会静默跳过,已改事件驱动 + dataset 防重入) |
 | `src/pages/rss.xml.js` | RSS feed endpoint |
 
 **Data files (`src/data/`)**: friends/devices/skills/sponsors are self-contained TS (interface + data in one file), committed to the framework repo (they were already public in the old blog repo). `bilibili-data.json` is the one exception — build-fetched and gitignored. `skills.ts` still holds theme template sample data (as does the live site).
@@ -276,7 +277,7 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 
 ### Navigation
 
-`src/config/nav.ts` supports nested dropdowns via `children?: NavItem[]`. Header renders desktop dropdowns with hover + click toggle, mobile as grouped sections.
+`src/config/nav.ts` supports nested dropdowns via `children?: NavItem[]`. Header renders desktop dropdowns with hover + click toggle, mobile as grouped sections. Current structure: **文库**(全部文章/分类列表/标签列表)、**友链**(友链列表/友链朋友圈)、**关于**(我的追番/设备/更新日志/关于本站)、**外链**(开往/Umami/AI 提示词生成器)。技术栈与赞助已从导航移除(技能入口在 about 页技能墙,赞助并入 about「致谢」卡)。注意 nav 顶层 label 变更需同步 `Header.astro` 的 `navIcons` 映射(如「归档」→「文库」用了 `ph:books`)。
 
 ## Design Reference
 
@@ -342,7 +343,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **View Transitions**: ThemeToggle re-binds on `astro:after-swap`; SiteBackdrop's MutationObserver survives page transitions
 - **BackToTop visibility**: Logic is in GlobalScripts.astro, not in BackToTop.astro (Astro scoped scripts don't work reliably for global state)
 - **trailingSlash**: Set to `"always"` — all internal links must end with `/`
-- **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands). Use `<Icon name="ph:icon-name" />` in templates
+- **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands), plus `@iconify-json/arcticons` (冷门品牌描边图标，如酷安 `arcticons:coolapk`). Use `<Icon name="ph:icon-name" />` in templates
 - **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
 - **Mermaid renders client-side, not with Playwright**: `rehype-mermaid.mjs` only injects `mermaid-render-script.js` (`?raw`) into Mermaid containers — no headless browser is launched at build time, and builds with Mermaid code blocks succeed without Playwright/Chromium. The CI `npx playwright install` step was removed for this reason.
