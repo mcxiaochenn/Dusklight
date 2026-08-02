@@ -175,9 +175,11 @@ const groups = (
     aspect-ratio: 11 / 14;
     border-radius: var(--radius-md);
     overflow: hidden;
-    background: var(--surface-2);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
     transition: transform var(--duration-fast) var(--ease-material),
                 box-shadow var(--duration-fast) var(--ease-material);
   }
