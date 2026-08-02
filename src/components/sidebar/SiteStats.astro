@@ -19,7 +19,7 @@ interface Props {
 const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.props;
 ---
 
-<div class="site-stats" data-start={siteConfig.siteStartDate} data-latest={latestDay}>
+<div class="site-stats" data-start={siteConfig.siteStartDate} data-latest={latestDay} data-api={siteConfig.analytics.apiUrl}>
   <div class="site-stats__header">
     <Icon name="ph:chart-bar" class="site-stats__icon" />
     <span class="site-stats__title">站点统计</span>
@@ -60,21 +60,27 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
   </dl>
 </div>
 
-<script is:inline data-astro-rerun define:vars={{ analyticsApiUrl: siteConfig.analytics.apiUrl }}>
+<script is:inline data-astro-rerun>
   (() => {
     const root = document.querySelector(".site-stats");
     if (!root) return;
     const DAY = 86400000;
+    // 站点时区（Asia/Shanghai +08:00）固定口径：与 Footer 运行时间一致。
+    // 绝对时间戳计算 → 所有访问者（含海外）看到一致的运行天数/最后活动，不随本地时区漂移。
+    // floor = 已完整运行天数，与 Footer 的天数部分同口径（ceil 会多 1 天）
+    const START_SUFFIX = "T00:00:00+08:00";
     const days = root.querySelector('[data-stat="days"]');
-    if (days) days.textContent = String(Math.ceil((Date.now() - new Date(root.dataset.start).getTime()) / DAY));
+    if (days) days.textContent = String(Math.floor((Date.now() - new Date(root.dataset.start + START_SUFFIX).getTime()) / DAY));
     const active = root.querySelector('[data-stat="active"]');
     if (active) {
-      const diff = Math.floor((Date.now() - new Date(root.dataset.latest).getTime()) / DAY);
+      const diff = Math.floor((Date.now() - new Date(root.dataset.latest + START_SUFFIX).getTime()) / DAY);
       active.textContent = diff <= 0 ? "今天" : `${diff} 天前`;
     }
 
     // Umami 站点统计
-    fetch(analyticsApiUrl)
+    var apiUrl = root.dataset.api;
+    if (!apiUrl) return;
+    fetch(apiUrl)
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var pvRow = root.querySelector('[data-stat-row="total-pv"]');
