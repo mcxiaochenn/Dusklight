@@ -56,6 +56,8 @@ The Header pill uses a specific `::before` pseudo-element pattern for the glass 
 
 **Critical — what backdrop-filter can see**: the fixed SiteBackdrop photo sits behind *everything*, so glass works on floating chrome (Header pill, BackToTop, TOC) **and** on in-flow frosted panels (PostCard, code frames, admonitions) — anywhere the photo shows through. Body text stays bare on the backdrop, no glass. Two hard-won constraints: **(1)** the backdrop image is pre-blurred `blur(8px)` in SiteBackdrop, so `--glass-blur` below ~16px is visually a no-op (blurring a blur) — the token's 24px baseline exists because a past 12px value made all glass "disappear"; **(2)** translucency over the photo costs syntax/text contrast in measurable ways — see the Expressive Code section before touching `--code-bg` alpha.
 
+**Glass coverage**: the mobile menu drawer (`Header.astro` `.mobile-menu__panel`) uses an **opaque-er** glass than the 0.45/0.55 baseline — it slides over a dark backdrop layer, so the normal glass alpha would blur into a readable-less smear. It uses ~0.85 alpha + `blur(1.5× glass-blur)` in both themes. Anime card covers use the standard glass as a pre-load placeholder.
+
 ### Content Sync Architecture
 
 Blog content lives in a **separate private repository** (`mcxiaochenn/Dusklight-Content` — framework is open-source, articles are not). The sync script (`scripts/sync-content.js`) only clones/updates that repo into `./content/` (gitignored). Content pickup happens in `src/content.config.ts`:
@@ -298,6 +300,17 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 
 All config is re-exported from `src/config/index.ts` — import via `import { siteConfig, themeConfig } from "@/config"`.
 
+**`profile.ts` 的 about 数据结构**(about.astro 消费,布局为 **anheyu 主题魔改版**,蓝本 `Temp/hexo-theme-anzhiyu/layout/includes/page/about.pug` + `source/css/_page/about.styl`):
+- `favorites`: `{name, image, landscape?}[]` — 番剧图是 MAL 外链(竖版),游戏图已下载到 `public/images/favorites/` 转 webp 入库;`landscape: true` 的横版图用 16:9 横卡,否则 3:4 竖卡
+- `personalityImage`: INTP-T 立绘(`/images/intp.svg`,16Personalities 官方,下载入库)
+- `aboutCards`: 原 spec/about.md 内容结构化(关于我/当前系统/我的域名/关于本站)
+- `authorTagsLeft/Right`: author-box 头像两侧漂浮标签
+- `hello`/`helloName`: 问候渐变卡文字
+- `aboutsiteTips`: `{tips, title1, title2, words[]}` 关键词遮罩轮播(JS 在 about.astro `initTipsCarousel`)
+- `selfInfo`: `{label, value}[]` 数据行(出生年份/现居/身份)
+- `skillsTitle`/`skillsTips`: 技能卡标题
+- 布局为 59/39 不等宽卡片行,含斜切封面墙(`.about-comic-item` hover 展开)、性格立绘 hover 旋转、致谢 reward 卡
+
 **Note**: `src/consts.ts` exists but is a leftover from the Astro starter template. The actual site constants are in `src/config/site.ts`.
 
 ## Styling Conventions
@@ -343,7 +356,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **View Transitions**: ThemeToggle re-binds on `astro:after-swap`; SiteBackdrop's MutationObserver survives page transitions
 - **BackToTop visibility**: Logic is in GlobalScripts.astro, not in BackToTop.astro (Astro scoped scripts don't work reliably for global state)
 - **trailingSlash**: Set to `"always"` — all internal links must end with `/`
-- **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands), plus `@iconify-json/arcticons` (冷门品牌描边图标，如酷安 `arcticons:coolapk`). Use `<Icon name="ph:icon-name" />` in templates
+- **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands). Use `<Icon name="ph:icon-name" />` in templates. **本地图标**: `src/icons/*.svg` 经 `local:<name>` 引用——酷安官方 logo 放 `src/icons/coolapk.svg`(viewBox 已改为正方形 1024 保证尺寸一致)、Email 用 FontAwesome 信封放 `src/icons/mail.svg`。`profile.ts` 里 `icon: "local:coolapk"` / `"local:mail"`
 - **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
 - **Mermaid renders client-side, not with Playwright**: `rehype-mermaid.mjs` only injects `mermaid-render-script.js` (`?raw`) into Mermaid containers — no headless browser is launched at build time, and builds with Mermaid code blocks succeed without Playwright/Chromium. The CI `npx playwright install` step was removed for this reason.
