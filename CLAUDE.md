@@ -22,13 +22,13 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 **Content sync**: `pnpm dev` and `pnpm build` automatically run `scripts/sync-content.js` via `predev`/`prebuild` hooks. This clones/updates the private content repository into `./content/` (gitignored). No symlinks — `src/content.config.ts` reads `content/blog/` directly when it exists. If no `.env` exists, the sync is skipped and the built-in demo content in `src/content/` is used.
 
-**Deployment**: GitHub Actions deploys to GitHub Pages. The build step installs Playwright (Chromium) because Mermaid diagram rendering requires it at build time.
+**Deployment**: GitHub Actions deploys to GitHub Pages. Mermaid diagrams render client-side (see the Remark/Rehype section), so no Playwright/browser is needed at build time.
 
 **No test or lint tooling exists.** `package.json` defines no `test`/`lint`/`format` script, and there is no ESLint / Prettier / Biome config in the repo. Verification means `pnpm build` completes + visual check in the browser. Do not invent or assume a test command.
 
 ## Architecture
 
-This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue/Svelte). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`.
+This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`. The **only exception** is the sidebar calendar widget: it's a **Svelte 5 island** (`@astrojs/svelte` + `client:load`), migrated verbatim from the Mizuki theme (`Temp/xcBlog-Mizuki`), hydrating only the calendar itself. Its files live in `src/components/sidebar/calendar/` — see that folder (and the original in `Temp/`) before editing it. It uses **`client:load`, not the original's `client:visible`** — on this site the calendar sits below the fold, `visible`'s IntersectionObserver (which observes the island's *children*) never fires there, and `client:idle`'s `requestIdleCallback` doesn't re-fire after a View Transitions round-trip, leaving nav buttons dead. `client:load` re-hydrates reliably on every navigation.
 
 ### Design System
 
@@ -78,7 +78,7 @@ All third-party browser-side libraries are self-hosted (no CDN requests except f
 
 | Path | Library | Used by |
 |------|---------|---------|
-| `public/vendor/mermaid.min.js` | Mermaid 11.x | `mermaid-render-script.js` (client-side dynamic render + SSR Playwright page) |
+| `public/vendor/mermaid.min.js` | Mermaid 11.x | `mermaid-render-script.js` (client-side dynamic render) |
 | `public/vendor/fclite.min.css` | Friend-Circle-Lite | `Friend-Circle-Lite.astro` |
 | `public/vendor/fclite.min.js` | Friend-Circle-Lite | `Friend-Circle-Lite.astro` |
 | `public/js/twikoo.min.js` | Twikoo 1.7.15 | `TwikooComments.astro` (dynamic script injection) |
@@ -133,16 +133,16 @@ Custom markdown plugins live in `src/plugins/` (not in `node_modules`). These ar
 | `remark-fix-github-admonitions.js` | Normalizes GitHub-style `> [!NOTE]` syntax |
 | `remark-directive-rehype.js` | Bridges remark-directive to rehype custom components |
 | `remark-escape-numeric-colons.mjs` | Fixes colon parsing in certain contexts |
-| `rehype-mermaid.mjs` | Renders Mermaid diagrams to SVG via Playwright (SSR) |
+| `rehype-mermaid.mjs` | Injects the client-side Mermaid render script into code block containers (diagrams render in the browser at runtime) |
 | `rehype-wrap-table.mjs` | Wraps `<table>` in scrollable container |
 | `rehype-image-width.mjs` | Injects intrinsic image dimensions |
 | `rehype-component-admonition.mjs` | Custom admonition component (`:::note`, `:::tip`, etc.) |
 | `rehype-component-github-card.mjs` | `<github repo="owner/repo">` embed cards |
 | `rehype-component-image-grid.mjs` | `<grid>` image grid layout |
-| `mermaid-render-script.js` | **Dual-role**: (1) browser-side script loaded by Playwright during SSR build (`rehype-mermaid.mjs`) to rasterize Mermaid → SVG; (2) client-side runtime script for dynamic Mermaid rendering with zoom, pan, and fullscreen overlay |
+| `mermaid-render-script.js` | Client-side runtime script for dynamic Mermaid rendering with zoom, pan, and fullscreen overlay (injected by `rehype-mermaid.mjs`) |
 | `expressive-code/language-badge.ts` | Expressive Code plugin — language badge on code block frames (registered) |
 
-**Mermaid rendering** requires Playwright (Chromium) at build time — this is why the CI workflow installs `npx playwright install --with-deps chromium`.
+**Mermaid rendering** is fully client-side: `rehype-mermaid.mjs` injects `mermaid-render-script.js` into the page, and the browser renders diagrams at runtime. No Playwright/browser is needed at build time (the old "requires Playwright" note and the CI install step have been removed).
 
 ### Import Aliases
 
@@ -312,7 +312,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 
 `.github/workflows/deploy.yml` handles deployment:
 - Triggers on push to `main` and `repository_dispatch` (content repo updates)
-- Installs pnpm 9, Node 22, Playwright Chromium
+- Installs pnpm 9, Node 22
 - Runs `pnpm sync-content` to fetch content, then `pnpm build`
 - Deploys `dist/` to GitHub Pages
 
@@ -320,16 +320,17 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 
 ## Conventions
 
+- **Keep CLAUDE.md current**: Any code change that alters architecture, behavior, dependencies, or tooling MUST update CLAUDE.md in the same commit. If you spot a stale description while working, correct it — never leave misleading documentation. (Past stale notes that misled: "Mermaid requires Playwright", "lightningcss rejects oklch(from ...)".)
 - **Commit messages**: Use standard [Conventional Commits](https://www.conventionalcommits.org/) format — `feat:`, `fix:`, `docs:`, `refactor:`, etc. No custom prefixes like `@`.
 - **No auto-push**: Never `git push` unless the user explicitly asks. Commit locally only.
 - **Confirm before coding**: After receiving a new task, restate your understanding back to the user before writing any code. Avoid cognitive bias — if the interpretation is wrong, the user will correct you before you waste effort.
+- **No emoji in code**: Never use emoji characters (✅❌📋⚠️📌📡🛠️📝🔗📖📜🌐) in `.astro`, `.html`, `.css`, or `.js` files. Use SVG icons via `<Icon name="ph:icon-name" />` (astro-icon + Phosphor) or inline SVG instead. This avoids rendering inconsistencies across platforms and keeps the icon system unified.
 
 ## Gotchas
 
 - **Build cache**: If CSS changes don't appear, delete `.astro/` and `dist/` before rebuilding.
 - **`backdrop-filter` MUST be declared with `-webkit-backdrop-filter` FIRST and the standard property LAST.** The production CSS minifier treats the pair as duplicates of one property and keeps only the **last** declaration. With the standard-first order this codebase used to have, every built stylesheet shipped *only* `-webkit-backdrop-filter` — which Chromium/Firefox ignore — so **all glass blur was silently dead in `pnpm build`/`preview` while looking perfectly fine in `astro dev`** (dev serves unminified CSS with both declarations). The discrepancy is invisible to computed-style checks in dev and to screenshot checks over the pre-blurred wallpaper; the reliable probes are: `getComputedStyle(el).backdropFilter` on a **built** page (was `none`), and grepping the built output: `grep -oh '[{;]backdrop-filter:' dist/_astro/*.css` (a bare-substring grep matches inside `-webkit-…` and lies). Current order (prefix first) makes the minifier keep the standard property; pre-18 Safari degrades to translucency without blur, which is acceptable.
-- **`lightningcss` cannot parse `oklch(from var(--x) l c h / alpha)` relative color syntax.** The production build uses lightningcss for CSS minification, and `oklch(from ...)` is a CSS Color Level 5 feature it does not support (as of lightningcss 1.33.0). Use `color-mix(in oklch, var(--x) X%, transparent)` instead — semantically equivalent and lightningcss-compatible. Also avoid `var(--token / 0.5)` shorthand (invalid CSS regardless); use `color-mix(in oklch, var(--token) 50%, transparent)`.
-  Build failure signature: `Unexpected token Delim('/')` in CSS.
+- **CSS minification uses esbuild, not lightningcss.** `astro.config.mjs` sets no `build.cssMinify`, so Astro falls back to Vite's default esbuild minifier — `oklch(from var(--x) l c h / alpha)` relative color syntax is preserved verbatim in the built CSS (verified in `dist/_astro/*.css`; the site uses it in 20+ places). An older note claimed lightningcss would fail on this syntax — that only applies if `build.cssMinify` is ever switched to `"lightningcss"`. Note: `var(--token / 0.5)` shorthand is invalid CSS regardless; use `color-mix(in oklch, var(--token) 50%, transparent)`.
 - **`node_modules/.astro/` is a THIRD cache, and `rm -rf .astro dist` does not touch it.** Its `data-store.json` holds the *rendered HTML* of every content entry — including the `<link rel="stylesheet" href="/_astro/ec.<hash>.css">` that `astro-expressive-code` injects into the rendered markdown AST. The hash is content-derived, so whenever EC's generated CSS changes but the markdown does not, the cached HTML keeps pointing at the **old** hash while the build emits the **new** file. Result: every page requests a stylesheet that 404s, all syntax highlighting silently dies, and code renders flat in `--foreground`. This actually shipped and was mistaken for a contrast bug. Diagnose with:
   ```bash
   echo "ref: $(grep -o 'ec\.[a-z0-9]*\.css' dist/posts/<any>/index.html | head -1)"
@@ -342,8 +343,8 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands). Use `<Icon name="ph:icon-name" />` in templates
 - **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
-- **Mermaid requires Playwright**: Building with Mermaid diagrams needs Chromium installed (`npx playwright install --with-deps chromium`). The `rehype-mermaid.mjs` plugin launches a headless browser to render diagrams to SVG at build time. Without Playwright, the build will fail on posts containing Mermaid code blocks.
-- **`mermaid-render-script.js` has a known bug in `loadMermaid()`**: the CDN → vendor migration left two issues: (1) line 648 references `fallbackScript` which is undefined (dead code from the removed CDN fallback), and (2) `document.head.appendChild(script)` is outside the Promise executor on line 651 where `script` is out of scope. The script currently works because the first error is inside the Promise (caught as a rejection), but the Mermaid global may already be available from the SSR build step's Playwright page — masking the loading path failure. If Mermaid diagrams stop rendering client-side, fix this function first.
+- **Mermaid renders client-side, not with Playwright**: `rehype-mermaid.mjs` only injects `mermaid-render-script.js` (`?raw`) into Mermaid containers — no headless browser is launched at build time, and builds with Mermaid code blocks succeed without Playwright/Chromium. The CI `npx playwright install` step was removed for this reason.
+- **`mermaid-render-script.js` has a known bug in `loadMermaid()`**: the CDN → vendor migration left two issues: (1) line 648 references `fallbackScript` which is undefined (dead code from the removed CDN fallback), and (2) `document.head.appendChild(script)` is outside the Promise executor on line 651 where `script` is out of scope. The script currently works because the first error is inside the Promise (caught as a rejection), but if Mermaid diagrams stop rendering client-side, fix this function first.
 - **Encrypted post slugs**: The `Encryptor` component needs the `slug` prop passed explicitly from the page — it's not available from context inside the layout.
 - **`src/config/theme.ts` is inert — do not edit it expecting visual change.** `themeConfig` is re-exported from `src/config/index.ts` but imported by **zero** components or pages. Its values actively contradict the real ones: it declares `accentHue: 250` and `glass.blur: 20` while `tokens.css` uses `--hue: 170` and `--glass-blur: 24px`. To change theme colors, glass, or typography, edit `src/styles/tokens.css`.
 - **`Temp/` is not project code.** It is gitignored (`.gitignore:30`, zero tracked files) and holds a vendored copy of the Mizuki theme kept for reference. Never edit it, and exclude it when searching — its `biome.json` / `tsconfig.json` / `.env.example` are not this project's.
