@@ -49,6 +49,6 @@
   },
   "devDependencies": {
     "@iconify-json/logos": "^1.2.11",
-    "pangu": "^8.2.0"
+    "pangu": "^9.1.0"
   }
 }
