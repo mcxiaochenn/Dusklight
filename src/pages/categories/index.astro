@@ -5,6 +5,7 @@
  */
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
 
 const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
 const catMap = new Map<string, number>();
@@ -13,6 +14,7 @@ posts.forEach((post) => {
   if (cat) catMap.set(cat, (catMap.get(cat) || 0) + 1);
 });
 const sortedCats = [...catMap.entries()].sort((a, b) => b[1] - a[1]);
+const categoryItems = sortedCats.map(([name, count]) => ({ name, count }));
 ---
 
 <BaseLayout title="分类" description="所有文章分类">
@@ -21,6 +23,9 @@ const sortedCats = [...catMap.entries()].sort((a, b) => b[1] - a[1]);
       <div class="categories-index__header">
         <h1 class="categories-index__title">分类</h1>
         <p class="categories-index__count">共 {sortedCats.length} 个分类</p>
+      </div>
+      <div class="categories-index__bar">
+        <TaxonomyBar kind="categories" items={categoryItems} indexActive />
       </div>
       <div class="categories-index__cloud">
         {sortedCats.map(([cat, count]) => (
@@ -36,6 +41,10 @@ const sortedCats = [...catMap.entries()].sort((a, b) => b[1] - a[1]);
 
 <style>
   .categories-index__header {
+    margin-bottom: var(--space-5);
+  }
+
+  .categories-index__bar {
     margin-bottom: var(--space-8);
   }
 

@@ -3,12 +3,23 @@ import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/blog/PostCard.astro";
+import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // 排除草稿：不过滤的话，草稿独有的标签会被生成独立标签页，
   // 且草稿卡片（标题/描述/日期）会出现在公开标签列表里
   const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
-  const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+  const tagMap = new Map<string, number>();
+  posts.forEach((post) => {
+    (post.data.tags || []).forEach((tag) => {
+      const name = tag.trim();
+      if (name) tagMap.set(name, (tagMap.get(name) || 0) + 1);
+    });
+  });
+  const tagItems = [...tagMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({ name, count }));
+  const tags = tagItems.map(({ name }) => name);
 
   const excerpts: Record<string, string> = {};
   await Promise.all(
@@ -18,19 +29,28 @@ export const getStaticPaths: GetStaticPaths = async () => {
     })
   );
 
-  return tags.map((tag) => ({
-    params: { tag },
-    props: {
-      tag,
-      posts: posts
-        .filter((post) => post.data.tags?.includes(tag))
-        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
-      excerpts,
-    },
-  }));
+  return tags.map((tag) => {
+    const barItems = tagItems.slice(0, 12);
+    if (!barItems.some(({ name }) => name === tag)) {
+      const currentItem = tagItems.find(({ name }) => name === tag);
+      if (currentItem) barItems.push(currentItem);
+    }
+
+    return {
+      params: { tag },
+      props: {
+        tag,
+        posts: posts
+          .filter((post) => post.data.tags?.some((name) => name.trim() === tag))
+          .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+        excerpts,
+        tagItems: barItems,
+      },
+    };
+  });
 };
 
-const { tag, posts, excerpts } = Astro.props;
+const { tag, posts, excerpts, tagItems } = Astro.props;
 ---
 
 <BaseLayout title={`标签: ${tag}`} description={`标签 ${tag} 下的 ${posts.length} 篇文章`}>
@@ -40,6 +60,9 @@ const { tag, posts, excerpts } = Astro.props;
         <h1 class="tags-page__title">标签: {tag}</h1>
         <p class="tags-page__count">共 {posts.length} 篇文章</p>
       </div>
+      <div class="tags-page__bar">
+        <TaxonomyBar kind="tags" items={tagItems} current={tag} />
+      </div>
       <div class="tags-page__list">
         {posts.map((post) => <PostCard post={post} excerpt={excerpts[post.id]} />)}
       </div>
@@ -48,7 +71,8 @@ const { tag, posts, excerpts } = Astro.props;
 </BaseLayout>
 
 <style>
-  .tags-page__header { margin-bottom: var(--space-8); }
+  .tags-page__header { margin-bottom: var(--space-5); }
+  .tags-page__bar { margin-bottom: var(--space-8); }
   .tags-page__title { font-size: var(--text-xl); font-weight: 700; margin: 0 0 var(--space-2); }
   .tags-page__count { color: var(--foreground-muted); margin: 0; }
   .tags-page__list { display: flex; flex-direction: column; gap: var(--space-4); }

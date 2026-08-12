@@ -5,6 +5,7 @@
  */
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
 
 // 与首页/归档/RSS 保持一致地排除草稿 —— Astro 5+ 的 content layer 对
 // draft 无内置语义，不过滤的话草稿会被计入标签云与各标签的文章数
@@ -12,10 +13,12 @@ const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
 const tagMap = new Map<string, number>();
 posts.forEach((post) => {
   (post.data.tags || []).forEach((tag) => {
-    tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+    const name = tag.trim();
+    if (name) tagMap.set(name, (tagMap.get(name) || 0) + 1);
   });
 });
 const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
+const tagItems = sortedTags.slice(0, 12).map(([name, count]) => ({ name, count }));
 ---
 
 <BaseLayout title="标签" description="所有文章标签">
@@ -24,6 +27,9 @@ const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
       <div class="tags-index__header">
         <h1 class="tags-index__title">标签</h1>
         <p class="tags-index__count">共 {sortedTags.length} 个标签</p>
+      </div>
+      <div class="tags-index__bar">
+        <TaxonomyBar kind="tags" items={tagItems} indexActive />
       </div>
       <div class="tags-index__cloud">
         {sortedTags.map(([tag, count]) => (
@@ -39,6 +45,10 @@ const sortedTags = [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
 
 <style>
   .tags-index__header {
+    margin-bottom: var(--space-5);
+  }
+
+  .tags-index__bar {
     margin-bottom: var(--space-8);
   }
 

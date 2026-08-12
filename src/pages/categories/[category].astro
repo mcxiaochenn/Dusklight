@@ -3,10 +3,23 @@ import { getCollection, render } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/blog/PostCard.astro";
+import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
-  const categories = [...new Set(posts.map((p) => p.data.category?.trim()).filter(Boolean))];
+  const categories = [
+    ...new Set(
+      posts
+        .map((post) => post.data.category?.trim())
+        .filter((category): category is string => Boolean(category))
+    ),
+  ];
+  const categoryItems = categories
+    .map((name) => ({
+      name,
+      count: posts.filter((post) => post.data.category?.trim() === name).length,
+    }))
+    .sort((a, b) => b.count - a.count);
 
   const excerpts: Record<string, string> = {};
   await Promise.all(
@@ -24,11 +37,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
         .filter((post) => post.data.category?.trim() === category)
         .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
       excerpts,
+      categoryItems,
     },
   }));
 };
 
-const { category, posts, excerpts } = Astro.props;
+const { category, posts, excerpts, categoryItems } = Astro.props;
 ---
 
 <BaseLayout title={`分类: ${category}`} description={`分类 ${category} 下的 ${posts.length} 篇文章`}>
@@ -38,6 +52,9 @@ const { category, posts, excerpts } = Astro.props;
         <h1 class="categories-page__title">分类: {category}</h1>
         <p class="categories-page__count">共 {posts.length} 篇文章</p>
       </div>
+      <div class="categories-page__bar">
+        <TaxonomyBar kind="categories" items={categoryItems} current={category} />
+      </div>
       <div class="categories-page__list">
         {posts.map((post) => <PostCard post={post} excerpt={excerpts[post.id]} />)}
       </div>
@@ -46,7 +63,8 @@ const { category, posts, excerpts } = Astro.props;
 </BaseLayout>
 
 <style>
-  .categories-page__header { margin-bottom: var(--space-8); }
+  .categories-page__header { margin-bottom: var(--space-5); }
+  .categories-page__bar { margin-bottom: var(--space-8); }
   .categories-page__title { font-size: var(--text-xl); font-weight: 700; margin: 0 0 var(--space-2); }
   .categories-page__count { color: var(--foreground-muted); margin: 0; }
   .categories-page__list { display: flex; flex-direction: column; gap: var(--space-4); }

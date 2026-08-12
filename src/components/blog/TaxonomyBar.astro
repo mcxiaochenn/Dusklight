@@ -1,0 +1,249 @@
+---
+import { Icon } from "astro-icon/components";
+
+export interface TaxonomyItem {
+  name: string;
+  count: number;
+}
+
+interface Props {
+  kind: "categories" | "tags";
+  items: TaxonomyItem[];
+  current?: string;
+  indexActive?: boolean;
+}
+
+const { kind, items, current, indexActive = false } = Astro.props;
+const isCategories = kind === "categories";
+const basePath = isCategories ? "/categories/" : "/tags/";
+const icon = isCategories ? "ph:folder" : "ph:tag";
+const label = isCategories ? "分类" : "标签";
+---
+
+<nav class="taxonomy-bar" data-taxonomy-bar aria-label={`${label}快速跳转`}>
+  <div class="taxonomy-bar__viewport" data-taxonomy-viewport>
+    <div class="taxonomy-bar__items">
+      {isCategories && (
+        <a
+          href="/"
+          class="taxonomy-bar__item"
+          aria-current={!current && !indexActive ? "page" : undefined}
+        >
+          <Icon name={icon} class="taxonomy-bar__icon" />
+          <span>全部</span>
+        </a>
+      )}
+
+      {items.map(({ name }) => (
+        <a
+          href={`${basePath}${encodeURIComponent(name)}/`}
+          class="taxonomy-bar__item"
+          aria-current={current === name ? "page" : undefined}
+          data-taxonomy-current={current === name ? "true" : undefined}
+        >
+          <Icon name={icon} class="taxonomy-bar__icon" />
+          <span>{name}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <div class="taxonomy-bar__actions">
+    <button
+      type="button"
+      class="taxonomy-bar__scroll"
+      data-taxonomy-scroll
+      aria-label={`向右查看更多${label}`}
+      hidden
+    >
+      <Icon name="ph:caret-right" />
+    </button>
+    <a
+      href={basePath}
+      class="taxonomy-bar__more"
+      aria-current={indexActive ? "page" : undefined}
+    >
+      <span>更多</span>
+      <Icon name="ph:caret-right" />
+    </a>
+  </div>
+</nav>
+
+<script data-astro-rerun>
+  document.querySelectorAll("[data-taxonomy-bar]").forEach((bar) => {
+    if (bar.dataset.initialized === "true") return;
+    bar.dataset.initialized = "true";
+
+    const viewport = bar.querySelector("[data-taxonomy-viewport]");
+    const button = bar.querySelector("[data-taxonomy-scroll]");
+    if (!viewport || !button) return;
+
+    const update = () => {
+      const overflowing = viewport.scrollWidth > viewport.clientWidth + 1;
+      button.hidden = !overflowing;
+      if (!overflowing) viewport.scrollLeft = 0;
+
+      const atEnd = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 2;
+      button.setAttribute(
+        "aria-label",
+        atEnd ? "回到开头" : button.dataset.forwardLabel || button.getAttribute("aria-label") || "向右滚动"
+      );
+    };
+
+    button.dataset.forwardLabel = button.getAttribute("aria-label") || "向右滚动";
+    button.addEventListener("click", () => {
+      const atEnd = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 2;
+      viewport.scrollTo({
+        left: atEnd ? 0 : Math.min(viewport.scrollLeft + viewport.clientWidth * 0.9, viewport.scrollWidth),
+        behavior: "smooth",
+      });
+    });
+    viewport.addEventListener("scroll", update, { passive: true });
+
+    new ResizeObserver(update).observe(viewport);
+    update();
+
+    const current = viewport.querySelector("[data-taxonomy-current='true']");
+    if (current) {
+      const previousBehavior = viewport.style.scrollBehavior;
+      viewport.style.scrollBehavior = "auto";
+      viewport.scrollLeft = Math.max(
+        0,
+        current.offsetLeft - (viewport.clientWidth - current.offsetWidth) / 2
+      );
+      viewport.style.scrollBehavior = previousBehavior;
+    }
+
+  });
+</script>
+
+<style>
+  .taxonomy-bar {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    overflow: hidden;
+  }
+
+  .taxonomy-bar__viewport {
+    min-width: 0;
+    flex: 1;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+
+  .taxonomy-bar__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .taxonomy-bar__items {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: max-content;
+    min-width: 100%;
+    padding: var(--space-2);
+  }
+
+  .taxonomy-bar__item,
+  .taxonomy-bar__more,
+  .taxonomy-bar__scroll {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 0;
+    color: var(--foreground-secondary);
+    text-decoration: none;
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .taxonomy-bar__item {
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition:
+      color var(--duration-fast) var(--ease-material),
+      background var(--duration-fast) var(--ease-material);
+  }
+
+  .taxonomy-bar__item:hover,
+  .taxonomy-bar__item[aria-current="page"] {
+    color: var(--accent);
+    background: oklch(from var(--accent) l c h / 0.12);
+  }
+
+  .taxonomy-bar__icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .taxonomy-bar__actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: var(--space-2);
+    border-left: 1px solid var(--glass-border);
+    background: color-mix(in oklab, var(--surface-1) 72%, transparent);
+  }
+
+  .taxonomy-bar__scroll {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .taxonomy-bar__scroll[hidden] {
+    display: none;
+  }
+
+  .taxonomy-bar__scroll:hover {
+    color: var(--accent);
+    background: oklch(from var(--accent) l c h / 0.1);
+  }
+
+  .taxonomy-bar__more {
+    gap: 2px;
+    min-height: 34px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .taxonomy-bar__more:hover,
+  .taxonomy-bar__more[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .taxonomy-bar__scroll :global(svg),
+  .taxonomy-bar__more :global(svg) {
+    width: 15px;
+    height: 15px;
+  }
+
+  @media (max-width: 640px) {
+    .taxonomy-bar__items {
+      padding: var(--space-1);
+    }
+
+    .taxonomy-bar__actions {
+      padding: var(--space-1);
+    }
+
+    .taxonomy-bar__more {
+      padding-inline: var(--space-2);
+    }
+  }
+</style>
