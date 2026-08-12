@@ -28,7 +28,7 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 ## Architecture
 
-This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue/Svelte). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`. The sidebar calendar (with a GitHub-style annual activity heatmap) is pure Astro + vanilla JS, blueprinted from the open-source Firefly theme (`src/components/widget/Calendar.astro` in github.com/CuteLeaf/Firefly). Its script is a plain `<script data-astro-rerun>` — **NOT `is:inline`**: the script is full of JS object literals that Astro's `{}` expression parsing would break. It uses event delegation on the root node, a `dataset.init` re-entry guard, fetches `/api/calendar-data.json`, and re-runs after every View Transitions navigation via `data-astro-rerun`.
+This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue/Svelte). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`. The homepage sidebar calendar is pure Astro + vanilla JS, with day/month/year views and a compact annual 12×5 month-week heatmap (columns = months; rows = days 1–7, 8–14, 15–21, 22–28, 29–month end). Heatmap cells are square and the matrix is capped at 260px so the stacked 960px sidebar does not inflate it. Its layout and interactions are an equivalent reimplementation of Luquiescene's `calendar-widget`, styled with Dusklight tokens rather than copied Svelte code. The script is a plain `<script data-astro-rerun>` — **NOT `is:inline`**: the script is full of JS object literals that Astro's `{}` expression parsing would break. It uses event delegation on the root node, a `dataset.init` re-entry guard, fetches `/api/calendar-data.json`, and re-runs after every View Transition; the `astro:before-swap` cleanup clears its midnight timer and detached tooltip before the old DOM is replaced. Runtime-created calendar nodes copy the root's `data-astro-cid-*` attribute so scoped styles remain active after ClientRouter round trips—using `:global()` for those nodes loses their styles when returning to the homepage.
 
 ### Design System
 
@@ -227,7 +227,7 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 
 | Route file | URL(s) |
 |---|---|
-| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro`. Hero is 左文右卡 (title + gradient category buttons + 「随便逛逛」random link \| featured-post cover card), below it a `CategoryBar`, then post stream left + `components/sidebar/Sidebar.astro` right (profile/announcement/site-stats/calendar/boringbay), stats computed in `getStaticPaths` |
+| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro`. Hero is 左文右卡 (title + gradient category buttons + 「随便逛逛」random link \| featured-post cover card). The main grid places `TaxonomyBar` directly above the left post stream and top-aligns it with the right `ProfileCard`; the remaining sidebar order is announcement/site-stats/calendar/boringbay. Stats are computed in `getStaticPaths`. |
 | `src/pages/posts/[...slug].astro` | `/posts/<abbrlink 或 post.id>/` — see Post URLs below |
 | `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
 | `src/pages/categories/index.astro`, `categories/[category].astro` | 分类索引 + 分类文章列表（nav「文库」下拉的「分类列表」入口） |
