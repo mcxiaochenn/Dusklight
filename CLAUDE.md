@@ -38,6 +38,7 @@ The entire visual identity is driven by **CSS custom properties** in `src/styles
 - **Layered surfaces**: `--surface-0` (deepest) through `--surface-3` (highest)
 - **Liquid glass**: `--glass-bg`, `--glass-border`, `--glass-blur` etc. — used by Header pills, BackToTop, TOC panel
 - **Three-tier text**: `--foreground` / `--foreground-secondary` / `--foreground-muted`
+- **连续曲率圆角**：所有现有 `border-radius` 都是兼容性基线；支持的浏览器通过零特异性全局规则应用 `corner-shape: var(--corner-shape, var(--corner-shape-continuous))`。头像、状态点、加载环等真圆使用 `--corner-shape: var(--corner-shape-round)` 退出。不要改用 SVG mask、Houdini polyfill 或尺寸监听 JavaScript，它们会破坏玻璃背景/阴影或增加生命周期负担。
 
 **Dark mode**: `.dark` class on `<html>` overrides tokens. Anti-flash inline script in ThemeToggle restores theme before first paint.
 
