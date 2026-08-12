@@ -131,17 +131,15 @@ const isFirstPage = page.currentPage === 1;
     </section>
   )}
 
-  {/* 分类快速跳转 */}
-  <section class="category-section">
-    <div class="page-container">
-      <TaxonomyBar kind="categories" items={categories} />
-    </div>
-  </section>
-
   {/* 文章流 + 右侧栏 */}
   <section class="posts">
     <div class="home-grid">
       <div class="home-grid__main">
+        {/* 分类快速跳转：与右侧 ProfileCard 顶部对齐 */}
+        <div class="category-section">
+          <TaxonomyBar kind="categories" items={categories} />
+        </div>
+
         <div class="posts__list">
           {page.data.map((post) => (
             <div class="posts__item">
@@ -308,13 +306,7 @@ const isFirstPage = page.currentPage === 1;
 
   /* 分类栏区 */
   .category-section {
-    padding-bottom: var(--space-8);
-  }
-
-  .category-section .page-container {
-    max-width: var(--page-width);
-    margin: 0 auto;
-    padding: 0 var(--space-4);
+    margin-bottom: var(--space-5);
   }
 
   /* 双栏：文章流居左，侧栏固定宽度居右 */
