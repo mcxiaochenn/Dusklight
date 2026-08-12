@@ -1,70 +1,151 @@
 ---
 /**
- * 侧栏个人介绍卡片 — 头像、昵称、签名、社交图标
+ * 侧栏个人介绍卡片 — 竖版（上下比左右长）
+ * 主题色渐变背景；问候语胶囊在头像上方，点击随机更换语录；
+ * 加载时先显示时间感知问候。蓝本：blog.zhheo.com 的 card-content
  */
 import { Icon } from "astro-icon/components";
-import { profileConfig } from "@/config";
+import { profileConfig, mottosConfig } from "@/config";
 ---
 
 <div class="profile-card">
+  <button
+    type="button"
+    class="profile-card__greet"
+    id="profile-card-greet"
+    aria-label="点击随机更换语录"
+    data-mottos={JSON.stringify(mottosConfig.mottos)}
+    data-greetings={JSON.stringify(mottosConfig.timeGreetings)}
+  >
+    {mottosConfig.mottos[0]}
+  </button>
+
   <a href="/about/" class="profile-card__avatar-link" aria-label="关于我">
     <img
       src={profileConfig.avatar}
       alt={profileConfig.name}
       class="profile-card__avatar"
-      width="88"
-      height="88"
+      width="120"
+      height="120"
       loading="eager"
       decoding="async"
       onerror="this.src='/images/avatar-fallback.svg';this.onerror=null"
     />
   </a>
-  <h2 class="profile-card__name">{profileConfig.name}</h2>
-  <p class="profile-card__bio">{profileConfig.bio}</p>
-  <div class="profile-card__socials">
-    {profileConfig.socials.map((s) => (
-      <a
-        href={s.url}
-        class="profile-card__social"
-        target={s.url.startsWith("mailto:") ? undefined : "_blank"}
-        rel="noopener noreferrer"
-        aria-label={s.label}
-        title={s.label}
-      >
-        <Icon name={s.icon} />
-      </a>
-    ))}
+
+  <div class="profile-card__bottom">
+    <a href="/about/" class="profile-card__identity" aria-label="关于我">
+      <span class="profile-card__name">{profileConfig.name}</span>
+      <span class="profile-card__bio">{profileConfig.bio}</span>
+    </a>
+    <div class="profile-card__socials">
+      {profileConfig.socials.map((s) => (
+        <a
+          href={s.url}
+          class="profile-card__social"
+          target={s.url.startsWith("mailto:") ? undefined : "_blank"}
+          rel="noopener noreferrer"
+          aria-label={s.label}
+          title={s.label}
+        >
+          <Icon name={s.icon} />
+        </a>
+      ))}
+    </div>
   </div>
 </div>
 
+<script data-astro-rerun>
+  (() => {
+    const greet = document.getElementById("profile-card-greet");
+    if (!greet || greet.dataset.init === "1") return;
+    greet.dataset.init = "1";
+
+    const MOTTOS = JSON.parse(greet.dataset.mottos);
+    const TIME_GREETINGS = JSON.parse(greet.dataset.greetings);
+
+    // 加载时先显示时间感知问候
+    const hour = new Date().getHours();
+    const greeting = TIME_GREETINGS.find((g) => hour >= g.from && hour < g.to);
+    if (greeting) greet.textContent = greeting.text;
+
+    // 点击随机换语录，排除上一条
+    let last = -1;
+    greet.addEventListener("click", () => {
+      let i = Math.floor(Math.random() * MOTTOS.length);
+      if (MOTTOS.length > 1 && i === last) i = (i + 1) % MOTTOS.length;
+      last = i;
+      greet.textContent = MOTTOS[i];
+    });
+  })();
+</script>
+
 <style>
   .profile-card {
+    position: relative;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    padding: var(--space-6) var(--space-5);
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    border: 1px solid var(--glass-border);
+    min-height: 344px;
+    padding: var(--space-5);
+    gap: var(--space-4);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+    overflow: hidden;
+    color: oklch(0.98 0.008 var(--hue));
+  }
+
+  /* 主题色渐变背景（zhheo -25deg 渐变）；isolation 保证 ::before 垫在内容下 */
+  .profile-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(-25deg, var(--accent), var(--accent-dim));
+  }
+
+  .profile-card__greet {
+    cursor: pointer;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    border: 1px solid oklch(1 0 0 / 0.25);
+    background: oklch(1 0 0 / 0.14);
+    color: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    max-width: 100%;
+    min-height: 40px;
+    text-align: center;
+    line-height: 1.45;
+    flex-shrink: 0;
+    user-select: none;
+    transition:
+      background var(--duration-fast) var(--ease-material),
+      transform var(--duration-fast) var(--ease-material);
+  }
+
+  .profile-card__greet:hover {
+    background: oklch(1 0 0 / 0.24);
+    transform: translateY(-1px);
   }
 
   .profile-card__avatar-link {
     display: block;
     border-radius: 50%;
     line-height: 0;
+    margin: 0;
+    flex-shrink: 0;
   }
 
   .profile-card__avatar {
-    width: 88px;
-    height: 88px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--glass-border);
-    box-shadow: var(--shadow-sm);
+    border: 3px solid oklch(1 0 0 / 0.4);
+    box-shadow: var(--shadow-md);
     transition: transform var(--duration-slow) var(--ease-material);
   }
 
@@ -72,27 +153,42 @@ import { profileConfig } from "@/config";
     transform: rotate(360deg);
   }
 
+  .profile-card__bottom {
+    /* 6 个社交图标 + 名字签名一行放不下（space-between 会溢出卡片，
+       被 overflow:hidden 裁掉），改为上下居中排列，社交区 wrap */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .profile-card__identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
   .profile-card__name {
-    margin: var(--space-3) 0 0;
     font-size: var(--text-lg);
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: var(--foreground);
   }
 
   .profile-card__bio {
-    margin: var(--space-2) 0 0;
-    font-size: var(--text-sm);
-    line-height: 1.6;
-    color: var(--foreground-secondary);
+    font-size: var(--text-xs);
+    opacity: 0.85;
   }
 
   .profile-card__socials {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
+    gap: var(--space-1);
+    min-height: 32px;
   }
 
   .profile-card__social {
@@ -102,14 +198,15 @@ import { profileConfig } from "@/config";
     width: 32px;
     height: 32px;
     border-radius: var(--radius-md);
-    color: var(--foreground-secondary);
-    transition: color var(--duration-fast) var(--ease-material),
-                background var(--duration-fast) var(--ease-material);
+    color: inherit;
+    transition:
+      background var(--duration-fast) var(--ease-material),
+      transform var(--duration-fast) var(--ease-material);
   }
 
   .profile-card__social:hover {
-    color: var(--accent);
-    background: oklch(from var(--accent) l c h / 0.12);
+    background: oklch(1 0 0 / 0.18);
+    transform: translateY(-1px);
   }
 
   .profile-card__social [data-icon] {
