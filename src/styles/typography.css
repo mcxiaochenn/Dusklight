@@ -618,6 +618,7 @@
 }
 
 .prose .card-github .gc-avatar {
+  --corner-shape: var(--corner-shape-round);
   width: 20px;
   height: 20px;
   border-radius: var(--radius-full);
@@ -657,10 +658,40 @@
   gap: var(--space-1);
 }
 
+.prose .card-github .gc-stat-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: var(--foreground-secondary);
+}
+
+.prose .card-github .gc-language-dot {
+  --corner-shape: var(--corner-shape-round);
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--accent) 18%, transparent);
+}
+
+.prose .card-github .gc-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .prose .card-github .github-logo {
   width: 20px;
   height: 20px;
   opacity: 0.5;
+  color: var(--foreground-secondary);
 }
 
 .prose .card-github.fetch-waiting {
