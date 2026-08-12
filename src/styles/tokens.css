@@ -94,6 +94,12 @@
   --radius-xl: 18px;
   --radius-full: 9999px;
 
+  /* 连续曲率圆角 — border-radius 始终作为跨浏览器回退。
+     必须保持几何圆形的组件通过元素级 --corner-shape 覆写为
+     --corner-shape-round。 */
+  --corner-shape-continuous: squircle;
+  --corner-shape-round: round;
+
   /* ═══════════════════════════════════════════════════════
      SPACING — 4px base unit, major-third progression.
      ═══════════════════════════════════════════════════════ */

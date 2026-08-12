@@ -181,6 +181,9 @@ const navIcons: Record<string, string> = {
     position: absolute;
     inset: 0;
     border-radius: inherit;
+    /* Edge 会把带 backdrop-filter 的伪元素回退计算为 round，导致它与
+       外层 squircle 的裁切边界错位；显式继承可让玻璃模糊完整覆盖。 */
+    corner-shape: inherit;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -197,6 +200,7 @@ const navIcons: Record<string, string> = {
     position: absolute;
     inset: 0;
     border-radius: inherit;
+    corner-shape: inherit;
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--duration-normal) var(--ease-material);

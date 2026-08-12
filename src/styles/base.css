@@ -8,6 +8,15 @@
 /* ── Inter Variable Font ── */
 @import "@fontsource-variable/inter/wght.css";
 
+/* ── 连续曲率圆角 — 渐进增强 ──
+   不支持的引擎会忽略本段并保留现有 border-radius。
+   :where() 将特异性保持为零，组件可在局部显式退出。 */
+@supports (corner-shape: squircle) {
+  :where(*, *::before, *::after) {
+    corner-shape: var(--corner-shape, var(--corner-shape-continuous));
+  }
+}
+
 body {
   font-family: var(--font-body), var(--font-cjk);
   font-size: var(--text-base);

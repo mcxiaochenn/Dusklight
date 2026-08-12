@@ -183,6 +183,7 @@
 
 /* ── 头像 ── */
 #twikoo .tk-avatar {
+  --corner-shape: var(--corner-shape-round);
   flex-shrink: 0; height: 2.5rem; width: 2.5rem; overflow: hidden;
   text-align: center; border-radius: var(--radius-full); margin-right: var(--space-4);
   border: 2px solid var(--glass-border);
@@ -394,6 +395,7 @@
 }
 
 #twikoo .tk-loading::before {
+  --corner-shape: var(--corner-shape-round);
   content: ""; width: 18px; height: 18px;
   border: 2px solid var(--border); border-top-color: var(--accent);
   border-radius: var(--radius-full); animation: tk-spin 0.8s linear infinite;
