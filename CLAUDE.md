@@ -28,7 +28,7 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 ## Architecture
 
-This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`. The **only exception** is the sidebar calendar widget: it's a **Svelte 5 island** (`@astrojs/svelte` + `client:load`), migrated verbatim from the Mizuki theme (`Temp/xcBlog-Mizuki`), hydrating only the calendar itself. Its files live in `src/components/sidebar/calendar/` — see that folder (and the original in `Temp/`) before editing it. It uses **`client:load`, not the original's `client:visible`** — on this site the calendar sits below the fold, `visible`'s IntersectionObserver (which observes the island's *children*) never fires there, and `client:idle`'s `requestIdleCallback` doesn't re-fire after a View Transitions round-trip, leaving nav buttons dead. `client:load` re-hydrates reliably on every navigation.
+This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue/Svelte). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`. The sidebar calendar (with a GitHub-style annual activity heatmap) is pure Astro + vanilla JS, blueprinted from the open-source Firefly theme (`src/components/widget/Calendar.astro` in github.com/CuteLeaf/Firefly). Its script is a plain `<script data-astro-rerun>` — **NOT `is:inline`**: the script is full of JS object literals that Astro's `{}` expression parsing would break. It uses event delegation on the root node, a `dataset.init` re-entry guard, fetches `/api/calendar-data.json`, and re-runs after every View Transitions navigation via `data-astro-rerun`.
 
 ### Design System
 
@@ -227,7 +227,7 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 
 | Route file | URL(s) |
 |---|---|
-| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro`. Two-column: post stream left + `components/sidebar/Sidebar.astro` right (profile/announcement/site-stats/calendar/boringbay), stats computed in `getStaticPaths` |
+| `src/pages/[...page].astro` | `/` and `/2/`, `/3/`… (verified in `dist/`) — **this is the homepage**; there is no `index.astro`. Hero is 左文右卡 (title + gradient category buttons + 「随便逛逛」random link \| featured-post cover card), below it a `CategoryBar`, then post stream left + `components/sidebar/Sidebar.astro` right (profile/announcement/site-stats/calendar/boringbay), stats computed in `getStaticPaths` |
 | `src/pages/posts/[...slug].astro` | `/posts/<abbrlink 或 post.id>/` — see Post URLs below |
 | `src/pages/tags/index.astro`, `tags/[tag].astro` | tag index + per-tag listing |
 | `src/pages/categories/index.astro`, `categories/[category].astro` | 分类索引 + 分类文章列表（nav「文库」下拉的「分类列表」入口） |
@@ -283,7 +283,7 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 
 ## Design Reference
 
-`DESIGN.md` is a comprehensive design constitution documenting the visual philosophy, layout principles, typography rules, color system, motion system, glass specifications, component architecture, and responsive strategy. **Important caveat**: it was written as a planning document and some values diverge from the actual implementation (e.g., it specifies `--hue: 250` while `tokens.css` uses `--hue: 170`; it describes an asymmetric homepage layout that was later simplified to a standard post stream + sidebar). When in doubt, **`tokens.css` and the actual `.astro` components are the source of truth**, not `DESIGN.md`.
+`DESIGN.md` is a comprehensive design constitution documenting the visual philosophy, layout principles, typography rules, color system, motion system, glass specifications, component architecture, and responsive strategy. **Important caveat**: it was written as a planning document and some values diverge from the actual implementation (e.g., it specifies `--hue: 250` while `tokens.css` uses `--hue: 170`; the homepage hero is now a 左文右卡 asymmetric layout — title + gradient category buttons + 「随便逛逛」on the left, a featured-post cover card on the right). When in doubt, **`tokens.css` and the actual `.astro` components are the source of truth**, not `DESIGN.md`.
 
 ## Key Configuration Files
 
@@ -291,6 +291,7 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 |------|---------|
 | `src/config/site.ts` | Site title, description, postsPerPage, feature toggles |
 | `src/config/profile.ts` | Name, avatar, bio, location, MBTI, socials, skills, intro |
+| `src/config/mottos.ts` | 随机语录池 + 时间问候表（ProfileCard 问候语胶囊点击随机更换） |
 | `src/config/nav.ts` | Navigation menu structure + social links |
 | `src/config/comment.ts` | Twikoo comment system envId |
 | `src/config/cdn.ts` | ⚠️ Now an empty placeholder — all third-party libraries are self-hosted (see Self-Hosted Libraries below). Kept for barrel export compatibility |
@@ -372,3 +373,4 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **The homepage is `src/pages/[...page].astro`** — there is no `src/pages/index.astro`. Looking for the homepage by filename will fail.
 - **`DOMContentLoaded` and `astro:page-load` BOTH fire on the first page load.** Any init function registered on both runs twice on first load. For idempotent work that is harmless; for `addEventListener` it is not. A double-bound toggle handler cancels itself out — this actually shipped, and made the desktop nav dropdown unopenable on first load until a client-side navigation re-ran init on a fresh DOM. Element-level bindings need an idempotency guard (`header.dataset.headerInit`); the flag resets naturally because View Transitions replace the element. Verified by A/B test against a headless browser.
 - **`window` and `document` survive View Transitions; page elements do not.** Listeners bound to them belong at module top level (module scripts execute once per document), never inside a per-navigation init function — otherwise they accumulate one per navigation and their closures pin swapped-out DOM nodes in memory. See the top of `Header.astro`'s script for the intended shape.
+- **`is:inline` scripts must not contain bare JS `{...}` braces.** Astro parses `{}` as template expressions inside `is:inline` scripts, so an IIFE (`(() => {`) or object literal breaks the build with `Expected ',' or '}' but found '.'`. This actually shipped and broke three files in one round (calendar/ProfileCard/homepage). For script-heavy components use a plain `<script data-astro-rerun>` instead — it's bundled as a module (braces safe), `data-astro-rerun` re-runs it after each View Transitions navigation, and data can flow via `data-*` attributes + `JSON.parse` (see `ProfileCard.astro` / `[...page].astro`). `define:vars` is the alternative for `is:inline`-injected data, but only when the script body itself has no bare braces.
