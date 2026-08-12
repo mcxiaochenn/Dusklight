@@ -46,7 +46,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@iconify-json/logos": "^1.2.11",
+    "@iconify-json/logos": "^1.2.12",
     "pangu": "^9.1.0"
   }
 }
