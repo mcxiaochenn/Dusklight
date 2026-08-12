@@ -1,15 +1,15 @@
 ---
 /**
- * 关于页面 — anheyu 主题布局魔改版
- * 蓝本：github.com/anzhiyu-c/hexo-theme-anzhiyu 的 about.pug + about.styl
- * 结构：author-box(头像+两侧浮动标签) → 不等宽卡片行(59/39) → 斜切封面墙
- *       → aboutCards 信息区 → 致谢 reward 卡 + 打赏 → 评论区
+ * 关于页面 — 借鉴 Heo About 的信息层级，保留 Dusklight 玻璃视觉。
+ * 结构：头像标签 → 问候/关键词 → 技能 → 性格/追番 → 游戏/站点资料
+ *       → 访问统计/selfInfo → 关于我 → 打赏 → 评论区
  * 数据全部来自 profileConfig。
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
 import { Icon } from "astro-icon/components";
 import { profileConfig } from "../config/profile";
+import { siteConfig } from "../config/site";
 import { skillsData } from "@/data/skills";
 import { getSortedSponsors } from "@/data/sponsors";
 
@@ -28,16 +28,16 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       {/* ── author-box：头像 + 两侧漂浮标签 ── */}
       <div class="about-author-box">
         <div class="about-author-tag-left">
-          {profileConfig.authorTagsLeft.map((t, i) => (
-            <span class="about-author-tag" style={`animation-delay: ${i * 0.6}s`}>{t}</span>
+          {profileConfig.authorTags.map((tag, i) => (
+            <span class="about-author-tag" style={`animation-delay: ${i * 0.6}s`}>{tag.left}</span>
           ))}
         </div>
         <div class="about-author-img">
           <img src={profileConfig.avatar} alt={profileConfig.name} loading="lazy" decoding="async" />
         </div>
         <div class="about-author-tag-right">
-          {profileConfig.authorTagsRight.map((t, i) => (
-            <span class="about-author-tag" style={`animation-delay: ${i * 0.6}s`}>{t}</span>
+          {profileConfig.authorTags.map((tag, i) => (
+            <span class="about-author-tag" style={`animation-delay: ${i * 0.6}s`}>{tag.right}</span>
           ))}
         </div>
       </div>
@@ -46,9 +46,9 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       <div class="about-row">
         <div class="about-item about-item--hello">
           <div class="about-card-tips">你好呀</div>
-          <div class="about-hello-title">
+          <h1 class="about-hello-title">
             我是 <span class="about-inline-word">{profileConfig.helloName}</span>
-          </div>
+          </h1>
           <div class="about-card-tips">{profileConfig.intro}</div>
         </div>
 
@@ -60,7 +60,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
             {profileConfig.aboutsiteTips.title2}
             <div class="about-tips-mask" id="about-tips-mask">
               {profileConfig.aboutsiteTips.words.map((w, i) => (
-                <span class:list={["about-tips-word", { "first-tips": i === 0 }]} data-show={i === profileConfig.aboutsiteTips.words.length - 1 ? "" : undefined}>
+                <span class:list={["about-tips-word", { "first-tips": i === 0 }]} data-show={i === 0 ? "" : undefined}>
                   {w}
                 </span>
               ))}
@@ -69,9 +69,9 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
         </div>
       </div>
 
-      {/* ── 技能墙(59%) + selfInfo 数据卡(39%) ── */}
+      {/* ── 技能墙（全宽） ── */}
       <div class="about-row">
-        <div class="about-item about-item--skills">
+        <div class="about-item about-item--single about-item--skills">
           <div class="about-card-tips">{profileConfig.skillsTips}</div>
           <span class="about-item-title">{profileConfig.skillsTitle}</span>
           <div class="about-skill-wall">
@@ -82,26 +82,25 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
             ))}
           </div>
         </div>
-
-        <div class="about-item about-item--selfinfo">
-          {profileConfig.selfInfo.map((item) => (
-            <div class="about-selfinfo-row">
-              <span class="about-selfinfo-label">{item.label}</span>
-              <span class="about-selfinfo-value">{item.value}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
-      {/* ── 性格(59%，立绘 hover 旋转) + 喜欢的番(39% 斜切封面墙) ── */}
+      {/* ── 性格 + 喜欢的番 ── */}
       <div class="about-row">
         <div class="about-item about-item--personality">
-          <div class="about-card-tips">关于我的人格</div>
-          <span class="about-item-title">{profileConfig.name}</span>
+          <div class="about-card-tips">性格</div>
+          <span class="about-item-title">{profileConfig.mbtiTitle}</span>
           <div class="about-mbti" style="color: var(--accent)">{profileConfig.mbti}</div>
           <p class="about-mbti-desc">{profileConfig.mbtiDesc}</p>
+          <a
+            class="about-personality-link"
+            href={profileConfig.mbtiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            了解逻辑学家人格档案
+          </a>
           <div class="about-personality-img">
-            <img src={profileConfig.personalityImage} alt="INTP" loading="lazy" decoding="async" />
+            <img src={profileConfig.personalityImage} alt="INTP-T 逻辑学家人物" loading="lazy" decoding="async" />
           </div>
         </div>
 
@@ -110,34 +109,34 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
           <span class="about-item-title about-comic-title">追番</span>
           <div class="about-comic-box">
             {profileConfig.favorites.anime.map((a) => (
-              <a href="#" class="about-comic-item" title={a.name}>
+              <div class="about-comic-item" title={a.name}>
                 <div class="about-comic-cover">
                   <img src={a.image} alt={a.name} loading="lazy" decoding="async" />
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── 喜欢的游戏（59% 斜切封面墙） + aboutCards 信息区（39%） ── */}
+      {/* ── 喜欢的游戏 + 站点资料 ── */}
       <div class="about-row">
         <div class="about-item about-item--comic about-item--game">
           <div class="about-card-tips about-comic-tips">喜欢的游戏</div>
           <span class="about-item-title about-comic-title">游戏</span>
           <div class="about-comic-box">
             {profileConfig.favorites.games.map((g) => (
-              <a href="#" class="about-comic-item" title={g.name}>
+              <div class:list={["about-comic-item", { "about-comic-item--landscape": "landscape" in g && g.landscape }]} title={g.name}>
                 <div class="about-comic-cover">
                   <img src={g.image} alt={g.name} loading="lazy" decoding="async" />
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>
 
         <div class="about-item about-item--cards">
-          {profileConfig.aboutCards.map((card) => (
+          {profileConfig.siteCards.map((card) => (
             <div class="about-card-block">
               <h3 class="about-card-block-title">
                 <Icon name={card.icon} /> {card.title}
@@ -162,6 +161,45 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
               )}
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* ── 访问统计 + 横向个人信息 ── */}
+      <div class="about-row about-row--data">
+        <div class="about-item about-item--statistics" data-api={siteConfig.analytics.apiUrl}>
+          <div class="about-card-tips">数据</div>
+          <span class="about-item-title">访问统计</span>
+          <dl class="about-statistics-grid" aria-label="站点访问统计">
+            <div><dt>今日人数</dt><dd data-visit-stat="today_uv">—</dd></div>
+            <div><dt>今日访问</dt><dd data-visit-stat="today_pv">—</dd></div>
+            <div><dt>昨日人数</dt><dd data-visit-stat="yesterday_uv">—</dd></div>
+            <div><dt>昨日访问</dt><dd data-visit-stat="yesterday_pv">—</dd></div>
+            <div><dt>最近月访问</dt><dd data-visit-stat="last_month_pv">—</dd></div>
+            <div><dt>总访问</dt><dd data-visit-stat="total_pv">—</dd></div>
+          </dl>
+          <p class="about-statistics-error" role="status" hidden>统计暂时无法加载</p>
+        </div>
+
+        <div class="about-item about-item--selfinfo">
+          {profileConfig.selfInfo.map((item) => (
+            <div class="about-selfinfo-item" style={`--selfinfo-accent: ${item.accent}`}>
+              <span class="about-selfinfo-icon" aria-hidden="true"><Icon name={item.icon} /></span>
+              <span class="about-selfinfo-value">{item.value}</span>
+              <span class="about-selfinfo-label">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 关于我（全宽，打赏上方） ── */}
+      <div class="about-row">
+        <div class="about-item about-item--single about-item--aboutme">
+          <h2 class="about-card-block-title about-card-block-title--aboutme">
+            <Icon name={profileConfig.aboutMe.icon} /> {profileConfig.aboutMe.title}
+          </h2>
+          <div class="about-card-block-body about-card-block-body--aboutme">
+            {profileConfig.aboutMe.body.split("\n\n").map((para) => <p>{para}</p>)}
+          </div>
         </div>
       </div>
 
@@ -228,13 +266,23 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 </BaseLayout>
 
 <script>
+  let tipsTimer: number | undefined;
+  let activeTipsMask: HTMLElement | null = null;
+
   /* 关键词轮播动画（anheyu aboutsiteTips 遮罩） */
   function initTipsCarousel() {
     const mask = document.getElementById("about-tips-mask");
-    if (!mask || mask.dataset.carouselInit === "1") return;
-    mask.dataset.carouselInit = "1";
+    if (mask === activeTipsMask && tipsTimer !== undefined) return;
+
+    if (tipsTimer !== undefined) {
+      window.clearInterval(tipsTimer);
+      tipsTimer = undefined;
+    }
+    activeTipsMask = mask;
+    if (!mask) return;
 
     const words = Array.from(mask.querySelectorAll(".about-tips-word"));
+    if (words.length < 2) return;
     let idx = 0;
 
     function next() {
@@ -243,11 +291,12 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       cur?.removeAttribute("data-show");
       cur?.removeAttribute("data-up");
       cur?.setAttribute("data-up", "");
+      nxt?.removeAttribute("data-up");
       nxt?.setAttribute("data-show", "");
       idx++;
     }
 
-    setInterval(next, 2000);
+    tipsTimer = window.setInterval(next, 2000);
   }
 
   /* 打赏弹层开关 */
@@ -256,7 +305,8 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     const btn = document.getElementById("btn-donate");
     const close = document.getElementById("donate-modal-close");
     const backdrop = document.getElementById("donate-modal-backdrop");
-    if (!modal || !btn) return;
+    if (!modal || !btn || modal.dataset.donateInit === "1") return;
+    modal.dataset.donateInit = "1";
 
     function open() { modal.classList.add("open"); modal.classList.add("visible"); }
     function closeModal() {
@@ -266,15 +316,57 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     btn.addEventListener("click", open);
     close?.addEventListener("click", closeModal);
     backdrop?.addEventListener("click", closeModal);
-    document.addEventListener("keydown", function onEsc(e) {
-      if (e.key === "Escape" && modal.classList.contains("visible")) closeModal();
-    });
   }
+
+  /* 访问统计：页面切换后的新 DOM 会重新请求，单个卡片只初始化一次。 */
+  async function initVisitStats() {
+    const card = document.querySelector<HTMLElement>(".about-item--statistics");
+    if (!card || card.dataset.statisticsInit === "1") return;
+    card.dataset.statisticsInit = "1";
+
+    const keys = [
+      "today_uv",
+      "today_pv",
+      "yesterday_uv",
+      "yesterday_pv",
+      "last_month_pv",
+      "total_pv",
+    ];
+
+    try {
+      const response = await fetch(card.dataset.api ?? "");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+
+      keys.forEach((key) => {
+        const value = Number(data[key]);
+        if (!Number.isFinite(value)) throw new Error(`Invalid statistic: ${key}`);
+        const target = card.querySelector<HTMLElement>(`[data-visit-stat="${key}"]`);
+        if (target) target.textContent = value.toLocaleString("zh-CN");
+      });
+      card.dataset.state = "ready";
+    } catch {
+      card.dataset.state = "error";
+      const error = card.querySelector<HTMLElement>(".about-statistics-error");
+      if (error) error.hidden = false;
+    }
+  }
+
+  // 模块脚本只绑定一次；每次触发时查询当前页面的弹层，避免换页后捕获旧 DOM。
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const modal = document.getElementById("donate-modal");
+    if (!modal?.classList.contains("visible")) return;
+    modal.classList.remove("visible");
+    window.setTimeout(() => modal.classList.remove("open"), 200);
+  });
 
   document.addEventListener("DOMContentLoaded", initTipsCarousel);
   document.addEventListener("astro:page-load", initTipsCarousel);
   document.addEventListener("DOMContentLoaded", initDonateModal);
   document.addEventListener("astro:page-load", initDonateModal);
+  document.addEventListener("DOMContentLoaded", initVisitStats);
+  document.addEventListener("astro:page-load", initVisitStats);
 </script>
 
 <style>
@@ -300,6 +392,8 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-author-tag-right { align-items: flex-start; }
 
   .about-author-tag {
+    box-sizing: border-box;
+    width: 142px;
     transform: translate(0, -4px);
     padding: 1px 8px;
     background: var(--glass-bg);
@@ -314,6 +408,9 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     animation: about-float 6s ease-in-out infinite;
     white-space: nowrap;
   }
+
+  .about-author-tag-left .about-author-tag { text-align: right; }
+  .about-author-tag-right .about-author-tag { text-align: left; }
 
   .about-author-tag-left .about-author-tag:first-child,
   .about-author-tag-left .about-author-tag:last-child { margin-right: -16px; }
@@ -366,15 +463,15 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   /* ── 行容器（59/39 不等宽） ── */
   .about-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-4);
     width: 100%;
     margin-bottom: var(--space-4);
   }
 
   .about-item {
-    width: 39%;
+    min-width: 0;
     border-radius: var(--radius-lg);
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -391,17 +488,17 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-item--skills,
   .about-item--personality,
   .about-item--game {
-    width: 59%;
+    width: auto;
   }
 
   .about-item--tips,
   .about-item--selfinfo,
   .about-item--comic,
   .about-item--cards {
-    width: 39%;
+    width: auto;
   }
 
-  .about-item--single { width: 100%; }
+  .about-item--single { grid-column: 1 / -1; }
 
   /* ── 通用标题 ── */
   .about-card-tips {
@@ -436,6 +533,11 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     font-weight: 700;
     line-height: 1.2;
     margin: var(--space-2) 0;
+  }
+
+  .about-item--hello .about-card-tips {
+    color: oklch(1 0 0 / 0.84);
+    opacity: 1;
   }
 
   .about-inline-word {
@@ -502,6 +604,13 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-tips-word:nth-child(5) { background-image: linear-gradient(45deg, oklch(0.7 0.15 170) 50%, oklch(0.6 0.15 170)); }
 
   /* ── 技能墙 ── */
+  .about-item--skills {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .about-skill-wall {
     display: flex;
     flex-wrap: wrap;
@@ -530,28 +639,17 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   .about-skill-icon [data-icon] { width: 24px; height: 24px; }
 
-  /* ── selfInfo 数据卡 ── */
-  .about-selfinfo-row {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--space-4);
-  }
-
-  .about-selfinfo-label {
-    opacity: 0.8;
-    font-size: var(--text-xs);
-    color: var(--foreground-muted);
-    margin-bottom: var(--space-1);
-  }
-
-  .about-selfinfo-value {
-    font-weight: 700;
-    font-size: 28px;
-    line-height: 1;
-    color: var(--accent);
-  }
-
   /* ── 性格卡 ── */
+  .about-item--personality {
+    min-height: 240px;
+    isolation: isolate;
+  }
+
+  .about-item--personality > :not(.about-personality-img) {
+    position: relative;
+    z-index: 2;
+  }
+
   .about-mbti {
     font-size: 32px;
     font-weight: 700;
@@ -563,15 +661,30 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     font-size: var(--text-sm);
     color: var(--foreground-secondary);
     margin: 0;
-    max-width: 55%;
+    max-width: 52%;
+    line-height: 1.65;
   }
+
+  .about-personality-link {
+    position: absolute !important;
+    left: var(--space-6);
+    bottom: var(--space-5);
+    color: var(--accent);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .about-personality-link:hover { text-decoration: underline; }
 
   .about-personality-img {
     position: absolute;
-    right: var(--space-6);
-    top: var(--space-4);
-    width: 130px;
+    right: var(--space-4);
+    bottom: -98px;
+    width: 245px;
+    transform-origin: 60% 100%;
     transition: transform 2s cubic-bezier(0.13, 0.45, 0.21, 1.02);
+    z-index: 1;
   }
 
   .about-personality-img img {
@@ -581,17 +694,20 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   }
 
   .about-item--personality:hover .about-personality-img {
-    transform: rotate(-10deg);
+    transform: rotate(-10deg) scale(0.92) translateY(-28px);
   }
 
-  /* ── 斜切封面墙（anheyu comic-content） ── */
+  /* ── 连续斜切封面墙 ── */
   .about-item--comic {
     overflow: hidden;
+    min-height: 240px;
+    isolation: isolate;
+    background: oklch(0.17 0.02 190);
   }
 
   .about-comic-tips,
   .about-comic-title {
-    z-index: 2;
+    z-index: 3;
     color: #fff;
     pointer-events: none;
     position: relative;
@@ -601,50 +717,46 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   .about-comic-box {
     display: flex;
-    width: 120%;
-    height: 100%;
     position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
+    inset: 0 -6%;
+    overflow: hidden;
+    z-index: 0;
   }
 
   .about-comic-item {
+    flex: 1 1 0;
+    min-width: 0;
     height: 100%;
-    color: #fff;
-    width: 20%;
-    transform: skew(-10deg, 0deg);
-    transition: width 0.8s var(--ease-material);
     position: relative;
     overflow: hidden;
-    text-decoration: none;
-  }
-
-  .about-comic-item:hover { width: 46%; }
-
-  .about-comic-item:hover .about-comic-cover {
-    left: 16%;
-    transform: skew(10deg, 0deg) scale(1.6);
+    margin-inline: -1px;
+    clip-path: polygon(12% 0, 100% 0, 88% 100%, 0 100%);
+    transition: flex-grow 0.8s var(--ease-material);
   }
 
   .about-comic-cover {
     position: absolute;
-    top: 0;
-    left: -50%;
-    height: 100%;
-    transform: skew(10deg, 0deg);
-    object-fit: cover;
-    transition: all 0.8s var(--ease-material);
-    width: 100%;
+    inset: 0;
   }
 
   .about-comic-cover img {
+    display: block;
     height: 100%;
     width: 100%;
     object-fit: cover;
-    transition: 0.8s;
+    transform: scale(1.08);
+    transition: transform 0.8s var(--ease-material);
     max-width: none;
     border-radius: 0;
+  }
+
+  .about-comic-item--landscape .about-comic-cover img { transform: scale(1.34); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .about-comic-box:hover .about-comic-item { flex-grow: 0.75; }
+    .about-comic-box .about-comic-item:hover { flex-grow: 2.4; }
+    .about-comic-item:hover .about-comic-cover img { transform: scale(1.16); }
+    .about-comic-item--landscape:hover .about-comic-cover img { transform: scale(1.44); }
   }
 
   .about-item--comic::after {
@@ -662,15 +774,11 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     box-shadow: 0 -48px 203px 11px oklch(0.15 0.02 70 / 0.6) inset;
   }
 
-  /* 游戏斜切墙同样式（class 复用） */
-
-  /* ── aboutCards 信息区 ── */
+  /* ── 站点资料与关于我 ── */
   .about-item--cards {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    overflow-y: auto;
-    max-height: 420px;
   }
 
   .about-card-block { padding: 0 0 var(--space-3); border-bottom: 1px solid var(--border-subtle); }
@@ -713,6 +821,106 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   }
   .about-card-block-links a { color: var(--accent); text-decoration: none; }
   .about-card-block-links a:hover { text-decoration: underline; }
+
+  .about-card-block-title--aboutme {
+    font-size: var(--text-base);
+    color: var(--foreground);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .about-card-block-body--aboutme { max-width: 90ch; }
+  .about-card-block-body--aboutme p {
+    font-size: var(--text-base);
+    line-height: 1.85;
+  }
+
+  /* ── 访问统计 + selfInfo ── */
+  .about-row--data {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+
+  .about-item--statistics {
+    min-height: 280px;
+    color: #fff;
+    background-image: linear-gradient(oklch(0.12 0.02 230 / 0.72), oklch(0.12 0.02 230 / 0.88)),
+      url("/images/bg/xiowo-bg-dark.webp");
+    background-size: cover;
+    background-position: center;
+  }
+
+  .about-item--statistics .about-card-tips,
+  .about-item--statistics .about-item-title { color: #fff; }
+
+  .about-statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-5);
+    margin: var(--space-5) 0 0;
+  }
+
+  .about-statistics-grid div { min-width: 0; }
+  .about-statistics-grid dt {
+    font-size: var(--text-xs);
+    color: oklch(1 0 0 / 0.7);
+  }
+  .about-statistics-grid dd {
+    margin: var(--space-1) 0 0;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+
+  .about-statistics-error {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-sm);
+    color: oklch(0.88 0.07 35);
+  }
+
+  .about-item--selfinfo {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 280px;
+  }
+
+  .about-selfinfo-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .about-selfinfo-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: var(--space-3);
+    border-radius: 50%;
+    color: var(--selfinfo-accent);
+    background: color-mix(in oklch, var(--selfinfo-accent) 14%, transparent);
+  }
+
+  .about-selfinfo-icon svg { width: 22px; height: 22px; }
+  .about-selfinfo-value {
+    max-width: 100%;
+    font-size: 26px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--selfinfo-accent);
+    overflow-wrap: anywhere;
+  }
+  .about-selfinfo-label {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+  }
 
   /* ── 致谢 reward 卡 ── */
   .about-item--reward { padding-bottom: var(--space-6); }
@@ -896,17 +1104,57 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
+    .about-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
     .about-item {
-      width: 100% !important;
-      margin-top: var(--space-3);
+      width: auto !important;
+      margin-top: 0;
       min-height: 0;
     }
-    .about-row { margin-bottom: 0; }
-    .about-item--cards { max-height: none; }
+    .about-item--single { grid-column: auto; }
+    .about-item--comic { min-height: 220px; }
     .about-hello-title { font-size: 24px; }
     .about-item-title { font-size: 26px; }
     .about-mbti { font-size: 26px; }
-    .about-personality-img { width: 90px; right: var(--space-4); }
+    .about-item--personality { min-height: 220px; }
+    .about-mbti-desc { max-width: 62%; }
+    .about-personality-img {
+      width: 180px;
+      right: calc(var(--space-4) * -1);
+      bottom: -72px;
+    }
+    .about-personality-link { left: var(--space-6); }
+    .about-item--statistics { min-height: 280px; }
+    .about-item--selfinfo {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      min-height: 0;
+      padding-block: var(--space-6);
+      row-gap: var(--space-6);
+    }
     .about-reward-list { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .about-item { padding-inline: var(--space-4); }
+    .about-personality-link { left: var(--space-4); }
+    .about-statistics-grid { column-gap: var(--space-3); }
+    .about-statistics-grid dd { font-size: 21px; }
+    .about-selfinfo-value { font-size: 22px; }
+    .donate-modal { padding: var(--space-4); }
+    .donate-modal__card { width: 100%; min-width: 0; }
+    .donate-modal__qrs { gap: var(--space-3); }
+    .donate-modal__qr img { width: 120px; height: 120px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about-author-tag,
+    .about-item--hello { animation: none; }
+    .about-personality-img,
+    .about-comic-item,
+    .about-comic-cover img { transition: none; }
+    .about-item--personality:hover .about-personality-img { transform: none; }
   }
 </style>

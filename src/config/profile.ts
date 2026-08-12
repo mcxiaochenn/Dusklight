@@ -12,23 +12,24 @@ export const profileConfig = {
   email: "mcxiaochenn_yyds@163.com",
 
   // ─── MBTI ───
+  mbtiTitle: "逻辑学家",
   mbti: "INTP-T",
   mbtiDesc: "大众前社恐，实则慢热，和熟人比较放得开 :(",
+  mbtiUrl: "https://www.16personalities.com/ch/intp-%E4%BA%BA%E6%A0%BC",
 
   // ─── 身份标签（About 页 Hero 区 chips） ───
   identities: ["高中生", "半吊子开发者", "二次元"],
 
   // ─── 喜欢的番 / 游戏（About 页图片卡片） ───
-  // 番剧封面来自 MyAnimeList CDN（竖版外链，保持热链）；
-  // 游戏封面已下载到 public/images/favorites/ 并转 webp（入库）。
+  // 番剧与游戏封面均保存在 public/images/favorites/，避免外链防盗链导致空白。
   // landscape: true 的横版图用 16:9 横卡，否则用 3:4 竖卡。
   favorites: {
     anime: [
-      { name: "孤独摇滚", image: "https://cdn.myanimelist.net/images/anime/1448/127956l.jpg" },
-      { name: "国家队", image: "https://cdn.myanimelist.net/images/anime/1614/90408l.jpg" },
-      { name: "晨曦公主", image: "https://cdn.myanimelist.net/images/anime/9/64225l.jpg" },
-      { name: "EVA（新世纪福音战士）", image: "https://cdn.myanimelist.net/images/anime/1314/108941l.jpg" },
-      { name: "鬼灭之刃", image: "https://cdn.myanimelist.net/images/anime/1286/99889l.jpg" },
+      { name: "孤独摇滚", image: "/images/favorites/bocchi-the-rock.jpg" },
+      { name: "国家队", image: "/images/favorites/darling-in-the-franxx.jpg" },
+      { name: "晨曦公主", image: "/images/favorites/yona-of-the-dawn.jpg" },
+      { name: "EVA（新世纪福音战士）", image: "/images/favorites/evangelion.jpg" },
+      { name: "鬼灭之刃", image: "/images/favorites/demon-slayer.jpg" },
     ],
     games: [
       { name: "千恋＊万花", image: "/images/favorites/qianlian-huayu.webp" },
@@ -58,9 +59,13 @@ export const profileConfig = {
   // ─── 技能标签 ───
   skills: ["TypeScript", "React", "Vue", "Astro", "Node.js", "Docker"],
 
-  // ─── 作者框（anheyu 布局）：头像两侧漂浮标签 ───
-  authorTagsLeft: ["高中生", "半吊子开发者"],
-  authorTagsRight: ["二次元", "阿尘"],
+  // ─── 作者框：头像两侧成对漂浮标签（文案保持等长） ───
+  authorTags: [
+    { left: "🎒 在读高中生", right: "💻 半吊子开发" },
+    { left: "🛠️ 喜欢瞎折腾", right: "📱 数码爱好者" },
+    { left: "🚲 骑车旅行派", right: "🎮 游戏二次元" },
+    { left: "🌙 慢热行动派", right: "😄 熟人放得开" },
+  ],
 
   // ─── 问候卡（anheyu myInfoAndSayHello） ───
   hello: "嗨！欢迎来到我的小站",
@@ -68,7 +73,7 @@ export const profileConfig = {
 
   // ─── 站点关键词轮播（anheyu aboutsiteTips 遮罩动画） ───
   aboutsiteTips: {
-    tips: "关于本站",
+    tips: "追求",
     title1: "生活不止眼前的苟且",
     title2: "还有诗和远方",
     words: ["折腾", "热爱", "坚持", "分享", "前行"],
@@ -76,29 +81,26 @@ export const profileConfig = {
 
   // ─── 自我信息行（anheyu selfInfo） ───
   selfInfo: [
-    { label: "出生年份", value: "2009" },
-    { label: "现居", value: "浙江·嘉兴" },
-    { label: "身份", value: "高中生" },
+    { label: "出生年份", value: "2009", icon: "ph:cake", accent: "oklch(0.68 0.15 220)" },
+    { label: "现居", value: "浙江·嘉兴", icon: "ph:map-pin", accent: "oklch(0.68 0.15 75)" },
+    { label: "身份", value: "高中生", icon: "ph:identification-card", accent: "oklch(0.62 0.2 300)" },
   ],
 
   // ─── 技能卡标题（anheyu skills 区） ───
   skillsTitle: "我的技能",
   skillsTips: "技多不压身",
 
-  // ─── 详细介绍（About 页玻璃卡片板块，替代 spec/about.md 渲染） ───
+  // ─── 详细介绍（About 页全宽正文卡） ───
+  aboutMe: {
+    title: "关于我",
+    icon: "ph:user",
+    body:
+      "嗨！这里是辰渊尘的博客关于页，我是小尘！欢迎你来到我的站点！\n\n鄙人 2009 年出身于浙江省嘉兴市平湖市，目前在上职业类学校，是位高中生辣，高二辣。\n\n喜欢折腾一些奇奇怪怪的东西，喜欢骑车，喜欢旅行，热爱生活，喜欢捣鼓科技数码，喜欢玩机，还是二次元。\n\n大伙们可以叫我包括但不限于：小尘、阿尘、尘、尘桑 等等等等。\n\n一个半吊子个人开发者：编程都是爱好~",
+  },
+
+  // ─── 站点资料（游戏卡右侧） ───
   // body 为段落文本（换行分段），links 为链接列表（href 可选，无则纯文本）
-  aboutCards: [
-    {
-      title: "关于我",
-      icon: "ph:user",
-      body:
-        "嗨！这里是辰渊尘的博客关于页，我是小尘！欢迎你来到我的站点！\n\n鄙人 2009 年出身于浙江省嘉兴市平湖市，目前在上职业类学校，是位高中生辣，高二辣。\n\n喜欢折腾一些奇奇怪怪的东西，喜欢骑车，喜欢旅行，热爱生活，喜欢捣鼓科技数码，喜欢玩机，还是二次元。\n\n大伙们可以叫我包括但不限于：小尘、阿尘、尘、尘桑 等等等等。\n\n一个半吊子个人开发者：编程都是爱好~",
-    },
-    {
-      title: "当前常用系统",
-      icon: "ph:desktop",
-      body: "主力系统曾是 Arch Linux，后因笔记本兼容性问题换回 Windows。",
-    },
+  siteCards: [
     {
       title: "我的域名",
       icon: "ph:globe-hemisphere-west",
