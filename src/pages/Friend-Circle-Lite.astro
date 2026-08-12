@@ -28,6 +28,18 @@ import { siteConfig } from "@/config";
   </section>
 </BaseLayout>
 
+<!-- fclite 在脚本加载阶段就读取 UserConfig，必须先于库定义。 -->
+<script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
+  window.UserConfig = {
+    private_api_url: fcliteApiUrl,
+    page_turning_number: 24,
+    error_img: "https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg",
+  };
+  // 首次加载由库自己的 whenDOMReady 初始化；标记后避免本站脚本并发再跑一次。
+  var initialRoot = document.getElementById("friend-circle-lite-root");
+  if (initialRoot) initialRoot.dataset.fcLiteInitialized = "1";
+</script>
+
 <link
   rel="stylesheet"
   href="/vendor/fclite.min.css"
@@ -37,28 +49,24 @@ import { siteConfig } from "@/config";
   src="/vendor/fclite.min.js"
 ></script>
 
-<script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
+<script is:inline>
   (function () {
-    // 每次初始化前重置 UserConfig，保证 API 地址有效（fclite 内部读取全局 UserConfig）
-    function setupUserConfig() {
-      window.UserConfig = {
-        private_api_url: fcliteApiUrl,
-        page_turning_number: 24,
-        error_img: "https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg",
-      };
-    }
-
     function initFcLite() {
-      setupUserConfig();
+      var root = document.getElementById("friend-circle-lite-root");
+      if (!root || root.dataset.fcLiteInitialized === "1") return;
+      root.dataset.fcLiteInitialized = "1";
       if (typeof window.initialize_fc_lite === "function") {
         window.initialize_fc_lite();
       }
     }
 
-    // DOMContentLoaded 与 astro:page-load 首次都会触发，初始化幂等（fclite 内部
-    // 先清空 root 再重建），重复调用无害。
-    document.addEventListener("DOMContentLoaded", initFcLite);
-    document.addEventListener("astro:page-load", initFcLite);
+    // is:inline 会在 View Transitions 后重新执行，事件监听器只允许绑定一次。
+    if (!window.__dusklightFcLiteBound) {
+      window.__dusklightFcLiteBound = true;
+      document.addEventListener("DOMContentLoaded", initFcLite);
+      document.addEventListener("astro:page-load", initFcLite);
+    }
+    initFcLite();
   })();
 </script>
 
@@ -70,10 +78,13 @@ import { siteConfig } from "@/config";
       document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
     }
     syncTheme();
-    new MutationObserver(syncTheme).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
+    if (!window.__dusklightFcThemeObserver) {
+      window.__dusklightFcThemeObserver = new MutationObserver(syncTheme);
+      window.__dusklightFcThemeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    }
   })();
 </script>
 

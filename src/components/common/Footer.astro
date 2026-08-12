@@ -27,11 +27,11 @@ const yearRange = startYear === currentYear ? `${currentYear}` : `${startYear}-$
           <span class="footer__logo-text">{siteConfig.title}</span>
         </a>
         <p class="footer__copyright">
-          &copy;&nbsp;{yearRange}&nbsp;
+          &copy; {yearRange}{" "}
           <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="footer__link" data-tooltip="本站源码">{siteConfig.author}</a>
-          &nbsp;&#xB7;&nbsp;Powered by&nbsp;
+          {" · Powered by "}
           <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="footer__link" data-tooltip="Astro 框架官网">Astro</a>
-          &nbsp;&amp;&nbsp;
+          {" & "}
           <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="footer__link" data-tooltip="Dusklight 主题仓库">Dusklight</a>
         </p>
         <p class="footer__icp">
@@ -117,6 +117,8 @@ const yearRange = startYear === currentYear ? `${currentYear}` : `${startYear}-$
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+    min-width: 0;
+    max-width: 100%;
   }
 
   .footer__right {
@@ -165,6 +167,8 @@ const yearRange = startYear === currentYear ? `${currentYear}` : `${startYear}-$
     font-size: var(--text-xs);
     color: var(--foreground-muted);
     margin: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .footer__link {
@@ -308,10 +312,17 @@ const yearRange = startYear === currentYear ? `${currentYear}` : `${startYear}-$
 
   /* ─── Responsive ─── */
   @media (max-width: 640px) {
+    /* tooltip 伪元素即使透明也会参与 scrollWidth 计算，曾让全站多出 4px 横滚。 */
+    [data-tooltip]::before,
+    [data-tooltip]::after {
+      display: none;
+    }
+
     .footer__bottom {
       flex-direction: column;
       align-items: center;
       text-align: center;
+      width: 100%;
     }
 
     .footer__left {
