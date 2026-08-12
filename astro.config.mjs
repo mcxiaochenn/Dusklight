@@ -4,7 +4,6 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import icons from "astro-icon";
 import { defineConfig } from "astro/config";
-import svelte from "@astrojs/svelte";
 import expressiveCode from "astro-expressive-code";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
@@ -92,7 +91,6 @@ export default defineConfig({
 		mdx(),
 		sitemap(),
 		icons(),
-		svelte(),
 	],
 
 	// Markdown 配置
