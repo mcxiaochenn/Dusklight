@@ -16,9 +16,10 @@
 - 🏷️ **内容集合** — 类型安全的 frontmatter（标签、分类、阅读时间、置顶、加密）
 - 💬 **评论系统** — Twikoo 集成，主题感知样式，View Transitions 兼容
 - 📱 **响应式** — 移动端浮动药丸导航 + 侧边抽屉菜单
-- ⚡ **纯静态** — 零运行时框架（无 React/Vue/Svelte），极致性能
+- ⚡ **纯静态** — Astro 预渲染，Svelte 仅用于搜索和分享海报等局部交互岛
 - 🔍 **SEO** — sitemap、RSS、Atom、Open Graph、JSON-LD 结构化数据
-- 🎨 **图标系统** — Phosphor Icons + Simple Icons（astro-icon，tree-shaken）
+- 🎨 **图标系统** — Font Awesome 7 + Simple Icons（astro-icon，tree-shaken）
+- 🔎 **全文搜索** — Pagefind Extended 中文静态索引
 - 🔒 **文章加密** — 前台密码保护，客户端解密
 - 🛡️ **反镜像保护** — 构建期混淆，非授权域名自动重定向
 - 📊 **访问统计** — Umami 集成（可配置开关）
@@ -57,6 +58,7 @@ pnpm dev
 | `nav.ts` | 导航菜单、社交链接 | 按需调整 |
 | `comment.ts` | Twikoo 评论系统 | `envId` |
 | `seo.ts` | SEO 默认值、搜索引擎验证 | 按需调整 |
+| `resources.ts` | 运行时第三方 JS/CSS 资源 | 按需调整 |
 
 设计系统的核心变量在 `src/styles/tokens.css`：
 
@@ -129,11 +131,7 @@ src/
 
 ## Mermaid 图表
 
-构建时通过 Playwright（Chromium）渲染 Mermaid 代码块为 SVG。CI 已自动安装，本地需要：
-
-```bash
-npx playwright install --with-deps chromium
-```
+Mermaid 使用本地托管的浏览器脚本在客户端渲染，构建时不需要 Playwright。
 
 ## License
 

@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm install          # Install dependencies
 pnpm dev              # Start dev server (localhost:4321)
-pnpm build            # sync-content (fail-soft) → update-anime → astro build → postbuild (obfuscate-anti-mirror)
+pnpm build            # sync-content → update-anime → astro build → Pagefind 索引 → postbuild
 pnpm preview          # Preview production build
 pnpm sync-content     # Manually sync content repository
 pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (gitignored)
@@ -28,7 +28,7 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 ## Architecture
 
-This is an **Astro 7.x** static blog site with **no runtime JS framework** (no React/Vue/Svelte). All components are `.astro` files with scoped `<style>` blocks and vanilla `<script>`. The homepage sidebar calendar is pure Astro + vanilla JS, with day/month/year views and a compact annual 12×5 month-week heatmap (columns = months; rows = days 1–7, 8–14, 15–21, 22–28, 29–month end). Heatmap cells are square and the matrix is capped at 260px so the stacked 960px sidebar does not inflate it. Its layout and interactions are an equivalent reimplementation of Luquiescene's `calendar-widget`, styled with Dusklight tokens rather than copied Svelte code. The script is a plain `<script data-astro-rerun>` — **NOT `is:inline`**: the script is full of JS object literals that Astro's `{}` expression parsing would break. It uses event delegation on the root node, a `dataset.init` re-entry guard, fetches `/api/calendar-data.json`, and re-runs after every View Transition; the `astro:before-swap` cleanup clears its midnight timer and detached tooltip before the old DOM is replaced. Runtime-created calendar nodes copy the root's `data-astro-cid-*` attribute so scoped styles remain active after ClientRouter round trips—using `:global()` for those nodes loses their styles when returning to the homepage.
+This is an **Astro 7.x** static blog. Most pages remain `.astro` + vanilla JS; Svelte is limited to stateful islands such as full-text search and share-poster generation. Tailwind CSS 4 loads theme/utilities only (no Preflight) and must not reset or replace the existing token-driven CSS. The homepage calendar remains pure Astro + vanilla JS with its existing View Transition lifecycle.
 
 ### Design System
 
@@ -41,6 +41,14 @@ The entire visual identity is driven by **CSS custom properties** in `src/styles
 - **连续曲率圆角**：所有现有 `border-radius` 都是兼容性基线；支持的浏览器通过零特异性全局规则应用 `corner-shape: var(--corner-shape, var(--corner-shape-continuous))`。头像、状态点、加载环等真圆使用 `--corner-shape: var(--corner-shape-round)` 退出。不要改用 SVG mask、Houdini polyfill 或尺寸监听 JavaScript，它们会破坏玻璃背景/阴影或增加生命周期负担。
 
 **Dark mode**: `.dark` class on `<html>` overrides tokens. Anti-flash inline script in ThemeToggle restores theme before first paint.
+
+### Fonts, Tailwind and Svelte
+
+- UI and prose use the locally hosted `MiSans Subset`. `scripts/subset-misans.py` regenerates disjoint WOFF2 unicode subsets from an external `MiSansVF.ttf`; do not commit the original ZIP/TTF. Only `misans-core.woff2` is preloaded.
+- Code uses local Maple Mono Normal V7.9 with `calt` and `ss06`; Chinese comments fall back to MiSans. KaTeX formulas retain KaTeX math fonts.
+- Tailwind 4 imports theme/utilities only in `src/styles/tailwind.css`; Preflight is intentionally absent. Svelte 5 is restricted to interactive islands (`SearchDialog`, `SharePoster`).
+- `pnpm build` runs Pagefind Extended after Astro. Only non-encrypted article elements marked `data-pagefind-body` are indexed; drafts are not built and comments/navigation are ignored.
+- Article frontmatter supports `share?: boolean` and `license?: false | { name, url }`. The default license is CC BY-NC-SA 4.0. Per-post changelogs read path-specific history from the separate `content/` Git repository and fail soft when history is unavailable.
 
 ### Liquid Glass Pattern
 
@@ -86,7 +94,7 @@ All third-party browser-side libraries are self-hosted (no CDN requests except f
 | `public/vendor/fclite.min.js` | Friend-Circle-Lite | `Friend-Circle-Lite.astro` |
 | `public/js/twikoo.min.js` | Twikoo 1.7.15 | `TwikooComments.astro` (dynamic script injection) |
 
-KaTeX CSS/JS is bundled at build time by `rehype-katex` (npm), not loaded from a CDN. The `src/config/cdn.ts` file is an empty placeholder kept for barrel-export compatibility.
+KaTeX CSS/fonts are imported locally from the direct `katex` dependency. Runtime JS/CSS paths are centralized in `src/config/resources.ts`; do not hardcode them in Astro/Svelte/client scripts. npm/Vite imports, APIs and image URLs are outside this rule.
 
 **abbrlink fidelity**: all 31 migrated posts carry `abbrlink` in frontmatter (30 legacy values preserved verbatim from the live site; one computed with Mizuki's exact CRC-32 rule `"p" + (CRC32(path) >>> 0).toString(36)`, validated against 3 known pairs). Never regenerate or edit a published abbrlink — it is the URL, and Twikoo threads key on it.
 
@@ -283,7 +291,7 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 
 ### Navigation
 
-`src/config/nav.ts` supports nested dropdowns via `children?: NavItem[]`. Header renders desktop dropdowns with hover + click toggle, mobile as grouped sections. Current structure: **文库**(全部文章/分类列表/标签列表)、**友链**(友链列表/友链朋友圈)、**关于**(我的追番/设备/更新日志/关于本站)、**外链**(开往/Umami/AI 提示词生成器)。技术栈与赞助已从导航移除(技能入口在 about 页技能墙,赞助并入 about「致谢」卡)。注意 nav 顶层 label 变更需同步 `Header.astro` 的 `navIcons` 映射(如「归档」→「文库」用了 `ph:books`)。
+`src/config/nav.ts` supports nested dropdowns via `children?: NavItem[]`. Header renders desktop dropdowns with hover + click toggle, mobile as grouped sections. Current structure: **文库**(全部文章/分类列表/标签列表)、**友链**(友链列表/友链朋友圈)、**关于**(我的追番/设备/更新日志/关于本站)、**外链**(开往/Umami/AI 提示词生成器)。技术栈与赞助已从导航移除(技能入口在 about 页技能墙,赞助并入 about「致谢」卡)。注意 nav 顶层 label 变更需同步 `Header.astro` 的 `navIcons` 映射，并优先选用 FA7 或 Simple Icons。
 
 ## Design Reference
 
@@ -298,7 +306,7 @@ Guards worth preserving: an `animating` flag rejects re-entry mid-transition, an
 | `src/config/mottos.ts` | 随机语录池 + 时间问候表（ProfileCard 问候语胶囊点击随机更换） |
 | `src/config/nav.ts` | Navigation menu structure + social links |
 | `src/config/comment.ts` | Twikoo comment system envId |
-| `src/config/cdn.ts` | ⚠️ Now an empty placeholder — all third-party libraries are self-hosted (see Self-Hosted Libraries below). Kept for barrel export compatibility |
+| `src/config/resources.ts` | Runtime JS/CSS URLs (Umami, Twikoo, Mermaid, FCLite, Pagefind) |
 | `src/config/seo.ts` | SEO defaults, JSON-LD, search engine verification |
 | `src/config/theme.ts` | ⚠️ Exported but **consumed by nothing** — see Gotchas. Real values live in `tokens.css` |
 | `src/config/index.ts` | Barrel export for all config modules |
@@ -345,7 +353,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **Commit messages**: Use standard [Conventional Commits](https://www.conventionalcommits.org/) format — `feat:`, `fix:`, `docs:`, `refactor:`, etc. No custom prefixes like `@`.
 - **No auto-push**: Never `git push` unless the user explicitly asks. Commit locally only.
 - **Confirm before coding**: After receiving a new task, restate your understanding back to the user before writing any code. Avoid cognitive bias — if the interpretation is wrong, the user will correct you before you waste effort.
-- **No emoji in code**: Never use emoji characters (✅❌📋⚠️📌📡🛠️📝🔗📖📜🌐) in `.astro`, `.html`, `.css`, or `.js` files. Use SVG icons via `<Icon name="ph:icon-name" />` (astro-icon + Phosphor) or inline SVG instead. This avoids rendering inconsistencies across platforms and keeps the icon system unified.
+- **No emoji in code**: Never use emoji as interface icons in `.astro`, `.html`, `.css`, or `.js`. Use `fa7-*` for UI, `simple-icons` for brands, and local SVG only when neither set provides the icon.
 
 ## Gotchas
 
@@ -361,8 +369,8 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 - **View Transitions**: ThemeToggle re-binds on `astro:after-swap`; SiteBackdrop's MutationObserver survives page transitions
 - **BackToTop visibility**: Logic is in GlobalScripts.astro, not in BackToTop.astro (Astro scoped scripts don't work reliably for global state)
 - **trailingSlash**: Set to `"always"` — all internal links must end with `/`
-- **Icon system**: `astro-icon` with `@iconify-json/ph` (Phosphor) and `@iconify-json/simple-icons` (brands). Use `<Icon name="ph:icon-name" />` in templates. **本地图标**: `src/icons/*.svg` 经 `local:<name>` 引用——酷安官方 logo 放 `src/icons/coolapk.svg`(viewBox 已改为正方形 1024 保证尺寸一致)、Email 用 FontAwesome 信封放 `src/icons/mail.svg`。`profile.ts` 里 `icon: "local:coolapk"` / `"local:mail"`
-- **GlobalScripts pattern**: All client-side JS lives in `GlobalScripts.astro` and initializes on both `DOMContentLoaded` and `astro:page-load` for View Transitions compatibility. Individual components (Header, BlogPost) have their own scoped scripts for component-specific behavior.
+- **Icon system**: `astro-icon` uses `@iconify-json/fa7-solid`, `fa7-regular`, `fa7-brands` and `simple-icons`. Svelte/Tailwind islands use Iconify's Tailwind 4 dynamic selector syntax. Local exceptions remain under `src/icons/`.
+- **Client script pattern**: Shared shell behavior lives in `GlobalScripts.astro`; component-specific scripts and Svelte islands own their lifecycle and must clean up document/window listeners on View Transitions or component destroy.
 - **Theme 3-way toggle**: Cycles light → dark → auto (not 2-way). `ThemeManager.getEffective()` resolves `auto` to the actual system preference; `getStored()` returns the raw stored value.
 - **Mermaid renders client-side, not with Playwright**: `rehype-mermaid.mjs` only injects `mermaid-render-script.js` (`?raw`) into Mermaid containers — no headless browser is launched at build time, and builds with Mermaid code blocks succeed without Playwright/Chromium. The CI `npx playwright install` step was removed for this reason.
 - **`mermaid-render-script.js` has a known bug in `loadMermaid()`**: the CDN → vendor migration left two issues: (1) line 648 references `fallbackScript` which is undefined (dead code from the removed CDN fallback), and (2) `document.head.appendChild(script)` is outside the Promise executor on line 651 where `script` is out of scope. The script currently works because the first error is inside the Promise (caught as a rejection), but if Mermaid diagrams stop rendering client-side, fix this function first.
