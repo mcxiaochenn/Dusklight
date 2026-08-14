@@ -136,7 +136,7 @@
   .search-trigger, .search-dialog__close { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-full); color: var(--foreground-secondary); cursor: pointer; }
   .search-trigger:hover, .search-dialog__close:hover { color: var(--foreground); background: var(--accent-subtle); }
   .search-trigger span { width: 17px; height: 17px; }
-  .search-dialog { width: min(680px, calc(100vw - 2rem)); max-height: min(78dvh, 720px); padding: 0; border: 0; color: var(--foreground); background: transparent; overflow: visible; }
+  .search-dialog { position: fixed; inset: 0; width: min(680px, calc(100vw - 2rem)); max-height: min(78dvh, 720px); margin: auto; padding: 0; border: 0; color: var(--foreground); background: transparent; overflow: visible; }
   .search-dialog::backdrop { background: oklch(0 0 0 / .48); backdrop-filter: blur(8px); }
   .search-dialog__panel { overflow: hidden; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: color-mix(in oklab, var(--surface-1) 88%, transparent); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)); box-shadow: var(--shadow-xl), var(--glass-highlight); }
   .search-dialog__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5) var(--space-2); }

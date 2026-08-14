@@ -16,15 +16,10 @@ export const siteConfig = {
   // 项目仓库地址
   repoUrl: "https://github.com/mcxiaochenn/Dusklight",
 
-  // 外链中转页：已知域名倒计时后自动跳转，其他域名需手动确认。
+  // 外链中转页：所有合法 HTTP(S) 地址统一倒计时后跳转。
   externalRedirect: {
     enabled: true,
     countdownSeconds: 5,
-    knownDomains: [
-      "www.travellings.cn",
-      "umami.mcxiaochen.top",
-      "t2iprompt.mcxiaochen.top",
-    ],
   },
 
   postLicense: {

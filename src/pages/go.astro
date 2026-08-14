@@ -1,24 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { siteConfig } from "../config/site";
-import { getCollection } from "astro:content";
-
-const publicPosts = await getCollection("blog", ({ data }) => !data.draft && !data.password);
-const knownDomains = new Set(siteConfig.externalRedirect.knownDomains);
-for (const post of publicPosts) {
-  for (const match of post.body.matchAll(/https?:\/\/[^\s<>"'\])}]+/g)) {
-    try {
-      knownDomains.add(new URL(match[0]).hostname);
-    } catch {
-      // 非完整 URL 由外链转换插件保持原样，不纳入自动跳转名单。
-    }
-  }
-}
 ---
 
 <BaseLayout title="即将离开本站" description="外部链接安全提示" robots="noindex,nofollow">
   <section class="redirect-page">
-    <div class="redirect-card glass-panel" data-redirect-root>
+    <div class="redirect-card glass-panel" data-redirect-root data-countdown-seconds={siteConfig.externalRedirect.countdownSeconds}>
       <span class="redirect-card__icon icon-[fa7-solid--arrow-up-right-from-square]" aria-hidden="true"></span>
       <p class="redirect-card__eyebrow">外部链接</p>
       <h1>即将离开本站</h1>
@@ -26,7 +13,7 @@ for (const post of publicPosts) {
       <code class="redirect-card__url" data-redirect-url>—</code>
       <p class="redirect-card__countdown" data-redirect-countdown hidden></p>
       <div class="redirect-card__actions">
-        <button class="redirect-card__button redirect-card__button--primary" data-redirect-continue disabled>继续访问</button>
+        <button class="redirect-card__button redirect-card__button--primary" data-redirect-continue disabled>立即访问</button>
         <button class="redirect-card__button" data-redirect-back>返回上一页</button>
       </div>
     </div>
@@ -48,60 +35,67 @@ for (const post of publicPosts) {
   @media (max-width: 520px) { .redirect-card { padding: var(--space-6) var(--space-4); } .redirect-card__actions { flex-direction: column; } }
 </style>
 
-<script is:inline data-astro-rerun define:vars={{ countdownSeconds: siteConfig.externalRedirect.countdownSeconds, knownDomains: [...knownDomains] }}>
-  (() => {
-    const root = document.querySelector("[data-redirect-root]");
-    if (!root || root.dataset.initialized === "1") return;
-    root.dataset.initialized = "1";
-    const urlEl = root.querySelector("[data-redirect-url]");
-    const messageEl = root.querySelector("[data-redirect-message]");
-    const countdownEl = root.querySelector("[data-redirect-countdown]");
-    const continueButton = root.querySelector("[data-redirect-continue]");
-    const backButton = root.querySelector("[data-redirect-back]");
-    let timer = 0;
+<script>
+  let redirectTimer: number | undefined;
 
-    const decode = (value) => {
+  const clearRedirectTimer = () => {
+    if (redirectTimer !== undefined) {
+      window.clearInterval(redirectTimer);
+      redirectTimer = undefined;
+    }
+  };
+
+  const initRedirectPage = () => {
+    clearRedirectTimer();
+    const root = document.querySelector("[data-redirect-root]");
+    if (!(root instanceof HTMLElement)) return;
+
+    const urlEl = root.querySelector<HTMLElement>("[data-redirect-url]");
+    const messageEl = root.querySelector<HTMLElement>("[data-redirect-message]");
+    const countdownEl = root.querySelector<HTMLElement>("[data-redirect-countdown]");
+    const continueButton = root.querySelector<HTMLButtonElement>("[data-redirect-continue]");
+    const backButton = root.querySelector<HTMLButtonElement>("[data-redirect-back]");
+    if (!urlEl || !messageEl || !countdownEl || !continueButton || !backButton) return;
+
+    const decode = (value: string) => {
       const base64 = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
       const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
       return new TextDecoder().decode(bytes);
     };
 
+    const goBack = () => history.length > 1 ? history.back() : location.assign("/");
+    backButton.addEventListener("click", goBack, { once: true });
+
     const params = new URLSearchParams(location.search);
-    let target;
+    let target: URL;
     try {
       target = new URL(decode(params.get("url") || ""));
       if (target.protocol !== "http:" && target.protocol !== "https:") throw new Error("protocol");
     } catch {
       messageEl.textContent = "目标地址无效，已阻止跳转。";
       urlEl.textContent = "无效链接";
-      backButton.addEventListener("click", () => history.length > 1 ? history.back() : location.assign("/"));
       return;
     }
 
     urlEl.textContent = target.href;
     continueButton.disabled = false;
-    continueButton.addEventListener("click", () => location.assign(target.href));
-    backButton.addEventListener("click", () => history.length > 1 ? history.back() : location.assign("/"));
+    continueButton.addEventListener("click", () => location.assign(target.href), { once: true });
 
-    const trusted = knownDomains.includes(target.hostname);
-    if (!trusted) {
-      messageEl.textContent = "请确认目标域名后再继续访问。";
-      return;
-    }
-
-    messageEl.textContent = "该链接来自本站已发布内容。";
+    messageEl.textContent = "即将前往外部网站，请确认目标地址。";
     countdownEl.hidden = false;
-    let remaining = countdownSeconds;
+    let remaining = Number(root.dataset.countdownSeconds) || 5;
     const render = () => countdownEl.textContent = `${remaining} 秒后自动继续`;
     render();
-    timer = window.setInterval(() => {
+    redirectTimer = window.setInterval(() => {
       remaining -= 1;
       render();
       if (remaining <= 0) {
-        clearInterval(timer);
+        clearRedirectTimer();
         location.assign(target.href);
       }
     }, 1000);
-    document.addEventListener("astro:before-swap", () => clearInterval(timer), { once: true });
-  })();
+  };
+
+  document.addEventListener("astro:page-load", initRedirectPage);
+  document.addEventListener("astro:before-swap", clearRedirectTimer);
 </script>
