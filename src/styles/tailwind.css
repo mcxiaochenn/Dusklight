@@ -1,0 +1,5 @@
+/* Tailwind 仅提供 theme/utilities，不引入 Preflight，避免重置现有 Astro 组件。 */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@plugin "@iconify/tailwind4";

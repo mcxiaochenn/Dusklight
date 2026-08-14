@@ -17,6 +17,7 @@ interface Props {
     authors: string[];
     tags: string[];
   };
+  robots?: string;
 }
 
 const {
@@ -24,6 +25,7 @@ const {
   description = siteConfig.description,
   image = seoConfig.defaults.image,
   article,
+  robots,
 } = Astro.props;
 
 const pageTitle = title ? `${title} | ${siteConfig.title}` : siteConfig.title;
@@ -39,6 +41,8 @@ const imageURL = image ? new URL(image, Astro.site).href : undefined;
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalURL} />
 <meta name="author" content={siteConfig.author} />
+{robots && <meta name="robots" content={robots} />}
+<link rel="preload" href="/fonts/misans/misans-core.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 
 <!-- Open Graph -->
 <meta property="og:type" content={article ? "article" : "website"} />

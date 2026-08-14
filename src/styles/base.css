@@ -5,9 +5,6 @@
  * This is the "default look" of every HTML element.
  */
 
-/* ── Inter Variable Font ── */
-@import "@fontsource-variable/inter/wght.css";
-
 /* ── 连续曲率圆角 — 渐进增强 ──
    不支持的引擎会忽略本段并保留现有 border-radius。
    :where() 将特异性保持为零，组件可在局部显式退出。 */

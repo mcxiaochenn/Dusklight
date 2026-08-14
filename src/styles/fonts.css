@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "Maple Mono";
+  src: url("/fonts/maple-mono/maple-mono-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Maple Mono";
+  src: url("/fonts/maple-mono/maple-mono-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Maple Mono";
+  src: url("/fonts/maple-mono/maple-mono-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Maple Mono";
+  src: url("/fonts/maple-mono/maple-mono-bold-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
+
+:where(code, pre, kbd, samp, .expressive-code, .commit-hash) {
+  font-variant-ligatures: contextual;
+  font-feature-settings: "calt" 1, "ss06" 1;
+}
+
+/* KaTeX 必须保留完整数学字体，不继承 Maple Mono。 */
+:where(.katex, .katex *) {
+  font-feature-settings: normal;
+}

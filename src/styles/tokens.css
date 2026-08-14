@@ -119,10 +119,10 @@
   /* ═══════════════════════════════════════════════════════
      TYPOGRAPHY — Font families + optical sizing.
      ═══════════════════════════════════════════════════════ */
-  --font-display: "Inter Variable", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: "Inter Variable", "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-  --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", monospace;
+  --font-display: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-cjk: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "Maple Mono", "MiSans Subset", "Cascadia Code", "SF Mono", monospace;
 
   /* Apple-style tracking — size-specific, never fixed.
      Large text: negative tracking (tighter).
