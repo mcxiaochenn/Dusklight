@@ -48,7 +48,7 @@ const postUrl = getPostUrl(post);
       <div class="post-card__tags">
         {post.data.pinned && (
           <span class="post-card__pin">
-            <Icon name="ph:push-pin-fill" />置顶
+            <Icon name="fa7-solid:thumbtack" />置顶
           </span>
         )}
         {(post.data.tags ?? []).slice(0, 3).map((t) => (
@@ -64,7 +64,7 @@ const postUrl = getPostUrl(post);
     )}
 
     <div class="post-card__meta">
-      <Icon name="ph:calendar" class="post-card__meta-icon" />
+      <Icon name="fa7-solid:calendar-days" class="post-card__meta-icon" />
       <FormattedDate date={post.data.date} />
       {post.data.category && (
         <a href={`/categories/${encodeURIComponent(post.data.category.trim())}/`} class="post-card__category">

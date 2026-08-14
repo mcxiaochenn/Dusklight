@@ -4,6 +4,7 @@
  * 动态加载 + View Transitions 兼容 + CSS 本地强制覆盖
  */
 import { commentConfig } from "../../config/comment";
+import { resourceConfig } from "../../config/resources";
 import { Icon } from "astro-icon/components";
 ---
 
@@ -13,7 +14,7 @@ import { Icon } from "astro-icon/components";
     <div id="twikoo" class="comments__container"></div>
   </div>
   <button class="comments__fab" id="jump-comments" aria-label="跳转到评论">
-    <Icon name="ph:chat-circle-text" />
+    <Icon name="fa7-solid:comment-dots" />
   </button>
 )}
 
@@ -116,9 +117,9 @@ import { Icon } from "astro-icon/components";
       document.addEventListener("astro:page-load", bindFab);
     })();
   </script>
-  <script define:vars={{ envId: commentConfig.twikoo.envId }}>
+  <script define:vars={{ envId: commentConfig.twikoo.envId, twikooSrc: resourceConfig.scripts.twikoo }}>
     (() => {
-      var TWIKOO_SRC = "/js/twikoo.min.js";
+      var TWIKOO_SRC = twikooSrc;
       var STATE_KEY = "__dusklightTwikoo";
       var state = window[STATE_KEY];
 

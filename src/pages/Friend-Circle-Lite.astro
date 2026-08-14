@@ -10,7 +10,7 @@
  * UserConfig 再调全局 initialize_fc_lite()。
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { siteConfig } from "@/config";
+import { resourceConfig, siteConfig } from "@/config";
 ---
 
 <BaseLayout title="友链朋友圈" description="朋友们的最新文章">
@@ -42,11 +42,11 @@ import { siteConfig } from "@/config";
 
 <link
   rel="stylesheet"
-  href="/vendor/fclite.min.css"
+  href={resourceConfig.styles.friendCircleLite}
 />
 <script
   is:inline
-  src="/vendor/fclite.min.js"
+  src={resourceConfig.scripts.friendCircleLite}
 ></script>
 
 <script is:inline>

@@ -2,6 +2,7 @@ import { h } from "hastscript";
 import { visit } from "unist-util-visit";
 
 import mermaidRenderScript from "./mermaid-render-script.js?raw";
+import { resourceConfig } from "../config/resources.ts";
 
 export function rehypeMermaid() {
 	return (tree) => {
@@ -30,7 +31,7 @@ export function rehypeMermaid() {
 					{
 						type: "text/javascript",
 					},
-					mermaidRenderScript,
+					mermaidRenderScript.replaceAll("__MERMAID_SRC__", resourceConfig.scripts.mermaid),
 				);
 
 				node.tagName = "div";

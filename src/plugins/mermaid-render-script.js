@@ -605,7 +605,7 @@
 
 		return new Promise((resolve, reject) => {
 			const script = document.createElement("script");
-			script.src = "/vendor/mermaid.min.js";
+			script.src = "__MERMAID_SRC__";
 
 			script.onload = () => {
 				console.log("Mermaid library loaded successfully");
@@ -615,7 +615,7 @@
 			script.onerror = () => {
 				reject(
 					new Error(
-						"Failed to load local Mermaid library (/vendor/mermaid.min.js)",
+						"Failed to load Mermaid library (__MERMAID_SRC__)",
 				),
 			);
 			};

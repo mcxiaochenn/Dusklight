@@ -19,30 +19,30 @@ const { date, updated, category, readingTime, wordCount, class: className } = As
 
 <div class:list={["article-meta", className]}>
   <time datetime={date.toISOString()} class="article-meta__item">
-    <Icon name="ph:calendar" class="article-meta__icon" />
+    <Icon name="fa7-solid:calendar-days" class="article-meta__icon" />
     <FormattedDate date={date} />
   </time>
   {updated && (
     <span class="article-meta__item article-meta__updated">
-      <Icon name="ph:pencil-simple" class="article-meta__icon" />
+      <Icon name="fa7-solid:pencil" class="article-meta__icon" />
       更新于 <time datetime={updated.toISOString()}><FormattedDate date={updated} /></time>
     </span>
   )}
   {category && (
     <span class="article-meta__item article-meta__category">
-      <Icon name="ph:folder" class="article-meta__icon" />
+      <Icon name="fa7-solid:folder" class="article-meta__icon" />
       {category}
     </span>
   )}
   {wordCount && (
     <span class="article-meta__item">
-      <Icon name="ph:text-aa" class="article-meta__icon" />
+      <Icon name="fa7-solid:font" class="article-meta__icon" />
       {wordCount.toLocaleString()} 字
     </span>
   )}
   {readingTime && (
     <span class="article-meta__item">
-      <Icon name="ph:clock" class="article-meta__icon" />
+      <Icon name="fa7-regular:clock" class="article-meta__icon" />
       {readingTime} 分钟
     </span>
   )}

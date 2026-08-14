@@ -16,7 +16,7 @@ interface Props {
 const { kind, items, current, indexActive = false } = Astro.props;
 const isCategories = kind === "categories";
 const basePath = isCategories ? "/categories/" : "/tags/";
-const icon = isCategories ? "ph:folder" : "ph:tag";
+const icon = isCategories ? "fa7-solid:folder" : "fa7-solid:tag";
 const label = isCategories ? "分类" : "标签";
 ---
 
@@ -56,7 +56,7 @@ const label = isCategories ? "分类" : "标签";
       aria-label={`向右查看更多${label}`}
       hidden
     >
-      <Icon name="ph:caret-right" />
+      <Icon name="fa7-solid:caret-right" />
     </button>
     <a
       href={basePath}
@@ -64,7 +64,7 @@ const label = isCategories ? "分类" : "标签";
       aria-current={indexActive ? "page" : undefined}
     >
       <span>更多</span>
-      <Icon name="ph:caret-right" />
+      <Icon name="fa7-solid:caret-right" />
     </a>
   </div>
 </nav>

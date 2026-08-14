@@ -9,14 +9,14 @@ import { announcementConfig } from "@/config";
 {announcementConfig.enabled && (
   <div class="announcement">
     <div class="announcement__header">
-      <Icon name="ph:megaphone" class="announcement__icon" />
+      <Icon name="fa7-solid:bullhorn" class="announcement__icon" />
       <span class="announcement__title">{announcementConfig.title}</span>
     </div>
     <p class="announcement__content">{announcementConfig.content}</p>
     {announcementConfig.link && (
       <a href={announcementConfig.link.url} class="announcement__link">
         {announcementConfig.link.text}
-        <Icon name="ph:arrow-right" class="announcement__link-icon" />
+        <Icon name="fa7-solid:arrow-right" class="announcement__link-icon" />
       </a>
     )}
   </div>

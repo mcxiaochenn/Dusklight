@@ -81,9 +81,9 @@ export const profileConfig = {
 
   // ─── 自我信息行（anheyu selfInfo） ───
   selfInfo: [
-    { label: "出生年份", value: "2009", icon: "ph:cake", accent: "oklch(0.68 0.15 220)" },
-    { label: "现居", value: "浙江·嘉兴", icon: "ph:map-pin", accent: "oklch(0.68 0.15 75)" },
-    { label: "身份", value: "高中生", icon: "ph:identification-card", accent: "oklch(0.62 0.2 300)" },
+    { label: "出生年份", value: "2009", icon: "fa7-solid:cake-candles", accent: "oklch(0.68 0.15 220)" },
+    { label: "现居", value: "浙江·嘉兴", icon: "fa7-solid:location-dot", accent: "oklch(0.68 0.15 75)" },
+    { label: "身份", value: "高中生", icon: "fa7-solid:id-card", accent: "oklch(0.62 0.2 300)" },
   ],
 
   // ─── 技能卡标题（anheyu skills 区） ───
@@ -93,7 +93,7 @@ export const profileConfig = {
   // ─── 详细介绍（About 页全宽正文卡） ───
   aboutMe: {
     title: "关于我",
-    icon: "ph:user",
+    icon: "fa7-regular:user",
     body:
       "嗨！这里是辰渊尘的博客关于页，我是小尘！欢迎你来到我的站点！\n\n鄙人 2009 年出身于浙江省嘉兴市平湖市，目前在上职业类学校，是位高中生辣，高二辣。\n\n喜欢折腾一些奇奇怪怪的东西，喜欢骑车，喜欢旅行，热爱生活，喜欢捣鼓科技数码，喜欢玩机，还是二次元。\n\n大伙们可以叫我包括但不限于：小尘、阿尘、尘、尘桑 等等等等。\n\n一个半吊子个人开发者：编程都是爱好~",
   },
@@ -103,7 +103,7 @@ export const profileConfig = {
   siteCards: [
     {
       title: "我的域名",
-      icon: "ph:globe-hemisphere-west",
+      icon: "fa7-solid:globe",
       links: [
         { text: "mcxiaochen.top — 现在在用的", href: "https://mcxiaochen.top" },
         { text: "mcxiaochen.icu — 用了一年，阿里云第二年涨价弃用", href: null },
@@ -113,7 +113,7 @@ export const profileConfig = {
     },
     {
       title: "关于本站",
-      icon: "ph:info",
+      icon: "fa7-solid:circle-info",
       links: [
         { text: "博客日志", href: "/timeline/" },
         { text: "域名：阿里云", href: "https://aliyun.com/" },

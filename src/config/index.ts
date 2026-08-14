@@ -6,7 +6,7 @@
  */
 
 export { siteConfig } from "./site";
-export { cdnConfig } from "./cdn";
+export { resourceConfig } from "./resources";
 export { themeConfig } from "./theme";
 export { commentConfig } from "./comment";
 export { navConfig } from "./nav";

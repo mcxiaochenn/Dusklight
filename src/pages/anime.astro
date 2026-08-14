@@ -39,9 +39,9 @@ if (existsSync(DATA_FILE)) {
 
 const groups = (
   [
-    ["watching", "在看", "ph:play-circle"],
-    ["completed", "看完", "ph:check-circle"],
-    ["planned", "想看", "ph:bookmark-simple"],
+    ["watching", "在看", "fa7-regular:circle-play"],
+    ["completed", "看完", "fa7-regular:circle-check"],
+    ["planned", "想看", "fa7-regular:bookmark"],
   ] as const
 )
   .map(([key, label, icon]) => ({
