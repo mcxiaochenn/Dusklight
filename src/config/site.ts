@@ -43,6 +43,9 @@ export const siteConfig = {
   // Friend-Circle-Lite API
   fcliteApiUrl: "https://fc.mcxiaochen.top/",
 
+  // check-flink 友链可达性检测结果
+  flinkStatusUrl: "https://check-flink.mcxiaochen.top/result.json",
+
   // Umami 访问统计
   analytics: {
     url: "https://umami.mcxiaochen.top/script.js",

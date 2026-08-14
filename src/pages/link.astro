@@ -16,11 +16,21 @@ for (const f of friendsData) {
   if (!groups.has(cat)) groups.set(cat, []);
   groups.get(cat)!.push(f);
 }
+
+function normalizeFriendLink(value: string): string {
+  const url = new URL(value.trim());
+  url.hash = "";
+  return url.href.replace(/\/+$/, "");
+}
 ---
 
 <BaseLayout title="友链" description={`${friendsData.length} 位朋友的博客`}>
   <section class="section">
-    <div class="page-container">
+    <div
+      class="page-container"
+      data-friend-links-root
+      data-flink-status-url={siteConfig.flinkStatusUrl}
+    >
 
       {/* ── 页面标题 ── */}
       <header class="links-header">
@@ -165,6 +175,7 @@ for (const f of friendsData) {
                   target="_blank"
                   rel="noopener noreferrer"
                   class="friend-card glass-card"
+                  data-link={normalizeFriendLink(f.siteurl)}
                 >
                   <div class="friend-card__head">
                     <div class="friend-card__avatar-wrap">
@@ -184,6 +195,11 @@ for (const f of friendsData) {
                     </div>
                   </div>
                   <p class="friend-card__desc">{f.desc}</p>
+                  <span
+                    class="friend-card__status"
+                    data-link-status
+                    hidden
+                  ></span>
                 </a>
               ))}
             </div>
@@ -252,6 +268,136 @@ for (const f of friendsData) {
 
     document.addEventListener("DOMContentLoaded", initFclSummary);
     document.addEventListener("astro:page-load", initFclSummary);
+  })();
+</script>
+
+{/* ── check-flink 友链可达性状态 ── */}
+<script data-astro-rerun>
+  (() => {
+    const root = document.querySelector("[data-friend-links-root]");
+    if (!(root instanceof HTMLElement) || root.dataset.flinkStatusInit === "1") return;
+    root.dataset.flinkStatusInit = "1";
+
+    const apiUrl = root.dataset.flinkStatusUrl;
+    if (!apiUrl) return;
+
+    const CACHE_KEY = "dusklight:flink-status:v1";
+    const CACHE_TTL = 30 * 60 * 1000;
+    const controller = new AbortController();
+
+    const normalizeLink = (value) => {
+      try {
+        const url = new URL(String(value).trim());
+        url.hash = "";
+        return url.href.replace(/\/+$/, "");
+      } catch {
+        return "";
+      }
+    };
+
+    const formatLatency = (latency) => {
+      if (latency < 1) return `${Math.round(latency * 1000)} ms`;
+      return `${latency.toFixed(2)} s`;
+    };
+
+    const getState = (latency) => {
+      if (latency === -1) return "unreachable";
+      if (latency <= 2) return "fast";
+      if (latency <= 5) return "medium";
+      if (latency <= 10) return "slow";
+      return "critical";
+    };
+
+    const applyStatus = (data) => {
+      if (!data || !Array.isArray(data.link_status)) return false;
+
+      const statusByLink = new Map();
+      for (const item of data.link_status) {
+        if (
+          !item ||
+          typeof item.link !== "string" ||
+          typeof item.latency !== "number" ||
+          !Number.isFinite(item.latency) ||
+          (item.latency < 0 && item.latency !== -1)
+        ) continue;
+        const link = normalizeLink(item.link);
+        if (link) statusByLink.set(link, item.latency);
+      }
+
+      const checkedAt = typeof data.timestamp === "string" ? data.timestamp.trim() : "";
+      const cards = root.querySelectorAll(".friend-card[data-link]");
+      for (const card of cards) {
+        const link = normalizeLink(card.getAttribute("data-link") || "");
+        if (!statusByLink.has(link)) continue;
+
+        const latency = statusByLink.get(link);
+        const badge = card.querySelector("[data-link-status]");
+        if (!(badge instanceof HTMLElement) || typeof latency !== "number") continue;
+
+        const state = getState(latency);
+        const text = state === "unreachable" ? "暂不可达" : formatLatency(latency);
+        const detail = state === "unreachable"
+          ? "链接暂不可达"
+          : `链接可达，延迟 ${text}`;
+        const description = checkedAt ? `${detail}，检测于 ${checkedAt}` : detail;
+
+        badge.className = `friend-card__status friend-card__status--${state}`;
+        badge.textContent = text;
+        badge.title = description;
+        badge.setAttribute("aria-label", description);
+        badge.hidden = false;
+      }
+
+      return true;
+    };
+
+    const readCache = () => {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+        const now = Date.now();
+        const cacheAge = now - cached?.cachedAt;
+        if (
+          cached &&
+          typeof cached.cachedAt === "number" &&
+          Number.isFinite(cached.cachedAt) &&
+          cacheAge >= 0 &&
+          cacheAge < CACHE_TTL &&
+          applyStatus(cached.data)
+        ) {
+          return true;
+        }
+      } catch {
+        // localStorage 不可用或缓存损坏时直接请求最新结果。
+      }
+      return false;
+    };
+
+    const fetchStatus = async () => {
+      if (readCache()) return;
+
+      try {
+        const response = await fetch(apiUrl, { signal: controller.signal });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!applyStatus(data)) return;
+
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ data, cachedAt: Date.now() }));
+        } catch {
+          // 隐私模式或容量限制不影响本次状态展示。
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        // 检测服务异常时保持标签隐藏，不影响友链访问。
+      }
+    };
+
+    const delayTimer = window.setTimeout(fetchStatus, 500);
+
+    document.addEventListener("astro:before-swap", () => {
+      window.clearTimeout(delayTimer);
+      controller.abort();
+    }, { once: true });
   })();
 </script>
 
@@ -784,11 +930,16 @@ for (const f of friendsData) {
 
   /* ── 友链卡片（悬停：折叠头像释放空间 + 展开文本） ── */
   .friend-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
     padding: var(--space-4);
+    padding-bottom: calc(var(--space-4) + var(--space-4));
     height: 155px;
+    min-height: 155px;
+    max-height: 155px;
+    overflow: hidden;
     text-decoration: none;
     transition: box-shadow var(--duration-fast) var(--ease-material),
                 border-color var(--duration-fast) var(--ease-material),
@@ -856,6 +1007,45 @@ for (const f of friendsData) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .friend-card__status {
+    --corner-shape: var(--corner-shape-continuous);
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    height: var(--space-4);
+    padding: 0 7px;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    z-index: 1;
+  }
+  .friend-card__status[hidden] {
+    display: none;
+  }
+  .friend-card__status--fast {
+    color: color-mix(in oklch, var(--success) 70%, var(--foreground));
+    background: color-mix(in oklch, var(--success) 14%, transparent);
+  }
+  .friend-card__status--medium {
+    color: color-mix(in oklch, var(--warning) 68%, var(--foreground));
+    background: color-mix(in oklch, var(--warning) 14%, transparent);
+  }
+  .friend-card__status--slow {
+    color: color-mix(in oklch, var(--warning) 78%, var(--foreground));
+    background: color-mix(in oklch, var(--warning) 22%, transparent);
+  }
+  .friend-card__status--critical,
+  .friend-card__status--unreachable {
+    color: color-mix(in oklch, var(--danger) 72%, var(--foreground));
+    background: color-mix(in oklch, var(--danger) 14%, transparent);
   }
 
   .friend-card__desc {
