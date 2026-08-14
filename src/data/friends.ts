@@ -449,13 +449,6 @@ export const friendsData: FriendItem[] = [
 		tags: ["技术"],
 	},
 	{
-		title: "Liseezn'blog",
-		imgurl: "https://blog.liseezn.top/logo.webp",
-		desc: "分享学习，项目，及一些教程",
-		siteurl: "https://blog.liseezn.top/",
-		tags: ["技术"],
-	},
-	{
 		title: "MouyのHOME",
 		imgurl: "https://mouy.site/_astro/avatar.DRYjHQPD_Z18abIF.webp",
 		desc: "以好奇心构建，以清晰度交付。",
