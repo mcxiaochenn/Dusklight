@@ -13,6 +13,9 @@ export interface FriendItem {
 	tags: string[];
 }
 
+/** 不向友链检测与朋友圈服务公开的站点 hostname。 */
+export const serviceExcludedHostnames = new Set([""]);
+
 /** 本站友链信息 — 用于 link 页"我的信息"卡 */
 export const siteInfo = {
 	name: `${profileConfig.name}站`,
@@ -446,6 +449,19 @@ export const friendsData: FriendItem[] = [
 		tags: ["技术"],
 	},
 ];
+
+/** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */
+export const serviceFriendsData: FriendItem[] = friendsData
+	.map((friend) => ({
+		...friend,
+		title: friend.title.trim(),
+		imgurl: friend.imgurl.trim(),
+		desc: friend.desc.trim(),
+		siteurl: friend.siteurl.trim(),
+	}))
+	.filter(
+		(friend) => !serviceExcludedHostnames.has(new URL(friend.siteurl).hostname),
+	);
 
 // 获取所有友情链接数据
 export function getFriendsList(): FriendItem[] {
