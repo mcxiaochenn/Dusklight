@@ -238,9 +238,12 @@ Excerpt source: text before a `<!-- more -->` HTML comment if present, otherwise
 | `src/pages/anime.astro` | `/anime/` — reads gitignored `src/data/bilibili-data.json` fetched by `scripts/update-anime.mjs` in the build chain; empty-state when missing |
 | `src/pages/timeline.astro` | `/timeline/` — 显示名「更新日志」，build-time `git log` grouped by month (CI needs `fetch-depth: 0`) |
 | `src/pages/Friend-Circle-Lite.astro` | `/Friend-Circle-Lite/` (case-sensitive, matches live) — external fclite JS/CSS + `fc.mcxiaochen.top`。**初始化坑**:fclite.min.js 只在加载时初始化一次、重初始化仅监听 `pjax:complete`;本站是 Astro View Transitions(`astro:page-load`),所以页面显式在 `astro:page-load` + `DOMContentLoaded` 重置 `window.UserConfig` 并调全局 `initialize_fc_lite()`。link.astro 的朋友圈摘要同理(纯 IIFE 在导航时序会静默跳过,已改事件驱动 + dataset 防重入) |
+| `src/pages/friend.json.ts`, `src/pages/flink_count.json.ts` | `/friend.json`（Friend-Circle-Lite 的 `{ friends: [name, url, avatar][] }`）和 `/flink_count.json`（check-flink 的 `{ link_list, length }`）— 构建期直接从 `src/data/friends.ts` 静态生成，不在 `public/` 保存派生文件。 |
 | `src/pages/rss.xml.js` | RSS feed endpoint |
 
-**Data files (`src/data/`)**: friends/devices/skills/sponsors are self-contained TS (interface + data in one file), committed to the framework repo (they were already public in the old blog repo). `bilibili-data.json` is the one exception — build-fetched and gitignored. `skills.ts` still holds theme template sample data (as does the live site).
+**Data files (`src/data/`)**: friends/devices/skills/sponsors are self-contained TS (interface + data in one file), committed to the framework repo (they were already public in the old blog repo). `friends.ts` is also the single source of truth for both public friend-service JSON endpoints; maintain the service-only excluded hostname list there, and do not manually create `public/friend.json` / `public/flink_count.json`. `bilibili-data.json` is the one exception — build-fetched and gitignored. `skills.ts` still holds theme template sample data (as does the live site).
+
+**Friend link status**: `link.astro` reads `siteConfig.flinkStatusUrl` about 500ms after the page initializes and caches the compatible check-flink `result.json` in `localStorage` for 30 minutes. Its plain `<script data-astro-rerun>` uses a root `dataset` guard; the one-shot `astro:before-swap` cleanup clears the delay timer and aborts the pending request. Keep unmatched/invalid/failed results hidden instead of treating them as unreachable, and preserve this lifecycle when changing the card UI.
 
 Pagination uses Astro's built-in `paginate()` helper with `pageSize: siteConfig.postsPerPage` (currently 8). The shared `ui/Pagination.astro` renders from `page.currentPage` / `page.lastPage` / `page.url.prev` / `page.url.next`.
 
