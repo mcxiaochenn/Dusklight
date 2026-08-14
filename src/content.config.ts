@@ -36,6 +36,11 @@ const blog = defineCollection({
 		toc: z.boolean().default(true),
 		password: z.string().optional(),
 		hint: z.string().optional(),
+		share: z.boolean().default(true),
+		license: z.union([
+			z.literal(false),
+			z.object({ name: z.string(), url: z.string().url() }),
+		]).optional(),
 	}),
 });
 

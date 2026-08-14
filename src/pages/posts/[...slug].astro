@@ -25,6 +25,6 @@ const readingTime = remarkPluginFrontmatter.minutes ?? Math.max(1, Math.ceil((po
 const wordCount = remarkPluginFrontmatter.words ?? post.body?.length ?? 0;
 ---
 
-<BlogPost {...post.data} headings={headings} readingTime={readingTime} wordCount={wordCount} slug={post.id}>
+<BlogPost {...post.data} headings={headings} readingTime={readingTime} wordCount={wordCount} slug={post.id} contentPath={post.filePath}>
   <Content />
 </BlogPost>

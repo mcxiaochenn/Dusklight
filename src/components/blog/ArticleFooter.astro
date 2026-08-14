@@ -1,0 +1,99 @@
+---
+import SharePoster from "./SharePoster.svelte";
+import { siteConfig } from "../../config/site";
+import { profileConfig } from "../../config/profile";
+import { getPostHistory } from "../../utils/post-history";
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  updated?: Date;
+  cover?: string;
+  author?: string;
+  slug: string;
+  contentPath?: string;
+  share?: boolean;
+  license?: false | { name: string; url: string };
+}
+
+const { title, description, date, updated, cover, author, slug, contentPath, share = true, license } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const resolvedLicense = license === false ? false : (license ?? siteConfig.postLicense);
+const history = resolvedLicense ? getPostHistory(contentPath || slug) : [];
+const formatDate = (value: Date) => new Intl.DateTimeFormat("zh-CN", { dateStyle: "long", timeZone: siteConfig.timezone }).format(value);
+const coverUrl = cover ? new URL(cover, Astro.site).href : undefined;
+const avatarUrl = new URL(profileConfig.avatar, Astro.site).href;
+---
+
+{(share || resolvedLicense) && (
+  <footer class="article-footer" data-pagefind-ignore>
+    {share && (
+      <section class="article-footer__share" aria-labelledby="article-share-title">
+        <h2 id="article-share-title">分享这篇文章</h2>
+        <SharePoster
+          client:load
+          title={title}
+          description={description}
+          date={formatDate(date)}
+          cover={coverUrl}
+          avatar={avatarUrl}
+          siteName={siteConfig.title}
+          url={canonical}
+        />
+      </section>
+    )}
+
+    {resolvedLicense && (
+      <section class="license-card glass-panel" aria-labelledby="article-license-title">
+        <div class="license-card__mark" aria-hidden="true">CC</div>
+        <div class="license-card__body">
+          <h2 id="article-license-title">{title}</h2>
+          <dl>
+            <div><dt>作者</dt><dd>{author || siteConfig.author}</dd></div>
+            <div><dt>发布</dt><dd>{formatDate(date)}</dd></div>
+            {updated && <div><dt>更新</dt><dd>{formatDate(updated)}</dd></div>}
+            <div><dt>链接</dt><dd><a href={canonical}>{canonical}</a></dd></div>
+            <div><dt>许可</dt><dd><a href={resolvedLicense.url} target="_blank" rel="license noopener noreferrer">{resolvedLicense.name}</a></dd></div>
+          </dl>
+
+          <details class="license-card__history">
+            <summary>文章变更日志{history.length ? ` · ${history.length} 次` : ""}</summary>
+            {history.length ? (
+              <ol>
+                {history.map((commit) => (
+                  <li>
+                    <time datetime={commit.date}>{commit.date}</time>
+                    {siteConfig.contentRepoPublicUrl ? (
+                      <a class="commit-hash" href={`${siteConfig.contentRepoPublicUrl}/commit/${commit.hash}`} target="_blank" rel="noopener noreferrer">{commit.hash}</a>
+                    ) : <code class="commit-hash">{commit.hash}</code>}
+                    <span>{commit.subject}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : <p>当前构建环境未提供该文章的完整 Git 历史。</p>}
+          </details>
+        </div>
+      </section>
+    )}
+  </footer>
+)}
+
+<style>
+  .article-footer { display: grid; gap: var(--space-5); margin-top: var(--space-10); padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); }
+  .article-footer__share h2, .license-card h2 { margin: 0 0 var(--space-3); font-size: var(--text-md); }
+  .license-card { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); }
+  .license-card__mark { display: grid; place-items: center; width: 50px; height: 50px; color: var(--surface-0); background: var(--accent); border-radius: var(--radius-md); font-weight: 800; }
+  .license-card dl { display: grid; gap: var(--space-2); margin: 0; }
+  .license-card dl div { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: var(--space-2); font-size: var(--text-sm); }
+  .license-card dt { color: var(--foreground-muted); }
+  .license-card dd { min-width: 0; margin: 0; color: var(--foreground-secondary); overflow-wrap: anywhere; }
+  .license-card__history { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
+  .license-card__history summary { color: var(--foreground); cursor: pointer; font-weight: 600; }
+  .license-card__history ol { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+  .license-card__history li { display: grid; grid-template-columns: 6.5rem 4.5rem minmax(0, 1fr); gap: var(--space-2); color: var(--foreground-secondary); font-size: var(--text-xs); }
+  .license-card__history time { color: var(--foreground-muted); }
+  .commit-hash { padding: 0; border: 0; background: none; color: var(--accent); font-size: inherit; }
+  .license-card__history p { margin-bottom: 0; color: var(--foreground-muted); font-size: var(--text-sm); }
+  @media (max-width: 600px) { .license-card { grid-template-columns: 1fr; } .license-card__history li { grid-template-columns: 1fr auto; } .license-card__history li span { grid-column: 1 / -1; } }
+</style>

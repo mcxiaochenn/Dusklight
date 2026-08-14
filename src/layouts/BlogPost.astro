@@ -12,10 +12,12 @@ import Tag from "../components/ui/Tag.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
 import JsonLd from "../components/seo/JsonLd.astro";
 import Encryptor from "../components/blog/Encryptor.astro";
+import ArticleFooter from "../components/blog/ArticleFooter.astro";
 import { Icon } from "astro-icon/components";
 
 import "../styles/expressive-code.css";
 import "../styles/encrypted-content.css";
+import "katex/dist/katex.min.css";
 
 interface Props {
   title: string;
@@ -37,9 +39,12 @@ interface Props {
   password?: string;
   hint?: string;
   slug?: string;
+  contentPath?: string;
+  share?: boolean;
+  license?: false | { name: string; url: string };
 }
 
-const { title, date, updated, description, tags, category, cover, author, toc: showToc = true, comment: showComment = true, readingTime, wordCount, headings = [], password, hint, slug } = Astro.props;
+const { title, date, updated, description, tags, category, cover, author, toc: showToc = true, comment: showComment = true, readingTime, wordCount, headings = [], password, hint, slug, contentPath, share = true, license } = Astro.props;
 const displayUpdated = updated || date;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isEncrypted = !!password;
@@ -49,7 +54,7 @@ const isEncrypted = !!password;
   <JsonLd type="article" title={title} description={description} url={canonicalURL.href} image={cover} datePublished={date.toISOString()} dateModified={displayUpdated.toISOString()} author={author} />
 
   <div class="article-layout">
-    <article class="article">
+    <article class="article" data-pagefind-body={!isEncrypted ? true : undefined}>
       {cover && (
         <div class="article__cover">
           <img src={cover} alt={title} loading="eager" decoding="async" />
@@ -62,7 +67,9 @@ const isEncrypted = !!password;
             {tags.map((t) => <Tag>{t}</Tag>)}
           </div>
         )}
-        <h1 class="article__title">{title}</h1>
+        <h1 class="article__title" data-pagefind-meta="title">{title}</h1>
+        {category && <span hidden data-pagefind-filter={`category:${category.trim()}`}>{category.trim()}</span>}
+        {(tags ?? []).map((tag) => <span hidden data-pagefind-filter={`tag:${tag}`}>{tag}</span>)}
         {/* 传 frontmatter 原值而非 displayUpdated —— 后者以 date 兜底，
             会让每篇没写 updated 的文章都并排显示「更新于 <同一天>」。
             兜底语义只对上方 JSON-LD 的 dateModified 有意义。 */}
@@ -78,6 +85,19 @@ const isEncrypted = !!password;
           <slot />
         </div>
       )}
+
+      <ArticleFooter
+        title={title}
+        description={description}
+        date={date}
+        updated={updated}
+        cover={cover}
+        author={author}
+        slug={slug || ""}
+        contentPath={contentPath}
+        share={share}
+        license={license}
+      />
 
       {showComment && <TwikooComments />}
     </article>
@@ -97,7 +117,7 @@ const isEncrypted = !!password;
       跳评论按钮由 TwikooComments 组件内部渲染（有评论的页面才显示） */}
   {showToc && !isEncrypted && headings.length > 0 && (
     <button class="fab fab--toc" id="fab-toc" aria-label="文章目录">
-      <Icon name="ph:list-bullets" />
+      <Icon name="fa7-solid:list" />
     </button>
   )}
   {/* TOC 弹出面板 */}
@@ -106,7 +126,7 @@ const isEncrypted = !!password;
       <div class="toc-overlay__header">
         <span class="toc-overlay__title">目录</span>
         <button class="toc-overlay__close" id="toc-overlay-close" aria-label="关闭目录">
-          <Icon name="ph:x" />
+          <Icon name="fa7-solid:xmark" />
         </button>
       </div>
       <nav class="toc-overlay__nav">

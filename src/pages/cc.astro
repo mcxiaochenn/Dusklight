@@ -1,6 +1,6 @@
 ---
 /**
- * 版权声明页 — 框架 MIT + 内容 CC BY-NC-ND 4.0
+ * 版权声明页 — 框架 MIT + 内容 CC BY-NC-SA 4.0
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
@@ -18,7 +18,7 @@ import { siteConfig } from "../config/site";
 
       <!-- 框架协议 -->
       <div class="cc__card">
-        <h2 class="cc__card-title"><Icon name="ph:wrench" /> 博客主题框架</h2>
+        <h2 class="cc__card-title"><Icon name="fa7-solid:wrench" /> 博客主题框架</h2>
         <p class="cc__desc">
           本站使用的博客主题框架 <strong>Dusklight</strong> 基于 <strong>MIT License</strong> 开源。
         </p>
@@ -30,27 +30,27 @@ import { siteConfig } from "../config/site";
         </p>
         <div class="cc__links">
           <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="ph:book-open" /> MIT License 全文
+            <Icon name="fa7-solid:book-open" /> MIT License 全文
           </a>
           <a href={siteConfig.repoUrl} target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="ph:link" /> Dusklight 源码仓库
+            <Icon name="fa7-solid:link" /> Dusklight 源码仓库
           </a>
         </div>
       </div>
 
       <!-- 内容协议 -->
       <div class="cc__card">
-        <h2 class="cc__card-title"><Icon name="ph:article" /> 站点内容与文章</h2>
+        <h2 class="cc__card-title"><Icon name="fa7-solid:file-lines" /> 站点内容与文章</h2>
         <div class="cc__badge">
-          <img src="/images/cc-by-nc-nd.png" alt="CC BY-NC-ND 4.0" loading="lazy" />
+          <strong>CC BY-NC-SA 4.0</strong>
         </div>
         <p class="cc__desc">
           本站发布的所有<strong>文章正文、插图、封面图、原创图片素材</strong>等原创内容，采用
-          <strong>知识共享 署名-非商业性使用-禁止演绎 4.0 国际许可协议</strong>（CC BY-NC-ND 4.0）进行授权。
+          <strong>知识共享 署名-非商业性使用-相同方式共享 4.0 国际许可协议</strong>（CC BY-NC-SA 4.0）进行授权。
         </p>
 
         <div class="cc__section">
-          <h3 class="cc__section-title"><Icon name="ph:check-circle" /> 您可以</h3>
+          <h3 class="cc__section-title"><Icon name="fa7-regular:circle-check" /> 您可以</h3>
           <ul class="cc__list">
             <li><strong>共享</strong> — 在任何媒介以任何形式复制、发行本作品内容</li>
             <li>惟须遵守以下许可条款</li>
@@ -58,25 +58,25 @@ import { siteConfig } from "../config/site";
         </div>
 
         <div class="cc__section">
-          <h3 class="cc__section-title"><Icon name="ph:x-circle" /> 您不可以</h3>
+          <h3 class="cc__section-title"><Icon name="fa7-regular:circle-xmark" /> 您不可以</h3>
           <ul class="cc__list">
             <li><strong>商业使用</strong> — 不得将本作品内容用于商业目的</li>
-            <li><strong>演绎创作</strong> — 不得修改、转换或以本作品内容为基础进行二次创作</li>
+            <li><strong>变更授权</strong> — 分发改编内容时必须使用相同协议</li>
           </ul>
         </div>
 
         <div class="cc__section">
-          <h3 class="cc__section-title"><Icon name="ph:list-checks" /> 惟须遵守下列条件</h3>
+          <h3 class="cc__section-title"><Icon name="fa7-solid:list-check" /> 惟须遵守下列条件</h3>
           <ul class="cc__list">
             <li><strong>署名</strong> — 您必须给出适当的署名，提供指向本许可协议的链接，同时标明是否对原始作品作了修改。您可以用任何合理的方式来署名，但不得以任何方式暗示许可人为您或您的使用背书</li>
             <li><strong>非商业性使用</strong> — 您不得将本作品用于商业目的</li>
-            <li><strong>禁止演绎</strong> — 如果您修改、转换或以本作品为基础进行创作，您不得分发修改后的作品</li>
+            <li><strong>相同方式共享</strong> — 如果您改编、转换或以本作品为基础创作，必须使用相同许可协议分发</li>
             <li><strong>没有附加限制</strong> — 您不得适用法律术语或技术措施来限制其他人做许可协议允许的事情</li>
           </ul>
         </div>
 
         <div class="cc__section">
-          <h3 class="cc__section-title"><Icon name="ph:warning" /> 声明</h3>
+          <h3 class="cc__section-title"><Icon name="fa7-solid:triangle-exclamation" /> 声明</h3>
           <p class="cc__text">
             当您使用本作品的方式符合许可协议规定，或版权法允许的使用方式时，您不必征得许可。
             本许可协议不能替代著作权法的合理使用或其他版权法允许的使用。
@@ -88,21 +88,39 @@ import { siteConfig } from "../config/site";
         </div>
 
         <div class="cc__links">
-          <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="ph:book-open" /> CC BY-NC-ND 4.0 协议全文
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer" class="cc__link">
+            <Icon name="fa7-solid:book-open" /> CC BY-NC-SA 4.0 协议全文
           </a>
-          <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.zh-hans" target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="ph:scroll" /> 法律文本 (Legal Code)
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.zh-hans" target="_blank" rel="noopener noreferrer" class="cc__link">
+            <Icon name="fa7-solid:scroll" /> 法律文本 (Legal Code)
           </a>
           <a href="https://creativecommons.org" target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="ph:globe" /> Creative Commons 官网
+            <Icon name="fa7-solid:globe" /> Creative Commons 官网
+          </a>
+        </div>
+      </div>
+
+      <!-- 字体声明 -->
+      <div class="cc__card">
+        <h2 class="cc__card-title"><Icon name="fa7-solid:font" /> 嵌入字体</h2>
+        <p class="cc__text">
+          本站界面与正文使用 <strong>MiSans</strong>，代码使用
+          <strong>Maple Mono Normal V7.9</strong>。Maple Mono 依 SIL Open Font License 1.1 提供；
+          数学公式使用 KaTeX 专用字体。
+        </p>
+        <div class="cc__links">
+          <a href="https://hyperos.mi.com/font/zh/faq/" target="_blank" rel="noopener noreferrer" class="cc__link">
+            <Icon name="fa7-solid:book-open" /> MiSans 许可说明
+          </a>
+          <a href="https://github.com/subframe7536/maple-font/releases/tag/v7.9" target="_blank" rel="noopener noreferrer" class="cc__link">
+            <Icon name="fa7-brands:github" /> Maple Mono V7.9
           </a>
         </div>
       </div>
 
       <!-- 总结 -->
       <div class="cc__card cc__card--summary">
-        <h2 class="cc__card-title"><Icon name="ph:push-pin" /> 简要总结</h2>
+        <h2 class="cc__card-title"><Icon name="fa7-solid:thumbtack" /> 简要总结</h2>
         <div class="cc__summary-grid">
           <div class="cc__summary-item">
             <span class="cc__summary-label">博客框架代码</span>
@@ -110,7 +128,7 @@ import { siteConfig } from "../config/site";
           </div>
           <div class="cc__summary-item">
             <span class="cc__summary-label">文章正文与图片</span>
-            <span class="cc__summary-value">CC BY-NC-ND 4.0 — 需署名，禁止商用和演绎</span>
+            <span class="cc__summary-value">CC BY-NC-SA 4.0 — 需署名，禁止商用，相同方式共享</span>
           </div>
         </div>
       </div>
@@ -182,6 +200,8 @@ import { siteConfig } from "../config/site";
     height: 31px;
     width: auto;
   }
+
+  .cc__badge strong { color: var(--accent); font-size: var(--text-md); }
 
   .cc__desc {
     font-size: var(--text-base);

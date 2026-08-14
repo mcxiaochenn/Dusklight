@@ -100,7 +100,7 @@ async function main() {
   if (!existsSync(join(contentDir, ".git"))) {
     console.log(`📥 克隆内容仓库...`);
     try {
-      execFileSync("git", ["clone", "--depth", "1", "-b", branch, repoUrl, contentDir], {
+      execFileSync("git", ["clone", "-b", branch, repoUrl, contentDir], {
         stdio: "inherit",
       });
     } catch (err) {
@@ -120,6 +120,13 @@ async function main() {
     }
 
     try {
+      const shallow = git(["rev-parse", "--is-shallow-repository"], contentDir);
+      if (shallow === "true") {
+        execFileSync("git", ["fetch", "--unshallow", "origin"], {
+          cwd: contentDir,
+          stdio: "pipe",
+        });
+      }
       execFileSync("git", ["fetch", "--all", "--prune"], {
         cwd: contentDir,
         stdio: "pipe",
