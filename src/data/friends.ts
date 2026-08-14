@@ -448,6 +448,34 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://luq-blog.xyz/",
 		tags: ["技术"],
 	},
+	{
+		title: "Liseezn'blog",
+		imgurl: "https://blog.liseezn.top/logo.webp",
+		desc: "分享学习，项目，及一些教程",
+		siteurl: "https://blog.liseezn.top/",
+		tags: ["技术"],
+	},
+	{
+		title: "MouyのHOME",
+		imgurl: "https://mouy.site/_astro/avatar.DRYjHQPD_Z18abIF.webp",
+		desc: "以好奇心构建，以清晰度交付。",
+		siteurl: "https://mouy.site/",
+		tags: ["生活"],
+	},
+	{
+		title: "Aimerting",
+		imgurl: "https://blog.xuioo.com/avatar.jpg",
+		desc: "纯粹祈愿皆成真",
+		siteurl: "https://blog.xuioo.com/",
+		tags: ["生活"],
+	},
+	{
+		title: "MingBlog（Ming 博客）",
+		imgurl: "https://mingblog.site/icons/icon-512.png",
+		desc: "记录日常生活、城市影像、旅行与观察，以及认真看过、读过和听过的作品。",
+		siteurl: "https://mingblog.site",
+		tags: ["生活"],
+	},
 ];
 
 /** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */
