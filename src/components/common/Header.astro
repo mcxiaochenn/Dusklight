@@ -6,6 +6,9 @@ import { siteConfig } from "../../config/site";
 import { navConfig } from "../../config/nav";
 import type { NavItem } from "../../config/nav";
 import ThemeToggle from "./ThemeToggle.astro";
+import SearchDialog from "../search/SearchDialog.svelte";
+import { resourceConfig } from "../../config/resources";
+import { toExternalRedirect } from "../../utils/external-links";
 import { Icon } from "astro-icon/components";
 
 const currentPath = Astro.url.pathname;
@@ -21,12 +24,12 @@ function isParentActive(item: NavItem): boolean {
 }
 
 const navIcons: Record<string, string> = {
-  "首页": "ph:house",
-  "文库": "ph:books",
-  "留言板": "ph:envelope-simple",
-  "友链": "ph:users-three",
-  "关于": "ph:user",
-  "外链": "ph:arrow-square-out",
+  "首页": "fa7-solid:house",
+  "文库": "fa7-solid:book-open",
+  "留言板": "fa7-solid:envelope",
+  "友链": "fa7-solid:user-group",
+  "关于": "fa7-regular:user",
+  "外链": "fa7-solid:arrow-up-right-from-square",
 };
 ---
 
@@ -51,20 +54,19 @@ const navIcons: Record<string, string> = {
                   <Icon name={navIcons[item.label]} class="header__link-icon" />
                 )}
                 {item.label}
-                <Icon name="ph:caret-down" class="header__caret" />
+                <Icon name="fa7-solid:caret-down" class="header__caret" />
               </a>
               <div class="header__dropdown-menu">
                 {item.children.map((child) => (
                   <a
-                    href={child.href}
-                    target={child.external ? "_blank" : undefined}
-                    rel={child.external ? "noopener noreferrer" : undefined}
+                    href={child.external ? toExternalRedirect(child.href) : child.href}
                     class:list={["header__dropdown-item", { "header__dropdown-item--active": isActive(child.href) }]}
                   >
                     {child.icon && (
                       <Icon name={child.icon} class="header__dropdown-icon" />
                     )}
                     {child.label}
+                    {child.external && <Icon name="fa7-solid:arrow-up-right-from-square" class="header__external-icon" />}
                   </a>
                 ))}
               </div>
@@ -84,6 +86,7 @@ const navIcons: Record<string, string> = {
       </div>
 
       <div class="header__actions">
+        {siteConfig.features.search && <SearchDialog client:load pagefindUrl={resourceConfig.scripts.pagefind} />}
         <ThemeToggle />
         <button
           id="mobile-menu-toggle"
@@ -91,7 +94,7 @@ const navIcons: Record<string, string> = {
           aria-label="打开菜单"
           aria-expanded="false"
         >
-          <Icon name="ph:list" class="header__menu-icon" />
+          <Icon name="fa7-solid:bars" class="header__menu-icon" />
         </button>
       </div>
     </nav>
@@ -105,7 +108,7 @@ const navIcons: Record<string, string> = {
       <div class="mobile-menu__header">
         <span class="mobile-menu__title">菜单</span>
         <button id="mobile-menu-close" class="mobile-menu__close" aria-label="关闭菜单">
-          <Icon name="ph:x" />
+          <Icon name="fa7-solid:xmark" />
         </button>
       </div>
       {navConfig.main.map((item) => (
@@ -119,12 +122,11 @@ const navIcons: Record<string, string> = {
             </span>
             {item.children.map((child) => (
               <a
-                href={child.href}
-                target={child.external ? "_blank" : undefined}
-                rel={child.external ? "noopener noreferrer" : undefined}
+                href={child.external ? toExternalRedirect(child.href) : child.href}
                 class:list={["mobile-menu__link mobile-menu__link--sub", { "mobile-menu__link--active": isActive(child.href) }]}
               >
                 {child.label}
+                {child.external && <Icon name="fa7-solid:arrow-up-right-from-square" class="header__external-icon" />}
               </a>
             ))}
           </div>
@@ -365,6 +367,8 @@ const navIcons: Record<string, string> = {
     height: 16px;
     opacity: 0.7;
   }
+
+  .header__external-icon { width: 11px; height: 11px; margin-left: auto; opacity: .65; }
 
   .header__dropdown-item:hover {
     color: var(--accent);

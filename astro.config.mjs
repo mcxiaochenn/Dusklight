@@ -3,6 +3,8 @@
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import icons from "astro-icon";
+import svelte from "@astrojs/svelte";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
@@ -32,6 +34,7 @@ import rehypeComponents from "rehype-components";
 import { rehypeWrapTable } from "./src/plugins/rehype-wrap-table.mjs";
 import { rehypeMermaid } from "./src/plugins/rehype-mermaid.mjs";
 import { rehypeImageWidth } from "./src/plugins/rehype-image-width.mjs";
+import { rehypeExternalRedirect } from "./src/plugins/rehype-external-redirect.mjs";
 import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "./src/plugins/rehype-component-image-grid.mjs";
@@ -91,6 +94,7 @@ export default defineConfig({
 		mdx(),
 		sitemap(),
 		icons(),
+		svelte(),
 	],
 
 	// Markdown 配置
@@ -110,6 +114,7 @@ export default defineConfig({
 
 		rehypePlugins: [
 			rehypeKatex,
+			rehypeExternalRedirect,
 			[
 				rehypeExternalLinks,
 				{
@@ -167,6 +172,7 @@ export default defineConfig({
 
 	// Vite 配置
 	vite: {
+		plugins: [tailwindcss()],
 		resolve: {
 			alias: {
 				"@": "/src",

@@ -1,0 +1,107 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "../config/site";
+import { getCollection } from "astro:content";
+
+const publicPosts = await getCollection("blog", ({ data }) => !data.draft && !data.password);
+const knownDomains = new Set(siteConfig.externalRedirect.knownDomains);
+for (const post of publicPosts) {
+  for (const match of post.body.matchAll(/https?:\/\/[^\s<>"'\])}]+/g)) {
+    try {
+      knownDomains.add(new URL(match[0]).hostname);
+    } catch {
+      // 非完整 URL 由外链转换插件保持原样，不纳入自动跳转名单。
+    }
+  }
+}
+---
+
+<BaseLayout title="即将离开本站" description="外部链接安全提示" robots="noindex,nofollow">
+  <section class="redirect-page">
+    <div class="redirect-card glass-panel" data-redirect-root>
+      <span class="redirect-card__icon icon-[fa7-solid--arrow-up-right-from-square]" aria-hidden="true"></span>
+      <p class="redirect-card__eyebrow">外部链接</p>
+      <h1>即将离开本站</h1>
+      <p class="redirect-card__message" data-redirect-message>正在检查目标地址……</p>
+      <code class="redirect-card__url" data-redirect-url>—</code>
+      <p class="redirect-card__countdown" data-redirect-countdown hidden></p>
+      <div class="redirect-card__actions">
+        <button class="redirect-card__button redirect-card__button--primary" data-redirect-continue disabled>继续访问</button>
+        <button class="redirect-card__button" data-redirect-back>返回上一页</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .redirect-page { min-height: calc(100dvh - var(--header-height)); display: grid; place-items: center; padding: var(--space-8) var(--space-4); }
+  .redirect-card { width: min(560px, 100%); padding: var(--space-8); text-align: center; border-radius: var(--radius-xl); }
+  .redirect-card__icon { display: inline-block; width: 40px; height: 40px; color: var(--accent); margin-bottom: var(--space-3); }
+  .redirect-card__eyebrow { margin: 0 0 var(--space-2); color: var(--accent); font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-wide); }
+  h1 { margin: 0 0 var(--space-3); font-size: var(--text-xl); }
+  .redirect-card__message, .redirect-card__countdown { color: var(--foreground-secondary); }
+  .redirect-card__url { display: block; max-height: 8rem; margin: var(--space-5) 0; padding: var(--space-3); overflow: auto; color: var(--foreground); overflow-wrap: anywhere; }
+  .redirect-card__actions { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+  .redirect-card__button { min-height: 42px; padding: 0 var(--space-5); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--foreground); background: var(--glass-bg); cursor: pointer; }
+  .redirect-card__button--primary { color: var(--surface-0); background: var(--accent); border-color: var(--accent); }
+  .redirect-card__button:disabled { opacity: .5; cursor: not-allowed; }
+  @media (max-width: 520px) { .redirect-card { padding: var(--space-6) var(--space-4); } .redirect-card__actions { flex-direction: column; } }
+</style>
+
+<script is:inline data-astro-rerun define:vars={{ countdownSeconds: siteConfig.externalRedirect.countdownSeconds, knownDomains: [...knownDomains] }}>
+  (() => {
+    const root = document.querySelector("[data-redirect-root]");
+    if (!root || root.dataset.initialized === "1") return;
+    root.dataset.initialized = "1";
+    const urlEl = root.querySelector("[data-redirect-url]");
+    const messageEl = root.querySelector("[data-redirect-message]");
+    const countdownEl = root.querySelector("[data-redirect-countdown]");
+    const continueButton = root.querySelector("[data-redirect-continue]");
+    const backButton = root.querySelector("[data-redirect-back]");
+    let timer = 0;
+
+    const decode = (value) => {
+      const base64 = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
+      const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    };
+
+    const params = new URLSearchParams(location.search);
+    let target;
+    try {
+      target = new URL(decode(params.get("url") || ""));
+      if (target.protocol !== "http:" && target.protocol !== "https:") throw new Error("protocol");
+    } catch {
+      messageEl.textContent = "目标地址无效，已阻止跳转。";
+      urlEl.textContent = "无效链接";
+      backButton.addEventListener("click", () => history.length > 1 ? history.back() : location.assign("/"));
+      return;
+    }
+
+    urlEl.textContent = target.href;
+    continueButton.disabled = false;
+    continueButton.addEventListener("click", () => location.assign(target.href));
+    backButton.addEventListener("click", () => history.length > 1 ? history.back() : location.assign("/"));
+
+    const trusted = knownDomains.includes(target.hostname);
+    if (!trusted) {
+      messageEl.textContent = "请确认目标域名后再继续访问。";
+      return;
+    }
+
+    messageEl.textContent = "该链接来自本站已发布内容。";
+    countdownEl.hidden = false;
+    let remaining = countdownSeconds;
+    const render = () => countdownEl.textContent = `${remaining} 秒后自动继续`;
+    render();
+    timer = window.setInterval(() => {
+      remaining -= 1;
+      render();
+      if (remaining <= 0) {
+        clearInterval(timer);
+        location.assign(target.href);
+      }
+    }, 1000);
+    document.addEventListener("astro:before-swap", () => clearInterval(timer), { once: true });
+  })();
+</script>

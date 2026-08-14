@@ -16,6 +16,25 @@ export const siteConfig = {
   // 项目仓库地址
   repoUrl: "https://github.com/mcxiaochenn/Dusklight",
 
+  // 外链中转页：已知域名倒计时后自动跳转，其他域名需手动确认。
+  externalRedirect: {
+    enabled: true,
+    countdownSeconds: 5,
+    knownDomains: [
+      "www.travellings.cn",
+      "umami.mcxiaochen.top",
+      "t2iprompt.mcxiaochen.top",
+    ],
+  },
+
+  postLicense: {
+    name: "CC BY-NC-SA 4.0",
+    url: "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans",
+  },
+
+  // 私有内容仓库没有可公开的 Commit URL，因此默认不生成 Hash 外链。
+  contentRepoPublicUrl: "",
+
   // 建站日期 — 侧栏「运行天数」的起点
   siteStartDate: "2025-07-17",
 
@@ -48,7 +67,6 @@ export const siteConfig = {
 
   // Umami 访问统计
   analytics: {
-    url: "https://umami.mcxiaochen.top/script.js",
     websiteId: "9b066975-f44d-4b3c-bd7a-7077c58e2bdd",
     apiUrl: "https://rainyun-apiumami.mcxiaochen.top/",
   },

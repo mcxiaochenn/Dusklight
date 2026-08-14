@@ -13,6 +13,19 @@
   overflow-wrap: break-word;
 }
 
+.prose a[data-external-link="true"] {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .25em;
+}
+
+.external-link__icon {
+  display: inline-block;
+  width: .78em;
+  height: .78em;
+  flex: 0 0 auto;
+}
+
 /* ── 段落 ── */
 .prose p {
   margin-bottom: 1.25em;
