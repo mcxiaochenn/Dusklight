@@ -143,14 +143,19 @@ const isEncrypted = !!password;
 <style>
   .article-layout {
     display: grid;
-    grid-template-columns: 1fr 250px;
+    grid-template-columns: minmax(0, var(--post-content-width)) 250px;
     gap: var(--space-8);
-    max-width: calc(var(--content-width) + 250px + var(--space-8));
+    max-width: calc(var(--post-content-width) + 250px + var(--space-8) + var(--space-8));
     margin: 0 auto;
     padding: var(--space-6) var(--space-4);
   }
 
-  .article { max-width: var(--content-width); }
+  .article {
+    --prose-width: var(--post-content-width);
+    width: 100%;
+    max-width: var(--post-content-width);
+    min-width: 0;
+  }
 
   .article__cover {
     margin-bottom: var(--space-6);
@@ -180,7 +185,10 @@ const isEncrypted = !!password;
   .article__sidebar { position: relative; }
 
   @media (max-width: 1024px) {
-    .article-layout { grid-template-columns: 1fr; }
+    .article-layout {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: calc(var(--post-content-width) + var(--space-8));
+    }
     .article__sidebar { display: none; }
   }
 

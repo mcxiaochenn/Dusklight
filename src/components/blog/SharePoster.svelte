@@ -165,8 +165,8 @@
 </script>
 
 <div class="share-actions">
-  <button type="button" onclick={copyLink}><span class="icon-[fa7-solid--link]" aria-hidden="true"></span>复制链接</button>
-  <button type="button" onclick={generate} disabled={generating}><span class="icon-[fa7-solid--image]" aria-hidden="true"></span>{generating ? "生成中……" : "生成海报"}</button>
+  <button class="share-actions__button" type="button" onclick={copyLink}><span class="icon-[fa7-solid--link]" aria-hidden="true"></span>复制链接</button>
+  <button class="share-actions__button share-actions__button--primary" type="button" onclick={generate} disabled={generating}><span class="icon-[fa7-solid--image]" aria-hidden="true"></span>{generating ? "生成中……" : "生成海报"}</button>
   <span class="share-actions__status" aria-live="polite">{message}</span>
 </div>
 
@@ -181,14 +181,48 @@
 </dialog>
 
 <style>
-  .share-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
-  .share-actions button, .poster-dialog button { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 38px; padding: 0 var(--space-4); color: var(--foreground); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); cursor: pointer; }
-  .share-actions button:hover, .poster-dialog button:hover { color: var(--accent); background: var(--accent-subtle); }
+  .share-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: var(--space-2); }
+  .share-actions button, .poster-dialog button { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 40px; padding: 0 var(--space-4); color: var(--foreground); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); cursor: pointer; transition: color var(--duration-fast) var(--ease-material), background var(--duration-fast) var(--ease-material), border-color var(--duration-fast) var(--ease-material); }
+  .share-actions button:hover, .poster-dialog button:hover { color: var(--accent); background: var(--accent-subtle); border-color: color-mix(in oklab, var(--accent) 40%, var(--glass-border)); }
+  .share-actions .share-actions__button--primary { color: var(--surface-0); background: var(--accent); border-color: var(--accent); }
+  .share-actions .share-actions__button--primary:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+  .share-actions button:disabled, .poster-dialog button:disabled { opacity: .6; cursor: wait; }
   .share-actions button span { width: 14px; height: 14px; }
-  .share-actions__status { color: var(--foreground-muted); font-size: var(--text-xs); }
-  .poster-dialog { width: min(520px, calc(100vw - 2rem)); max-height: 90dvh; padding: 0; border: 0; background: transparent; }
+  .share-actions__status { flex-basis: 100%; min-height: 1em; color: var(--foreground-muted); font-size: var(--text-xs); text-align: right; }
+  .poster-dialog { position: fixed; inset: 0; width: min(520px, calc(100vw - 2rem)); max-height: 90dvh; margin: auto; padding: 0; border: 0; background: transparent; overflow: auto; }
   .poster-dialog::backdrop { background: oklch(0 0 0 / .55); backdrop-filter: blur(8px); }
   .poster-dialog__panel { padding: var(--space-4); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--surface-1); box-shadow: var(--shadow-xl); }
   canvas { display: block; width: 100%; height: auto; max-height: 72dvh; object-fit: contain; border-radius: var(--radius-lg); }
   .poster-dialog__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3); }
+
+  @media (max-width: 700px) {
+    .share-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .share-actions button {
+      width: 100%;
+    }
+
+    .share-actions__status {
+      grid-column: 1 / -1;
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .share-actions {
+      grid-template-columns: 1fr;
+    }
+
+    .share-actions__status {
+      grid-column: auto;
+    }
+
+    .poster-dialog__actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
 </style>

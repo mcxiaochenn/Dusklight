@@ -29,18 +29,26 @@ const avatarUrl = new URL(profileConfig.avatar, Astro.site).href;
 {(share || resolvedLicense) && (
   <footer class="article-footer" data-pagefind-ignore>
     {share && (
-      <section class="article-footer__share" aria-labelledby="article-share-title">
-        <h2 id="article-share-title">分享这篇文章</h2>
-        <SharePoster
-          client:load
-          title={title}
-          description={description}
-          date={formatDate(date)}
-          cover={coverUrl}
-          avatar={avatarUrl}
-          siteName={siteConfig.title}
-          url={canonical}
-        />
+      <section class="article-footer__share glass-panel" aria-labelledby="article-share-title">
+        <span class="article-footer__share-icon" aria-hidden="true">
+          <span class="icon-[fa7-solid--share-nodes]"></span>
+        </span>
+        <div class="article-footer__share-copy">
+          <h2 id="article-share-title">分享</h2>
+          <p>如果这篇文章对你有帮助，欢迎分享给更多人。</p>
+        </div>
+        <div class="article-footer__share-actions">
+          <SharePoster
+            client:load
+            title={title}
+            description={description}
+            date={formatDate(date)}
+            cover={coverUrl}
+            avatar={avatarUrl}
+            siteName={siteConfig.title}
+            url={canonical}
+          />
+        </div>
       </section>
     )}
 
@@ -48,13 +56,15 @@ const avatarUrl = new URL(profileConfig.avatar, Astro.site).href;
       <section class="license-card glass-panel" aria-labelledby="article-license-title">
         <div class="license-card__mark" aria-hidden="true">CC</div>
         <div class="license-card__body">
-          <h2 id="article-license-title">{title}</h2>
-          <dl>
+          <header class="license-card__header">
+            <h2 id="article-license-title">{title}</h2>
+            <a class="license-card__permalink" href={canonical}>{canonical}</a>
+          </header>
+          <dl class="license-card__meta">
             <div><dt>作者</dt><dd>{author || siteConfig.author}</dd></div>
-            <div><dt>发布</dt><dd>{formatDate(date)}</dd></div>
-            {updated && <div><dt>更新</dt><dd>{formatDate(updated)}</dd></div>}
-            <div><dt>链接</dt><dd><a href={canonical}>{canonical}</a></dd></div>
-            <div><dt>许可</dt><dd><a href={resolvedLicense.url} target="_blank" rel="license noopener noreferrer">{resolvedLicense.name}</a></dd></div>
+            <div><dt>发布于</dt><dd>{formatDate(date)}</dd></div>
+            {updated && <div><dt>更新于</dt><dd>{formatDate(updated)}</dd></div>}
+            <div><dt>许可协议</dt><dd><a href={resolvedLicense.url} target="_blank" rel="license noopener noreferrer">{resolvedLicense.name}</a></dd></div>
           </dl>
 
           <details class="license-card__history">
@@ -80,20 +90,201 @@ const avatarUrl = new URL(profileConfig.avatar, Astro.site).href;
 )}
 
 <style>
-  .article-footer { display: grid; gap: var(--space-5); margin-top: var(--space-10); padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); }
-  .article-footer__share h2, .license-card h2 { margin: 0 0 var(--space-3); font-size: var(--text-md); }
-  .license-card { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); }
-  .license-card__mark { display: grid; place-items: center; width: 50px; height: 50px; color: var(--surface-0); background: var(--accent); border-radius: var(--radius-md); font-weight: 800; }
-  .license-card dl { display: grid; gap: var(--space-2); margin: 0; }
-  .license-card dl div { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: var(--space-2); font-size: var(--text-sm); }
-  .license-card dt { color: var(--foreground-muted); }
-  .license-card dd { min-width: 0; margin: 0; color: var(--foreground-secondary); overflow-wrap: anywhere; }
+  .article-footer {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-10);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .article-footer__share {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+  }
+
+  .article-footer__share-icon {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-md);
+    background: var(--accent-subtle);
+    color: var(--accent);
+  }
+
+  .article-footer__share-icon > span {
+    width: 22px;
+    height: 22px;
+  }
+
+  .article-footer__share h2,
+  .license-card h2 {
+    margin: 0;
+    font-size: var(--text-md);
+    line-height: 1.35;
+  }
+
+  .article-footer__share-copy p {
+    margin: var(--space-1) 0 0;
+    color: var(--foreground-secondary);
+    font-size: var(--text-sm);
+  }
+
+  .article-footer__share-actions {
+    min-width: 0;
+  }
+
+  .license-card {
+    position: relative;
+    padding: var(--space-6);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+  }
+
+  .license-card__mark {
+    --corner-shape: var(--corner-shape-round);
+    position: absolute;
+    right: calc(var(--space-6) * -1);
+    bottom: calc(var(--space-8) * -1);
+    display: grid;
+    place-items: center;
+    width: 170px;
+    height: 170px;
+    border: 16px solid currentColor;
+    border-radius: 50%;
+    color: var(--accent);
+    font-size: 58px;
+    font-weight: 800;
+    letter-spacing: -0.08em;
+    line-height: 1;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  .license-card__body {
+    position: relative;
+    z-index: 1;
+    max-width: calc(100% - 120px);
+  }
+
+  .license-card__header {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .license-card__permalink {
+    width: fit-content;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    color: var(--accent);
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+
+  .license-card__permalink:hover {
+    color: var(--accent-bright);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .license-card__meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-4) 0 0;
+  }
+
+  .license-card__meta div {
+    min-width: 0;
+    font-size: var(--text-sm);
+  }
+
+  .license-card dt {
+    color: var(--foreground-muted);
+    font-size: var(--text-xs);
+  }
+
+  .license-card dd {
+    min-width: 0;
+    margin: var(--space-1) 0 0;
+    color: var(--foreground-secondary);
+    overflow-wrap: anywhere;
+  }
+
+  .license-card dd a {
+    color: var(--accent);
+  }
+
   .license-card__history { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
-  .license-card__history summary { color: var(--foreground); cursor: pointer; font-weight: 600; }
+  .license-card__history summary { width: fit-content; color: var(--foreground); cursor: pointer; font-size: var(--text-sm); font-weight: 600; }
   .license-card__history ol { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
   .license-card__history li { display: grid; grid-template-columns: 6.5rem 4.5rem minmax(0, 1fr); gap: var(--space-2); color: var(--foreground-secondary); font-size: var(--text-xs); }
   .license-card__history time { color: var(--foreground-muted); }
   .commit-hash { padding: 0; border: 0; background: none; color: var(--accent); font-size: inherit; }
   .license-card__history p { margin-bottom: 0; color: var(--foreground-muted); font-size: var(--text-sm); }
-  @media (max-width: 600px) { .license-card { grid-template-columns: 1fr; } .license-card__history li { grid-template-columns: 1fr auto; } .license-card__history li span { grid-column: 1 / -1; } }
+  @media (max-width: 700px) {
+    .article-footer__share {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .article-footer__share-actions {
+      grid-column: 1 / -1;
+    }
+
+    .license-card {
+      padding: var(--space-5);
+    }
+
+    .license-card__body {
+      max-width: 100%;
+    }
+
+    .license-card__meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding-right: var(--space-12);
+    }
+
+    .license-card__mark {
+      right: calc(var(--space-10) * -1);
+      bottom: calc(var(--space-10) * -1);
+      width: 130px;
+      height: 130px;
+      border-width: 12px;
+      font-size: 44px;
+    }
+
+    .license-card__history li {
+      grid-template-columns: 1fr auto;
+    }
+
+    .license-card__history li span {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 440px) {
+    .article-footer__share {
+      padding: var(--space-4);
+    }
+
+    .article-footer__share-icon {
+      width: 44px;
+      height: 44px;
+    }
+
+    .article-footer__share-icon > span {
+      width: 18px;
+      height: 18px;
+    }
+
+    .license-card__meta {
+      grid-template-columns: 1fr;
+      padding-right: 0;
+    }
+  }
 </style>
