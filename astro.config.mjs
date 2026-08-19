@@ -65,6 +65,9 @@ const SITE_URL = "https://blog.mcxiaochen.top";
 export default defineConfig({
 	site: SITE_URL,
 	trailingSlash: "always",
+	redirects: {
+		"/log": "/timeline/",
+	},
 
 	integrations: [
 		expressiveCode({
