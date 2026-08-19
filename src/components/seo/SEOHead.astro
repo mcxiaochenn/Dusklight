@@ -30,7 +30,8 @@ const {
 
 const pageTitle = title ? `${title} | ${siteConfig.title}` : siteConfig.title;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const canonicalPath = Astro.url.pathname === "/404/" ? "/404.html" : Astro.url.pathname;
+const canonicalURL = new URL(canonicalPath, Astro.site);
 const imageURL = image ? new URL(image, Astro.site).href : undefined;
 ---
 
@@ -42,7 +43,7 @@ const imageURL = image ? new URL(image, Astro.site).href : undefined;
 <link rel="canonical" href={canonicalURL} />
 <meta name="author" content={siteConfig.author} />
 {robots && <meta name="robots" content={robots} />}
-<link rel="preload" href="/fonts/misans/misans-core.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href="/fonts/misans/misans-0.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 
 <!-- Open Graph -->
 <meta property="og:type" content={article ? "article" : "website"} />

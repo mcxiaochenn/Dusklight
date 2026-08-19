@@ -6,6 +6,7 @@ import icons from "astro-icon";
 import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import expressiveCode from "astro-expressive-code";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
@@ -39,6 +40,24 @@ import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.m
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "./src/plugins/rehype-component-image-grid.mjs";
 
+/** @typedef {import("rehype-components").ComponentFunction} ComponentFunction */
+
+/** @type {ComponentFunction} */
+const SpoilerComponent = (_props, children) => h("span", { class: "spoiler" }, children);
+
+/**
+ * @param {"note" | "info" | "tip" | "important" | "caution" | "warning"} type
+ * @returns {ComponentFunction}
+ */
+const createAdmonitionComponent = (type) => (properties, children) =>
+	AdmonitionComponent(properties, children, type);
+
+// 该插件在解析器层替换 Markdown parser；其运行时接口与 unified 的通用
+// Transformer 类型不同，转成 Plugin 后保留原有行为。
+const numericColonPlugin = /** @type {import("@astrojs/markdown-remark").RemarkPlugin} */ (
+	/** @type {unknown} */ (remarkEscapeNumericColons)
+);
+
 // 站点配置
 const SITE_URL = "https://blog.mcxiaochen.top";
 
@@ -71,7 +90,6 @@ export default defineConfig({
 				frames: {
 					editorBackground: "var(--surface-1)",
 					terminalBackground: "var(--surface-1)",
-					shadow: "none",
 					// 框体 chrome 全部走设计 token —— 否则标签栏/终端栏用的是
 					// github-light/dark 主题的字面色（#f6f8fa、#fff、橙色指示条
 					// #f9826c），不跟 --hue 走，浅色下和全站青绿色系直接冲突
@@ -99,20 +117,21 @@ export default defineConfig({
 
 	// Markdown 配置
 	markdown: {
-		remarkPlugins: [
+		processor: unified({
+			remarkPlugins: [
 			remarkMath,
 			// pangu 在 remarkContent 之前：摘录/字数统计基于补完空格的文本
 			[remarkPangu, { mode: siteConfig.pangu }],
 			remarkContent,
 			remarkFixGithubAdmonitions,
 			remarkDirective,
-			remarkEscapeNumericColons,
+			numericColonPlugin,
 			remarkSectionize,
 			parseDirectiveNode,
 			remarkMermaid,
-		],
+			],
 
-		rehypePlugins: [
+			rehypePlugins: [
 			rehypeKatex,
 			rehypeExternalRedirect,
 			[
@@ -132,13 +151,13 @@ export default defineConfig({
 						github: GithubCardComponent,
 						grid: ImageGridComponent,
 						// 行内剧透遮罩 :spoiler[...]（生产 about.md 使用）
-						spoiler: (_props, children) => h("span", { class: "spoiler" }, children),
-						note: (x, y) => AdmonitionComponent(x, y, "note"),
-						info: (x, y) => AdmonitionComponent(x, y, "info"),
-						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
-						important: (x, y) => AdmonitionComponent(x, y, "important"),
-						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
-						warning: (x, y) => AdmonitionComponent(x, y, "warning"),
+						spoiler: SpoilerComponent,
+						note: createAdmonitionComponent("note"),
+						info: createAdmonitionComponent("info"),
+						tip: createAdmonitionComponent("tip"),
+						important: createAdmonitionComponent("important"),
+						caution: createAdmonitionComponent("caution"),
+						warning: createAdmonitionComponent("warning"),
 					},
 				},
 			],
@@ -161,12 +180,13 @@ export default defineConfig({
 				},
 			],
 			rehypeImageWidth,
-		],
+			],
+		}),
 	},
 
 	// 预加载策略
 	prefetch: {
-		prefetchAll: true,
+		prefetchAll: false,
 		defaultStrategy: "hover",
 	},
 

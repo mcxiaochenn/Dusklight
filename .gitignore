@@ -1,5 +1,9 @@
 # build output
 dist/
+
+# MiSans build artifacts
+/public/fonts/misans/
+/src/styles/fonts.generated.css
 # generated types
 .astro/
 

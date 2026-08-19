@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { loadPagefind } from "../../utils/pagefind";
 
   let { pagefindUrl }: { pagefindUrl: string } = $props();
   let dialog: HTMLDialogElement;
@@ -18,7 +19,7 @@
 
   async function ensurePagefind() {
     if (pagefind) return pagefind;
-    pagefind = await import(/* @vite-ignore */ pagefindUrl);
+    pagefind = await loadPagefind(pagefindUrl);
     await pagefind.init?.();
     return pagefind;
   }
@@ -97,7 +98,7 @@
 </button>
 
 <dialog bind:this={dialog} class="search-dialog" aria-labelledby="search-title" onclose={() => { query = ""; results = []; status = "idle"; }}>
-  <div class="search-dialog__panel" onclick={(event) => event.stopPropagation()}>
+  <div class="search-dialog__panel">
     <header class="search-dialog__header">
       <h2 id="search-title">全文搜索</h2>
       <button type="button" class="search-dialog__close" aria-label="关闭搜索" onclick={close}>

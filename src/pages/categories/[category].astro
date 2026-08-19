@@ -1,9 +1,18 @@
 ---
 import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/blog/PostCard.astro";
 import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
+import type { TaxonomyItem } from "../../components/blog/TaxonomyBar.astro";
+
+interface CategoryProps {
+  category: string;
+  posts: CollectionEntry<"blog">[];
+  excerpts: Record<string, string>;
+  categoryItems: TaxonomyItem[];
+}
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
@@ -42,7 +51,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }));
 };
 
-const { category, posts, excerpts, categoryItems } = Astro.props;
+const { category, posts, excerpts, categoryItems } = Astro.props as unknown as CategoryProps;
 ---
 
 <BaseLayout title={`分类: ${category}`} description={`分类 ${category} 下的 ${posts.length} 篇文章`}>

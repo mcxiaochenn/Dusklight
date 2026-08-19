@@ -3,11 +3,11 @@ import { h } from "hastscript";
 /**
  * Creates an admonition component.
  *
- * @param {Object} properties - The properties of the component.
+ * @param {import('hast').Properties} properties - The properties of the component.
  * @param {string} [properties.title] - An optional title.
- * @param {('tip'|'note'|'important'|'caution'|'warning')} type - The admonition type.
- * @param {import('mdast').RootContent[]} children - The children elements of the component.
- * @returns {import('mdast').Parent} The created admonition component.
+ * @param {import('hast').ElementContent[]} children - The children elements of the component.
+ * @param {('note'|'info'|'tip'|'important'|'caution'|'warning')} type - The admonition type.
+ * @returns {import('hast').Element} The created admonition component.
  */
 export function AdmonitionComponent(properties, children, type) {
 	if (!Array.isArray(children) || children.length === 0) {

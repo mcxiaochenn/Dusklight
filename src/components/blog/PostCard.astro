@@ -32,7 +32,7 @@ const postUrl = getPostUrl(post);
 
 <article class:list={["post-card", "reveal", className]}>
   {/* 整卡主链接 — 绝对定位覆盖层，承载除标签/分类外的全部点击 */}
-  <a href={postUrl} class="post-card__link" aria-label={post.data.title}></a>
+  <a href={postUrl} class="post-card__link" aria-label={post.data.title} data-astro-prefetch></a>
 
   <div class="post-card__cover">
     <img

@@ -36,7 +36,7 @@ const navIcons: Record<string, string> = {
 <header id="main-header" class="main-header">
   <div class="header__inner">
     <div class="header__pill header__pill--left">
-      <a href="/" class="header__logo">
+      <a href="/" class="header__logo" data-astro-prefetch>
         {siteConfig.title}
       </a>
     </div>
@@ -48,6 +48,7 @@ const navIcons: Record<string, string> = {
             <div class="header__dropdown">
               <a
                 href={item.href}
+                data-astro-prefetch
                 class:list={["header__link header__dropdown-trigger", { "header__link--active": isParentActive(item) }]}
               >
                 {navIcons[item.label] && (
@@ -60,6 +61,7 @@ const navIcons: Record<string, string> = {
                 {item.children.map((child) => (
                   <a
                     href={child.external ? toExternalRedirect(child.href) : child.href}
+                    data-astro-prefetch={child.external ? false : true}
                     class:list={["header__dropdown-item", { "header__dropdown-item--active": isActive(child.href) }]}
                   >
                     {child.icon && (
@@ -74,6 +76,7 @@ const navIcons: Record<string, string> = {
           ) : (
             <a
               href={item.href}
+              data-astro-prefetch
               class:list={["header__link", { "header__link--active": isActive(item.href) }]}
             >
               {navIcons[item.label] && (
@@ -123,6 +126,7 @@ const navIcons: Record<string, string> = {
             {item.children.map((child) => (
               <a
                 href={child.external ? toExternalRedirect(child.href) : child.href}
+                data-astro-prefetch={child.external ? false : true}
                 class:list={["mobile-menu__link mobile-menu__link--sub", { "mobile-menu__link--active": isActive(child.href) }]}
               >
                 {child.label}
@@ -133,6 +137,7 @@ const navIcons: Record<string, string> = {
         ) : (
           <a
             href={item.href}
+            data-astro-prefetch
             class:list={["mobile-menu__link", { "mobile-menu__link--active": isActive(item.href) }]}
           >
             {navIcons[item.label] && (
@@ -646,23 +651,25 @@ const navIcons: Record<string, string> = {
     const closeBtn = document.getElementById("mobile-menu-close");
     const menu = document.getElementById("mobile-menu");
     if (toggle && menu) {
+      const menuToggle = toggle;
+      const mobileMenu = menu;
       function openMenu() {
-        menu.setAttribute("data-open", "true");
-        toggle.setAttribute("aria-expanded", "true");
+        mobileMenu.setAttribute("data-open", "true");
+        menuToggle.setAttribute("aria-expanded", "true");
       }
       function closeMenu() {
-        menu.setAttribute("data-open", "false");
-        toggle.setAttribute("aria-expanded", "false");
+        mobileMenu.setAttribute("data-open", "false");
+        menuToggle.setAttribute("aria-expanded", "false");
       }
 
-      toggle.addEventListener("click", () => {
-        const isOpen = menu.getAttribute("data-open") === "true";
+      menuToggle.addEventListener("click", () => {
+        const isOpen = mobileMenu.getAttribute("data-open") === "true";
         isOpen ? closeMenu() : openMenu();
       });
 
       closeBtn?.addEventListener("click", closeMenu);
-      menu.querySelector(".mobile-menu__backdrop")?.addEventListener("click", closeMenu);
-      menu.querySelectorAll(".mobile-menu__link").forEach((link) => {
+      mobileMenu.querySelector(".mobile-menu__backdrop")?.addEventListener("click", closeMenu);
+      mobileMenu.querySelectorAll(".mobile-menu__link").forEach((link) => {
         link.addEventListener("click", closeMenu);
       });
     }

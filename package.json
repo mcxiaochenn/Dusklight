@@ -8,11 +8,16 @@
   "scripts": {
     "sync-content": "node scripts/sync-content.js",
     "init-content": "cp .env.example .env && echo '请编辑 .env 文件配置 CONTENT_REPO_URL'",
-    "predev": "node scripts/sync-content.js || true",
-    "prebuild": "node scripts/sync-content.js || true",
+    "predev": "(node scripts/sync-content.js || true) && pnpm fonts:build",
+    "prebuild": "(node scripts/sync-content.js || true) && pnpm fonts:build",
     "update-anime": "node scripts/update-anime.mjs",
+    "check": "astro check",
+    "fonts:build": "node scripts/build-misans.mjs",
+    "audit:dist": "node scripts/audit-dist.mjs",
+    "assets:optimize": "node scripts/optimize-assets.mjs",
+    "assets:check": "node scripts/check-assets.mjs",
     "dev": "astro dev",
-    "build": "node scripts/update-anime.mjs && astro build && pagefind --site dist --force-language zh-cn",
+    "build": "node scripts/update-anime.mjs && astro build && pagefind --site dist --force-language zh-cn && pnpm audit:dist && pnpm assets:check",
     "preview": "astro preview",
     "postbuild": "node scripts/obfuscate-anti-mirror.js",
     "astro": "astro"
@@ -55,7 +60,11 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/markdown-remark": "^7.2.2",
     "@types/qrcode": "^1.5.6",
-    "pangu": "^9.1.0"
+    "cn-font-split": "^7.4.3",
+    "pangu": "^9.1.0",
+    "typescript": "^6.0.3"
   }
 }

@@ -1,9 +1,18 @@
 ---
 import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/blog/PostCard.astro";
 import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
+import type { TaxonomyItem } from "../../components/blog/TaxonomyBar.astro";
+
+interface TagProps {
+  tag: string;
+  posts: CollectionEntry<"blog">[];
+  excerpts: Record<string, string>;
+  tagItems: TaxonomyItem[];
+}
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // 排除草稿：不过滤的话，草稿独有的标签会被生成独立标签页，
@@ -50,7 +59,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   });
 };
 
-const { tag, posts, excerpts, tagItems } = Astro.props;
+const { tag, posts, excerpts, tagItems } = Astro.props as unknown as TagProps;
 ---
 
 <BaseLayout title={`标签: ${tag}`} description={`标签 ${tag} 下的 ${posts.length} 篇文章`}>

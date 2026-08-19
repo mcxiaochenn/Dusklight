@@ -214,7 +214,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
               <div class="about-reward-item">
                 <span class="about-reward-name">{s.name}</span>
                 <div class="about-reward-bottom">
-                  <span class="about-reward-amount" class:list={parseFloat(s.amount.replace(/[^0-9.]/g, "") || "0") >= 50 && "about-reward-amount--hl"}>
+                  <span class="about-reward-amount" class:list={parseFloat(s.amount.replace(/[^0-9.]/g, "") || "0") >= 50 ? "about-reward-amount--hl" : undefined}>
                     {s.amount}
                   </span>
                   <span class="about-reward-time">{s.date}</span>
@@ -306,12 +306,13 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     const close = document.getElementById("donate-modal-close");
     const backdrop = document.getElementById("donate-modal-backdrop");
     if (!modal || !btn || modal.dataset.donateInit === "1") return;
-    modal.dataset.donateInit = "1";
+    const donateModal = modal;
+    donateModal.dataset.donateInit = "1";
 
-    function open() { modal.classList.add("open"); modal.classList.add("visible"); }
+    function open() { donateModal.classList.add("open"); donateModal.classList.add("visible"); }
     function closeModal() {
-      modal.classList.remove("visible");
-      setTimeout(() => modal.classList.remove("open"), 200);
+      donateModal.classList.remove("visible");
+      setTimeout(() => donateModal.classList.remove("open"), 200);
     }
     btn.addEventListener("click", open);
     close?.addEventListener("click", closeModal);
