@@ -48,7 +48,7 @@ export const navConfig = {
       children: [
         { label: "开往", href: "https://www.travellings.cn/go.html", external: true, icon: "fa7-solid:train" },
         { label: "Umami", href: "https://umami.mcxiaochen.top/share/JQO3UR9vAhjfqs96", external: true, icon: "simple-icons:umami" },
-        { label: "AI 提示词生成器", href: "https://t2iprompt.mcxiaochen.top/", external: true, icon: "fa7-solid:robot" },
+        { label: "文生图提示词生成器", href: "https://t2iprompt.mcxiaochen.top/", external: true, icon: "fa7-solid:robot" },
       ],
     },
   ] as NavItem[],
