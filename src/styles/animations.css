@@ -70,6 +70,29 @@
   50%      { opacity: 0.7; }
 }
 
+/* ── 页面切换 ──
+ * ClientRouter 保留 SPA 导航，但普通换页只做短暂的透明度过渡。
+ * 主题切换由 ThemeToggle 的 [data-theme-switching] 规则接管，不受此处影响。 */
+@keyframes route-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes route-fade-in {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-theme-switching])::view-transition-old(root) {
+    animation: route-fade-out 120ms var(--ease-standard) both;
+    mix-blend-mode: normal;
+  }
+
+  :root:not([data-theme-switching])::view-transition-new(root) {
+    animation: route-fade-in 120ms var(--ease-decelerate) both;
+    mix-blend-mode: normal;
+  }
+}
+
 /* ── Staggered entrance utilities ── */
 .animate-in {
   animation: fade-in-up var(--duration-slow) var(--ease-decelerate) both;
@@ -122,18 +145,6 @@
   transition: transform var(--duration-normal) var(--ease-material);
 }
 
-/* ── Scroll reveal ── */
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s var(--ease-decelerate), transform 0.5s var(--ease-decelerate);
-}
-
-.reveal--visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ── Accessibility — reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -145,8 +156,4 @@
     scroll-behavior: auto !important;
   }
 
-  .reveal {
-    opacity: 1;
-    transform: none;
-  }
 }

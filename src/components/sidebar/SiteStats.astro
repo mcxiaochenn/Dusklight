@@ -77,36 +77,67 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
       active.textContent = diff <= 0 ? "今天" : `${diff} 天前`;
     }
 
-    // Umami 站点统计
+    // Umami 站点统计：页面切换时优先复用会话缓存，未命中才在空闲期请求。
     var apiUrl = root.dataset.api;
     if (!apiUrl) return;
-    fetch(apiUrl)
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var pvRow = root.querySelector('[data-stat-row="total-pv"]');
-        var uvRow = root.querySelector('[data-stat-row="total-uv"]');
-        if (data.total_pv && pvRow) {
-          pvRow.style.display = "";
-          root.querySelector('[data-stat="total-pv"]').textContent = data.total_pv.toLocaleString("zh-CN");
-        }
-        if (data.total_uv && uvRow) {
-          uvRow.style.display = "";
-          root.querySelector('[data-stat="total-uv"]').textContent = data.total_uv.toLocaleString("zh-CN");
-        }
-      })
-      .catch(function() {});
+    var CACHE_KEY = "dusklight:site-stats";
+    var CACHE_TTL = 5 * 60 * 1000;
+
+    function renderVisits(data) {
+      var pvRow = root.querySelector('[data-stat-row="total-pv"]');
+      var uvRow = root.querySelector('[data-stat-row="total-uv"]');
+      if (data.total_pv && pvRow) {
+        pvRow.style.display = "";
+        root.querySelector('[data-stat="total-pv"]').textContent = data.total_pv.toLocaleString("zh-CN");
+      }
+      if (data.total_uv && uvRow) {
+        uvRow.style.display = "";
+        root.querySelector('[data-stat="total-uv"]').textContent = data.total_uv.toLocaleString("zh-CN");
+      }
+    }
+
+    function readCachedVisits() {
+      try {
+        var cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+        return cached && Date.now() - cached.savedAt < CACHE_TTL ? cached.data : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function loadVisits() {
+      var cached = readCachedVisits();
+      if (cached) {
+        renderVisits(cached);
+        return;
+      }
+
+      fetch(apiUrl)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), data: data }));
+          } catch (_) {}
+          renderVisits(data);
+        })
+        .catch(function() {});
+    }
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(loadVisits, { timeout: 1200 });
+    } else {
+      window.setTimeout(loadVisits, 400);
+    }
   })();
 </script>
 
 <style>
   .site-stats {
     padding: var(--space-4) var(--space-5);
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    border: 1px solid var(--glass-border);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    box-shadow: var(--shadow-sm);
   }
 
   .site-stats__header {

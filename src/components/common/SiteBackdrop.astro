@@ -2,7 +2,7 @@
 /**
  * 站点背景装饰
  * ─────────────────────────────────────────────────
- * 网格纹理 + 噪点 + 缓加载背景图。
+ * 缓加载背景图 + 静态遮罩。
  * 背景图在页面加载完成后才开始下载，不阻断首屏渲染。
  */
 import { siteConfig } from "../../config/site";
@@ -10,8 +10,7 @@ import { siteConfig } from "../../config/site";
 
 <div class="site-backdrop" aria-hidden="true" transition:persist data-bg-light={siteConfig.backgroundImages.light} data-bg-dark={siteConfig.backgroundImages.dark}>
   <div class="site-backdrop__image" id="backdrop-image"></div>
-  <div class="site-backdrop__grid"></div>
-  <div class="site-backdrop__grain"></div>
+  <div class="site-backdrop__overlay"></div>
 </div>
 
 <style>
@@ -21,29 +20,13 @@ import { siteConfig } from "../../config/site";
     z-index: -1;
     pointer-events: none;
     overflow: hidden;
+    background: var(--surface-0);
   }
 
-  .site-backdrop__grid {
+  .site-backdrop__overlay {
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(var(--border-subtle) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
-    background-size: 60px 60px;
-    opacity: 0.4;
-    mix-blend-mode: overlay;
-  }
-
-  :root.dark .site-backdrop__grid {
-    opacity: 0.15;
-  }
-
-  .site-backdrop__grain {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    opacity: 0.5;
-    mix-blend-mode: overlay;
+    background: linear-gradient(135deg, oklch(from var(--surface-0) l c h / 0.48), oklch(from var(--surface-0) l c h / 0.78));
   }
 
   /* ── 背景图 — 默认隐藏，JS 加载后淡入 ── */
@@ -54,23 +37,11 @@ import { siteConfig } from "../../config/site";
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
-    transition: opacity 0.6s ease;
+    transition: opacity var(--duration-normal) var(--ease-material);
   }
 
   .site-backdrop__image--loaded {
     opacity: 1;
-    filter: blur(8px) brightness(0.75);
-  }
-
-  :root.dark .site-backdrop__image--loaded {
-    filter: blur(8px);
-  }
-
-  /* 背景图加载后隐藏网格和噪点 */
-  .site-backdrop--has-image .site-backdrop__grid,
-  .site-backdrop--has-image .site-backdrop__grain {
-    opacity: 0;
-    transition: opacity 0.6s ease;
   }
 </style>
 
@@ -105,7 +76,6 @@ import { siteConfig } from "../../config/site";
       if (request !== backdropRequest || !el.isConnected || src !== getBackdropSource()) return;
       el.style.backgroundImage = `url(${img.src})`;
       el.classList.add("site-backdrop__image--loaded");
-      el.parentElement?.classList.add("site-backdrop--has-image");
     };
     img.src = src;
   }

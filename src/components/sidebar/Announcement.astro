@@ -25,12 +25,10 @@ import { announcementConfig } from "@/config";
 <style>
   .announcement {
     padding: var(--space-4) var(--space-5);
-    background: color-mix(in oklab, var(--accent) 8%, var(--glass-bg));
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    border: 1px solid var(--glass-border);
+    background: color-mix(in oklab, var(--accent) 8%, var(--surface-1));
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    box-shadow: var(--shadow-sm);
   }
 
   .announcement__header {

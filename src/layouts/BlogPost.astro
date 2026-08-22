@@ -466,14 +466,15 @@ const isEncrypted = !!password;
         });
       });
 
-      // ESC 关闭
-      document.addEventListener("keydown", function onEsc(e) {
-        if (e.key === "Escape" && tocOverlay.classList.contains("toc-overlay--open")) {
-          tocOverlay.classList.remove("toc-overlay--open");
-        }
-      });
     }
   }
+
+  // 模块脚本只会执行一次；每次按键都查询当前页面的面板，避免换页后保留旧 DOM 闭包。
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.getElementById("toc-overlay")?.classList.remove("toc-overlay--open");
+    }
+  });
 
   document.addEventListener("DOMContentLoaded", initFabs);
   document.addEventListener("astro:page-load", initFabs);

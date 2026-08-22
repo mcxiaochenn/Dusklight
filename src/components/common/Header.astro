@@ -36,7 +36,7 @@ const navIcons: Record<string, string> = {
 <header id="main-header" class="main-header">
   <div class="header__inner">
     <div class="header__pill header__pill--left">
-      <a href="/" class="header__logo" data-astro-prefetch>
+      <a href="/" class="header__logo" data-astro-prefetch="viewport">
         {siteConfig.title}
       </a>
     </div>
@@ -48,7 +48,7 @@ const navIcons: Record<string, string> = {
             <div class="header__dropdown">
               <a
                 href={item.href}
-                data-astro-prefetch
+                data-astro-prefetch={false}
                 class:list={["header__link header__dropdown-trigger", { "header__link--active": isParentActive(item) }]}
               >
                 {navIcons[item.label] && (
@@ -76,7 +76,7 @@ const navIcons: Record<string, string> = {
           ) : (
             <a
               href={item.href}
-              data-astro-prefetch
+              data-astro-prefetch="viewport"
               class:list={["header__link", { "header__link--active": isActive(item.href) }]}
             >
               {navIcons[item.label] && (
@@ -89,7 +89,7 @@ const navIcons: Record<string, string> = {
       </div>
 
       <div class="header__actions">
-        {siteConfig.features.search && <SearchDialog client:load pagefindUrl={resourceConfig.scripts.pagefind} />}
+        {siteConfig.features.search && <SearchDialog client:idle pagefindUrl={resourceConfig.scripts.pagefind} />}
         <ThemeToggle />
         <button
           id="mobile-menu-toggle"
@@ -137,7 +137,7 @@ const navIcons: Record<string, string> = {
         ) : (
           <a
             href={item.href}
-            data-astro-prefetch
+            data-astro-prefetch="viewport"
             class:list={["mobile-menu__link", { "mobile-menu__link--active": isActive(item.href) }]}
           >
             {navIcons[item.label] && (
@@ -596,19 +596,11 @@ const navIcons: Record<string, string> = {
    * 每导航一次就会多挂一个，且闭包会捕获已被换走的旧 header 节点，
    * 导致游离 DOM 无法回收。因此这里改为每次触发时重新查询元素。
    */
-  function updateScrollState() {
-    const header = document.getElementById("main-header");
-    if (!header) return;
-    header.classList.toggle("header-scrolled", window.scrollY > 20);
-  }
-
   function closeAllDropdowns() {
     document
       .querySelectorAll<HTMLElement>(".header__dropdown")
       .forEach((d) => d.classList.remove("open"));
   }
-
-  window.addEventListener("scroll", updateScrollState, { passive: true });
 
   // 点击页面空白处关闭所有下拉
   document.addEventListener("click", (e) => {
@@ -619,8 +611,6 @@ const navIcons: Record<string, string> = {
   function initHeader() {
     const header = document.getElementById("main-header");
     if (!header) return;
-
-    updateScrollState();
 
     /*
      * DOMContentLoaded 与 astro:page-load 在首次加载时都会触发，

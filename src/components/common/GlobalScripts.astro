@@ -1,7 +1,7 @@
 ---
 /**
  * 全局脚本
- * 图片灯箱 + 返回顶部
+ * 图片灯箱 + 全局 Shell 滚动状态
  * 代码块复制已迁移到 expressive-code 的 custom-copy-button 插件
  */
 ---
@@ -57,53 +57,52 @@
         requestAnimationFrame(() => lb.classList.add("lightbox--open"));
       });
     });
+    if (lb.dataset.lbCloseInit) return;
+    lb.dataset.lbCloseInit = "1";
     lb.addEventListener("click", () => {
       lb.classList.remove("lightbox--open");
       setTimeout(() => { lb.hidden = true; }, 300);
     });
   }
 
-  /* ── 返回顶部 ──
-     window/document 监听在模块顶层绑定一次，事件内实时查元素。
-     旧实现的 toggle 闭包捕获了首个页面的按钮，滚动监听又被
-     backToTopBound 挡住不再重绑 —— View Transitions 换页后
-     监听器一直在切换已脱离文档的旧按钮，新按钮永远不出现，
-     点击也没绑。与 Header.astro 顶部的形态保持一致。 */
-  function toggleBackToTop() {
+  /* ── 全局 Shell 滚动状态 ──
+     Header、返回顶部和进度条共享单个被动监听器；所有读写合并到下一帧，
+     避免滚动期间多次同步布局。事件内始终查询当前页面节点，兼容 ClientRouter。 */
+  let scrollFrame = 0;
+  function updateShellScrollState() {
+    scrollFrame = 0;
+    const scrollTop = window.scrollY;
+
+    const header = document.getElementById("main-header");
+    header?.classList.toggle("header-scrolled", scrollTop > 20);
+
     const btn = document.getElementById("back-to-top");
-    if (!btn) return;
-    btn.classList.toggle("fab--visible", window.scrollY > 1);
+    btn?.classList.toggle("fab--visible", scrollTop > 1);
+
+    const bar = document.getElementById("scroll-progress");
+    if (bar) {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(scrollTop / scrollable, 1) : 0;
+      bar.style.transform = `scaleX(${progress})`;
+    }
   }
-  window.addEventListener("scroll", toggleBackToTop, { passive: true });
+
+  function scheduleShellScrollState() {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(updateShellScrollState);
+  }
+
+  window.addEventListener("scroll", scheduleShellScrollState, { passive: true });
   document.addEventListener("click", (e) => {
     if (e.target instanceof Element && e.target.closest("#back-to-top")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
-  function initBackToTop() {
-    // 每次导航后刷新初始可见性（新文档从顶部开始，应为隐藏）
-    toggleBackToTop();
+  function initAll() {
+    initLightbox();
+    scheduleShellScrollState();
   }
-
-  /* ── 滚动渐显 ── */
-  let revealIO: IntersectionObserver | null = null;
-  function initReveal() {
-    revealIO?.disconnect();
-    const els = document.querySelectorAll(".reveal");
-    if (!els.length) return;
-    revealIO = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add("reveal--visible");
-          revealIO?.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.08 });
-    els.forEach((el) => revealIO!.observe(el));
-  }
-
-  function initAll() { initLightbox(); initBackToTop(); initReveal(); }
   document.addEventListener("DOMContentLoaded", initAll);
   document.addEventListener("astro:page-load", initAll);
 
