@@ -24,7 +24,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/mdx": "^7.0.6",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/svelte": "^9.0.1",
@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "^7.2.2",
+    "@astrojs/markdown-remark": "^7.2.3",
     "@types/qrcode": "^1.5.6",
     "cn-font-split": "^7.4.3",
     "pangu": "^9.1.0",
