@@ -24,7 +24,7 @@ pnpm update-anime     # Fetch Bilibili 追番 → src/data/bilibili-data.json (g
 
 **Deployment**: GitHub Actions builds, then pushes `dist/` to the `gh-pages` branch. EdgeOne Pages imports from that branch and serves `blog.mcxiaochen.top` (Site URL is `https://blog.mcxiaochen.top`, `base` unset so links are root-relative). Mermaid diagrams render client-side (see the Remark/Rehype section), so no Playwright/browser is needed at build time.
 
-**No test or lint tooling exists.** `package.json` defines no `test`/`lint`/`format` script, and there is no ESLint / Prettier / Biome config in the repo. Verification means `pnpm build` completes + visual check in the browser. Do not invent or assume a test command.
+**No general lint/format suite exists.** Content sync has a focused black-box regression suite exposed as `pnpm test:sync-content`; it uses Node's built-in test runner and temporary local Git repositories. For site changes, verification still means `pnpm check` + `pnpm build` + an appropriate browser check. Do not invent other test/lint/format commands.
 
 ## Architecture
 
@@ -81,7 +81,7 @@ const synced = existsSync("./content/blog/posts");
 
 Content repo layout: `blog/posts/**` (articles, `年/月/序号.标题.md`) + `blog/spec/*` (about/envelope/sponsors/friends). Configuration via `.env` (see `.env.example`). When `ENABLE_CONTENT_SYNC` is not `true`, sync is skipped; whether real content is used depends only on `content/blog/` existing. The content repo can trigger framework rebuilds via GitHub Actions `repository_dispatch`. **spec 死文件**:about 页内容已迁入框架 `profileConfig.aboutCards`,spec/about.md 不再被渲染;sponsors 页已删除,spec/sponsors.md 同样无人消费(保留在内容仓库仅为历史)。
 
-**Editing content-repo files: commit + push in `content/` FIRST, then build.** The prebuild sync runs `git stash + git reset --hard origin/main` inside `content/` — any uncommitted edit there is silently discarded by the next `pnpm dev`/`pnpm build` (this actually happened; the edit survived only in `git stash`). `sync-content.js` reads `.env` first and falls back to `process.env` — CI passes `CONTENT_REPO_URL` via workflow `env:` (for the private repo the secret must embed a PAT: `https://<PAT>@github.com/...`).
+**Content sync is preservation-first.** When `content/` has tracked/staged edits or untracked files under `blog/`, `sync-content.js` must skip the remote update and keep using local content. It must never auto-stash, switch branches, or hard-reset the content repository. A clean checkout may only fast-forward the configured branch; local-ahead, divergent, wrong-branch, and detached states must be preserved and reported. Untracked editor metadata such as `.obsidian/` is left untouched and does not block an otherwise safe update. `sync-content.js` reads `.env` first and falls back to `process.env` — CI passes `CONTENT_REPO_URL` via workflow `env:` (for the private repo the secret must embed a PAT: `https://<PAT>@github.com/...`).
 
 ### Self-Hosted Libraries
 
@@ -340,7 +340,7 @@ All config is re-exported from `src/config/index.ts` — import via `import { si
 `.github/workflows/deploy.yml` handles deployment:
 - Triggers on push to `main` and `repository_dispatch` (content repo updates)
 - Installs pnpm 9, Node 22
-- Runs `pnpm sync-content` to fetch content, then `pnpm build`
+- Runs `pnpm test:sync-content`, fetches content with `pnpm sync-content`, then runs `pnpm build`
 - Pushes `dist/` to the `gh-pages` branch via `peaceiris/actions-gh-pages` (`force_orphan: true`); EdgeOne Pages deploys that branch to `blog.mcxiaochen.top`. The workflow needs `permissions: contents: write` for the branch push — do NOT change it back to Pages-API style (`pages: write`/`id-token: write` + `deploy-pages`) unless the hosting model actually switches to GitHub Pages.
 
 **`pnpm-workspace.yaml` 的 `packages: ['.']` 字段不能删。** 2026-07 曾因缺失该字段导致 CI 全挂:更新后的 pnpm 9 在 `actions/setup-node` 的 `cache: pnpm` 步骤(内部执行 `pnpm store path`)报 `packages field missing or empty`,构建从未越过 Setup Node。同文件里的 `allowBuilds` 是 **pnpm 10 专用字段**(放行 esbuild/sharp 构建脚本)——本地开发是 pnpm 10 靠它生效,而 CI 装 pnpm 9 会静默忽略它(pnpm 9 默认放行所有构建脚本)。这是刻意的版本漂移,不要顺手统一,除非同时验证两边。

@@ -7,9 +7,10 @@
   },
   "scripts": {
     "sync-content": "node scripts/sync-content.js",
+    "test:sync-content": "node --test scripts/sync-content.test.mjs",
     "init-content": "cp .env.example .env && echo '请编辑 .env 文件配置 CONTENT_REPO_URL'",
-    "predev": "(node scripts/sync-content.js || true) && pnpm fonts:build",
-    "prebuild": "(node scripts/sync-content.js || true) && pnpm fonts:build",
+    "predev": "node scripts/sync-content.js && pnpm fonts:build",
+    "prebuild": "node scripts/sync-content.js && pnpm fonts:build",
     "update-anime": "node scripts/update-anime.mjs",
     "check": "astro check",
     "fonts:build": "node scripts/build-misans.mjs",

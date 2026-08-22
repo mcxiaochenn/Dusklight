@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test content sync safety
+        run: pnpm test:sync-content
+
       # 同步内容仓库（私有仓库：CONTENT_REPO_URL secret 需内嵌 PAT，
       # 形如 https://<PAT>@github.com/mcxiaochenn/Dusklight-Content.git）
       - name: Sync content repository
