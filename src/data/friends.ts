@@ -14,7 +14,7 @@ export interface FriendItem {
 }
 
 /** 不向友链检测与朋友圈服务公开的站点 hostname。 */
-export const serviceExcludedHostnames = new Set([""]);
+export const serviceExcludedHostnames = new Set(["blogsclub.org", "www.blogsclub.org"]);
 
 /** 本站友链信息 — 用于 link 页"我的信息"卡 */
 export const siteInfo = {
@@ -468,6 +468,13 @@ export const friendsData: FriendItem[] = [
 		desc: "记录日常生活、城市影像、旅行与观察，以及认真看过、读过和听过的作品。",
 		siteurl: "https://mingblog.site",
 		tags: ["生活"],
+	},
+	{
+		title: "顾凉的小窝",
+		imgurl: "https://guliang.me/i/u/PNThg82.png",
+		desc: "baka!!!",
+		siteurl: "https://guliang.me",
+		tags: ["技术", "个人"],
 	},
 ];
 

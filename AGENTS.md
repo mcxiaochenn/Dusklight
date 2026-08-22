@@ -28,3 +28,8 @@ Consult these guides before working on related tasks:
 - `.astro` / `.svelte` / 客户端 TS/JS 中不得写死运行时第三方 JS/CSS URL，必须通过 `src/config/resources.ts`。npm/Vite import、API 和图片 URL 不在此限制内。
 - 图标优先使用 `fa7-solid` / `fa7-regular` / `fa7-brands`；品牌使用 `simple-icons`，两者均没有时才可保留本地图标。
 - UI/正文用 MiSans，代码用 Maple Mono，数学公式保留 KaTeX 字体。禁止将字体切换为远程 CDN。
+
+## 友链维护
+
+- 新增友链前，先只读查看其公开首页与近期文章标题、分类或标签；不要仅凭站名和简介分类。
+- `friendsData` 的 `tags[0]` 决定友链页分组：内容以开发、编程、工具或项目为主归入“技术”；以日常、随笔、生活记录为主归入“生活”。内容混合时按近期多数判断；仍无法判断时先向用户确认。
