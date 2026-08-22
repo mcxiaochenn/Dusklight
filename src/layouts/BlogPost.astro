@@ -54,7 +54,7 @@ const isEncrypted = !!password;
   <JsonLd type="article" title={title} description={description} url={canonicalURL.href} image={cover} datePublished={date.toISOString()} dateModified={displayUpdated.toISOString()} author={author} />
 
   <div class="article-layout">
-    <article class="article" data-pagefind-body={!isEncrypted ? true : undefined}>
+    <article class="article glass-panel" data-pagefind-body={!isEncrypted ? true : undefined}>
       {cover && (
         <div class="article__cover">
           <img src={cover} alt={title} loading="eager" decoding="async" />
@@ -155,6 +155,7 @@ const isEncrypted = !!password;
     width: 100%;
     max-width: var(--post-content-width);
     min-width: 0;
+    padding: var(--space-6);
   }
 
   .article__cover {
@@ -193,6 +194,7 @@ const isEncrypted = !!password;
   }
 
   @media (max-width: 768px) {
+    .article { padding: var(--space-4); }
     .article__title { font-size: var(--text-xl); }
   }
 

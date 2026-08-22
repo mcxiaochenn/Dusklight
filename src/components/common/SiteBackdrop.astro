@@ -2,8 +2,9 @@
 /**
  * 站点背景装饰
  * ─────────────────────────────────────────────────
- * 缓加载背景图 + 静态遮罩。
- * 背景图在页面加载完成后才开始下载，不阻断首屏渲染。
+ * 桌面端缓加载背景图 + 静态遮罩。
+ * 背景图在页面加载完成后才开始下载，不阻断首屏渲染；
+ * 移动端不渲染也不请求背景图。
  */
 import { siteConfig } from "../../config/site";
 ---
@@ -43,10 +44,17 @@ import { siteConfig } from "../../config/site";
   .site-backdrop__image--loaded {
     opacity: 1;
   }
+
+  @media (max-width: 768px) {
+    .site-backdrop__image {
+      display: none;
+    }
+  }
 </style>
 
 <script>
   let backdropRequest = 0;
+  const mobileBackdropMedia = window.matchMedia("(max-width: 768px)");
 
   function isDarkMode(): boolean {
     const root = document.documentElement;
@@ -62,9 +70,22 @@ import { siteConfig } from "../../config/site";
     return isDarkMode() ? dark : light;
   }
 
+  function clearBackdropImage() {
+    const el = document.getElementById("backdrop-image");
+    if (!el) return;
+
+    backdropRequest += 1;
+    el.classList.remove("site-backdrop__image--loaded");
+    el.style.removeProperty("background-image");
+  }
+
   function loadBackdropImage() {
     const el = document.getElementById("backdrop-image");
     if (!el) return;
+    if (mobileBackdropMedia.matches) {
+      clearBackdropImage();
+      return;
+    }
 
     const src = getBackdropSource();
     const request = ++backdropRequest;
@@ -99,6 +120,15 @@ import { siteConfig } from "../../config/site";
     window.addEventListener("load", initBackdrop);
   }
   document.addEventListener("astro:page-load", initBackdrop);
+
+  // 跨过移动端断点时同步背景状态；移动端不保留已渲染的图片层。
+  mobileBackdropMedia.addEventListener("change", () => {
+    if (mobileBackdropMedia.matches) {
+      clearBackdropImage();
+    } else {
+      loadBackdropImage();
+    }
+  });
 
   // 用 MutationObserver 监听 <html> class 变化（持久存在，不随页面切换销毁）
   let lastDark = isDarkMode();
