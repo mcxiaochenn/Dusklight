@@ -127,8 +127,8 @@ importers:
         specifier: ^7.4.3
         version: 7.4.3
       pangu:
-        specifier: ^9.1.0
-        version: 9.1.0
+        specifier: ^9.1.1
+        version: 9.1.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2326,8 +2326,8 @@ packages:
     resolution: {integrity: sha512-XTUaK0hXMCu2jszWE584JGQT7y284TmMV9l/HX3rnG5uo3rHI/uHU56XTyyyPFjeWEBxECbAi0CaFDJOONtG0Q==}
     hasBin: true
 
-  pangu@9.1.0:
-    resolution: {integrity: sha512-71wG2k5rxjxuzT7Jmhsust7un8l6uq1hUpvvtCnX3cYVyyeaPUcFG2S8//aB3l6jPPJHvOmwRtZ/UDHITLNUJg==}
+  pangu@9.1.1:
+    resolution: {integrity: sha512-DcuD9lISR0L+F5VBueVbyAfCeUuRMI5TURQ+vzMv5VYfuZ0r3ddnhrPd19uyOnk5cYqKXM/ABtcWqta9pzbcPg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
@@ -5700,7 +5700,7 @@ snapshots:
       '@pagefind/windows-arm64': 1.5.2
       '@pagefind/windows-x64': 1.5.2
 
-  pangu@9.1.0: {}
+  pangu@9.1.1: {}
 
   parse-entities@4.0.2:
     dependencies:
