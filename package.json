@@ -55,7 +55,7 @@
     "remark-directive": "^4.0.0",
     "remark-math": "^6.0.0",
     "remark-sectionize": "^2.1.0",
-    "sharp": "^0.35.0",
+    "sharp": "^0.35.4",
     "svelte": "^5.56.9",
     "tailwindcss": "^4.3.3",
     "unist-util-visit": "^5.1.0"
