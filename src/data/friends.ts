@@ -476,6 +476,13 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://guliang.me",
 		tags: ["技术", "个人"],
 	},
+	{
+		title: "RF极客日志",
+		imgurl: "https://blog.itrf.cn/favicon.ico",
+		desc: "分享技术笔记、项目实践和生活记录",
+		siteurl: "https://blog.itrf.cn/",
+		tags: ["技术"],
+	},
 ];
 
 /** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */
