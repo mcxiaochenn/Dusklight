@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="/atom.xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>辰渊尘の博客</title>
+  <subtitle>分享技术、生活与思考</subtitle>
+  <link href="https://blog.mcxiaochen.top/atom.xml" rel="self" type="application/atom+xml" />
+  <link href="https://blog.mcxiaochen.top/" rel="alternate" type="text/html" />
+  <id>https://blog.mcxiaochen.top/</id>
+  <updated>2026-08-22T18:43:27.000Z</updated>
+  <generator uri="https://astro.build" version="7.x">Astro</generator>
+  <entry>
+    <title type="html"><![CDATA[苏州游记：一半江南，一半赛博]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p5w3j5nt/" />
+    <id>https://blog.mcxiaochen.top/posts/p5w3j5nt/</id>
+    <published>2026-08-22T18:43:27.000Z</published>
+    <updated>2026-08-22T18:43:27.000Z</updated>
+    <summary type="html"><![CDATA[8 月 19 日，我们三人从嘉兴坐上开往苏州的火车。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="日常" />
+    <category term="生活" />
+    <category term="旅游" />
+    <category term="苏州" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[今天是0721哦，Ciallo～(∠・ω< )⌒☆]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/2026-Ciallo/" />
+    <id>https://blog.mcxiaochen.top/posts/2026-Ciallo/</id>
+    <published>2026-07-21T07:21:00.000Z</published>
+    <updated>2026-07-21T07:21:00.000Z</updated>
+    <summary type="html"><![CDATA[Ciallo～(∠・ω< )⌒☆]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="日常" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[道歉信：关于 713 解锁视频中伪回锁内容的说明与反思]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p1e8gapt/" />
+    <id>https://blog.mcxiaochen.top/posts/p1e8gapt/</id>
+    <published>2026-07-19T20:08:14.000Z</published>
+    <updated>2026-07-19T20:08:14.000Z</updated>
+    <summary type="html"><![CDATA[非常抱歉，我是该视频的发布者。]]></summary>
+    <author><name>辰渊尘</name></author>
+
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[713解锁节来辣！小米17全系，k90pm又能解bl了]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/mi-unlock-713/" />
+    <id>https://blog.mcxiaochen.top/posts/mi-unlock-713/</id>
+    <published>2026-07-13T17:02:03.000Z</published>
+    <updated>2026-07-13T17:02:03.000Z</updated>
+    <summary type="html"><![CDATA[正式开始介绍之前先简单说一下本次利用到的漏洞吧]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="搞机" />
+    <category term="安卓" />
+    <category term="BootLoader" />
+    <category term="解BL" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[免费领取网易云音乐7天会员]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p6eae1621/" />
+    <id>https://blog.mcxiaochen.top/posts/p6eae1621/</id>
+    <published>2026-07-04T18:48:53.000Z</published>
+    <updated>2026-07-04T18:48:53.000Z</updated>
+    <summary type="html"><![CDATA[建站两个月了，送点福利好了，每月我会不定时的发出链接，大家纯靠手速抢，抢到就是赚到，下面的是按月分类，可以在文章目录直接选择日期。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="网易云音乐" />
+    <category term="福利" />
+    <category term="会员" />
+    <category term="白嫖" />
+    <category term="赠送" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[服务器面板迁移：从宝塔到 1Panel]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p1cc5kvb/" />
+    <id>https://blog.mcxiaochen.top/posts/p1cc5kvb/</id>
+    <published>2026-07-04T01:42:31.000Z</published>
+    <updated>2026-07-04T01:42:31.000Z</updated>
+    <summary type="html"><![CDATA[目前正在进行服务器面板的迁移工作，从 宝塔面板 迁移到 1Panel。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="公告" />
+    <category term="服务器" />
+    <category term="运维" />
+    <category term="1Panel" />
+    <category term="宝塔" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Subconverter 太臃肿？PHP 版轻量化替代来了！]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p18tcoxk/" />
+    <id>https://blog.mcxiaochen.top/posts/p18tcoxk/</id>
+    <published>2026-06-16T23:30:48.000Z</published>
+    <updated>2026-06-16T23:30:48.000Z</updated>
+    <summary type="html"><![CDATA[订阅转换是个多代理用户的刚需——把多个代理的订阅合并成一个，生成一份统一的配置文件，导入到 Clash/mihomo 里使用。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="项目推荐" />
+    <category term="教程" />
+    <category term="PHP" />
+    <category term="代理" />
+    <category term="订阅转换" />
+    <category term="subconverter" />
+    <category term="mihomo" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Astro框架Fuwari主题侧边栏添加Umami访问统计]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p614f9cbd/" />
+    <id>https://blog.mcxiaochen.top/posts/p614f9cbd/</id>
+    <published>2026-05-09T11:12:58.000Z</published>
+    <updated>2026-05-09T11:12:58.000Z</updated>
+    <summary type="html"><![CDATA[之前一直想在侧边栏加一个访问统计的功能，看了不少教程发现大部分都是基于不蒜子或者  的，偶然间发现了通过 Umami + PHP 搭配实现的方式，觉得不错就搞了一下，最终效果就是在侧边栏展示了 当前在线、今日访客、今日浏览、昨日浏览、本月浏览、总浏览 这些数据，这篇文章就来分享一下怎么实现的。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Astro" />
+    <category term="Fuwari" />
+    <category term="Umami" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[为Fuwari框架适配友链状态显示]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p2a481d83/" />
+    <id>https://blog.mcxiaochen.top/posts/p2a481d83/</id>
+    <published>2026-05-08T15:46:25.000Z</published>
+    <updated>2026-05-08T15:46:25.000Z</updated>
+    <summary type="html"><![CDATA[之前在用 Hexo 的 anzhiyu 主题时，就搞过一次友链状态显示的功能（详见安知鱼主题实现友链状态前端显示），当时用的是 LiuShen 大佬 的 check-flink 方案，效果还不错。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Astro" />
+    <category term="Fuwari" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[小米MiMo Token Plan免费送辣！]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p7e7645e6/" />
+    <id>https://blog.mcxiaochen.top/posts/p7e7645e6/</id>
+    <published>2026-04-30T18:26:03.000Z</published>
+    <updated>2026-04-30T18:26:03.000Z</updated>
+    <summary type="html"><![CDATA[好久没更新博客了，小小水一篇文章报告一下我还活着。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="AI" />
+    <category term="小米" />
+    <category term="MiMo" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Astro框架Fuwari主题实现仿hexo-abbrlink功能]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p403bf94e/" />
+    <id>https://blog.mcxiaochen.top/posts/p403bf94e/</id>
+    <published>2026-02-26T00:00:00.000Z</published>
+    <updated>2026-02-26T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[好久没写文章都生疏了，好在这个框架上手挺快的，配合 ai 一下午就实现了短链的功能，代码拼拼改改，也不知道有没有隐藏的 bug，反正我用到现在一切正常，想要在自己的博客可以接着读下去]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Astro" />
+    <category term="Fuwari" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[观《鬼灭之刃：无限城篇 第一章 猗窝座再袭》首映有感]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pf21cf686/" />
+    <id>https://blog.mcxiaochen.top/posts/pf21cf686/</id>
+    <published>2025-11-15T00:00:00.000Z</published>
+    <updated>2025-11-15T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[虽说标题是观后感，但我这人文笔不好，记性也很差，虽然就是 14 号凌晨去看的，但是让我写观后感真的写不出来，文笔也很垃圾，所以本篇更多是日常记录加一点废话杂谈形式，也可能写的比较烂，轻喷，这类文章不是我擅长的领域，但人总喜欢挑战自己的短板]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="日常" />
+    <category term="生活" />
+    <category term="电影" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[为你anzhiyu主题的Twikoo评论系统恢复预览按钮]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pb0f17a54/" />
+    <id>https://blog.mcxiaochen.top/posts/pb0f17a54/</id>
+    <published>2025-10-08T00:00:00.000Z</published>
+    <updated>2025-10-08T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[Twikoo 原生界面自带 预览 按钮控件，但 anzhiyu 主题为了美化，重构了样式，简化掉了 预览 按钮，本篇文章教你如何把它加回来]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[山东泰安泰山游记：煌煌泰山景，谦谦君子风]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p72884b50/" />
+    <id>https://blog.mcxiaochen.top/posts/p72884b50/</id>
+    <published>2025-10-06T00:00:00.000Z</published>
+    <updated>2025-10-06T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[实际上本来是打算爬黄山的，奈何佛系 00 后，出行从不提前做攻略，原本火车票都买好了，当晚做攻略的时候发现黄山居然要提前买票，一看发现已经没票了，无奈放弃]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="日常" />
+    <category term="生活" />
+    <category term="旅游" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[安知鱼主题：修复背景图修改引发的深色模式可读性问题]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p9b691fc1/" />
+    <id>https://blog.mcxiaochen.top/posts/p9b691fc1/</id>
+    <published>2025-09-18T00:00:00.000Z</published>
+    <updated>2025-09-18T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[我此前修改了博客深色模式下的背景为 Mo 佬 同款，后面发现了一些问题，部分样式文本出现了可读性降低的问题，通过添加模糊效果解决，希望能帮到你。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[安知鱼主题实现友链状态前端显示]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p1c0fbc06/" />
+    <id>https://blog.mcxiaochen.top/posts/p1c0fbc06/</id>
+    <published>2025-09-16T00:00:00.000Z</published>
+    <updated>2025-09-16T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[早些时候就看到了Mo 佬友链页的访问速度统计，非常眼馋。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[我敲！优选DNS牛大了]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p69eaef80/" />
+    <id>https://blog.mcxiaochen.top/posts/p69eaef80/</id>
+    <published>2025-09-15T00:00:00.000Z</published>
+    <updated>2025-09-15T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[日常网络冲浪发现了这个项目：]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="项目推荐" />
+    <category term="博客" />
+    <category term="DNS" />
+    <category term="优选IP" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[安知鱼主题侧边栏添加无聊湾]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pe4b3739d/" />
+    <id>https://blog.mcxiaochen.top/posts/pe4b3739d/</id>
+    <published>2025-09-14T00:00:00.000Z</published>
+    <updated>2025-09-14T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[今日闲来无事偷窥（翻看）Mo 佬的博客时发现了这个]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[从零开始使用Hexo框架搭建属于你的博客（一）环境准备篇]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pe305/" />
+    <id>https://blog.mcxiaochen.top/posts/pe305/</id>
+    <published>2025-09-13T00:00:00.000Z</published>
+    <updated>2025-09-13T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[在上一篇「准备篇」中，我们已经聊过了搭建博客的动机、Hexo 是什么、适合谁用、以及部署的大致方向。这篇教程将正式带你动手，从最基础的环境配置开始，为你的 Hexo 博客打好地基。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="保姆级" />
+    <category term="教程" />
+    <category term="Hexo" />
+    <category term="Web" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[记录下Hexo博客从本地构建迁移到Netlify，AI API Key 泄露问题与解决方案记录]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pe7f1d743/" />
+    <id>https://blog.mcxiaochen.top/posts/pe7f1d743/</id>
+    <published>2025-09-09T00:00:00.000Z</published>
+    <updated>2025-09-09T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[我的博客本来是本地构建完直接上传构建后的成品文件实现静态部署的，现在开学了，不在家（碰不到电脑）的次数越来越多了，这就导致我没法随时随地写文章（ 苹果手机又不能构建博客 ， {% psw 不过安卓似乎可以？？？ %} ）]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[云服务器宝塔部署Twikoo博客评论系统]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pc83e94c5/" />
+    <id>https://blog.mcxiaochen.top/posts/pc83e94c5/</id>
+    <published>2025-09-07T00:00:00.000Z</published>
+    <updated>2025-09-07T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[时间是真快啊，转眼就开学一周了，之所以想从免费的 Netlify + MongoDB Atlas 转到付费的云服务器主要有两点。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="Twikoo" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[手把手教你在Linux系统下部署MCSManager并搭建一个MC服务器]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p1b75e3c5/" />
+    <id>https://blog.mcxiaochen.top/posts/p1b75e3c5/</id>
+    <published>2025-08-22T00:00:00.000Z</published>
+    <updated>2025-08-22T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[要想开服，自然少不了服务器了，这里推荐雨云的云服务器，性价比很高：]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="Linux" />
+    <category term="Minecraft" />
+    <category term="MCSManager" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[为你的Twikoo添加酷安表情包]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p5b9fe4a/" />
+    <id>https://blog.mcxiaochen.top/posts/p5b9fe4a/</id>
+    <published>2025-08-21T00:00:00.000Z</published>
+    <updated>2025-08-21T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[咱博客现在也是蒸蒸日上了，主站搭建差不多了，今天来折腾下 Twikoo 自定义表情包]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="Hexo" />
+    <category term="Twikoo" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[记录一次博客评论迁移过程]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pcb573663/" />
+    <id>https://blog.mcxiaochen.top/posts/pcb573663/</id>
+    <published>2025-08-20T00:00:00.000Z</published>
+    <updated>2025-08-20T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[我使用 abbrlink 插件默认参数设置发现有概率为文章生成纯数字链接，例如，然后链接转二维码的 api 就这样活生生炸了，我很纳闷，一般来说 url 不应该出现此问题，但事实就是如此，既来之则安知，修！]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[记一次花嫁联名借记卡申领过程]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pb878/" />
+    <id>https://blog.mcxiaochen.top/posts/pb878/</id>
+    <published>2025-08-19T00:00:00.000Z</published>
+    <updated>2025-08-19T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[终于也是满 16 周岁了，搀这卡好久了，期间看了一堆别人分享的文章视频，今天终于也是轮到自己了。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="杂谈" />
+    <category term="生活" />
+    <category term="日常" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[为使用anzhiyu主题的博客加上十年之约进度条]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p7b47/" />
+    <id>https://blog.mcxiaochen.top/posts/p7b47/</id>
+    <published>2025-08-18T00:00:00.000Z</published>
+    <updated>2025-08-18T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[我从选择 anzhiyu 主题后大多搭建教程都是看的 Mo 佬 的这篇文章，查找资料的同时自然少不了 偷窥（观摩）大佬的站点。其中他个人页的十年之约进度条可让我眼馋很久，如今博客稳定下来了，我自然要把它 抄（借鉴）过来。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="教程" />
+    <category term="博客" />
+    <category term="实战" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[有关建站一个月以来的一点点感想和后续计划]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p7a7c/" />
+    <id>https://blog.mcxiaochen.top/posts/p7a7c/</id>
+    <published>2025-08-17T00:00:00.000Z</published>
+    <updated>2025-08-17T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[时间过的真的很快，不知不觉中博客已经建立一个月了，暑假余额也不足了。在这段时间里我完成了博客的搭建到上线。这一个月的时间也让我收获颇丰。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="杂谈" />
+    <category term="生活" />
+    <category term="日常" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[这可能是iOS自签的版本答案，二合一LiveContainer教程来辣！]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p801b/" />
+    <id>https://blog.mcxiaochen.top/posts/p801b/</id>
+    <published>2025-08-16T00:00:00.000Z</published>
+    <updated>2025-08-16T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[本次教程使用 LiveContainer+SideStore 二合一版本，此版本还处于试验阶段，本人体验没有发现恶性 bug，请勿用于重要场景！！！]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="保姆级教程" />
+    <category term="IOS折腾" />
+    <category term="搞机" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[iOS侧载新选择！SideStore+LiveContainer，纯净无广，无限安装软件！！！]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p5a0d/" />
+    <id>https://blog.mcxiaochen.top/posts/p5a0d/</id>
+    <published>2025-07-29T00:00:00.000Z</published>
+    <updated>2025-07-29T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[还在用牛蛙助手/ NB 广告助手吗？别用那玩意了，吃相难看还限制安装 app 数量，按照此教程正确安装 SideStore 和 LiveContainer，你就可以无限安装/多开软件，不受 Apple 的 3 软件数量限制]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="保姆级教程" />
+    <category term="IOS折腾" />
+    <category term="搞机" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[从零开始使用Hexo框架搭建属于你的博客（零）准备篇]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p7e9/" />
+    <id>https://blog.mcxiaochen.top/posts/p7e9/</id>
+    <published>2025-07-19T00:00:00.000Z</published>
+    <updated>2025-07-19T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[在这个人人都能发声、动动手指就能写文章的平台时代，我们似乎已经被微博、小红书、知乎、微信公众号等信息流平台包围。可就是在这种环境下，还有很多技术人、爱好者、甚至学生选择了自己搭建博客，使用如 Hexo、Hugo、Jekyll 等静态博客框架，写下一篇篇属于他们自己的记录。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="保姆级" />
+    <category term="教程" />
+    <category term="Hexo" />
+    <category term="Web" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Arch Linux+Hyprland从安装到使用只需这一篇（保姆级喂饭超全教程）]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/pae3/" />
+    <id>https://blog.mcxiaochen.top/posts/pae3/</id>
+    <published>2025-07-15T00:00:00.000Z</published>
+    <updated>2025-07-15T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[本次教程采用脚本极简安装，相当于 ArchLinux 的安装向导，可以通过简单设置就完成 Arch Linux 的安装。由于脚本至今仍在更新完善，因此所有相关教程的时效性都非常短，不同教程之间差异会非常大，建议以最新教程为准。]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="保姆级" />
+    <category term="教程" />
+    <category term="Arch" />
+    <category term="Linux" />
+    <category term="Hyprland" />
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[恭喜你找到了本站的第一篇文档]]></title>
+    <link href="https://blog.mcxiaochen.top/posts/p3eeb/" />
+    <id>https://blog.mcxiaochen.top/posts/p3eeb/</id>
+    <published>2025-07-14T00:00:00.000Z</published>
+    <updated>2025-07-14T00:00:00.000Z</updated>
+    <summary type="html"><![CDATA[嗨，很高兴你能翻到这篇文章，虽然不知道此时的我是否已经完成梦想，也有可能博客已经消失在时间长河之中，但精神常在]]></summary>
+    <author><name>辰渊尘</name></author>
+    <category term="日常" />
+  </entry>
+</feed>

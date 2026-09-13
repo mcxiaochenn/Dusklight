@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf2"/>
+      <stop offset="100%" stop-color="#d0d7df"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <!-- 占位图案：山 + 太阳 -->
+  <g transform="translate(800,360)" fill="none" stroke="#a0aab4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="-200,100 -100,-40 -30,40 20,-20 100,-80 200,100"/>
+    <circle cx="140" cy="-80" r="36"/>
+  </g>
+  <!-- 404 文字 -->
+  <text x="800" y="570" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="140" font-weight="700" fill="#88929c" letter-spacing="0.06em">404</text>
+  <!-- 副标题 -->
+  <text x="800" y="640" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="36" font-weight="400" fill="#a0aab4" letter-spacing="0.04em">Image Not Found</text>
+</svg>
