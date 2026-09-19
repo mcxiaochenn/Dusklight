@@ -483,6 +483,13 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://blog.itrf.cn/",
 		tags: ["技术"],
 	},
+	{
+		title: "桜鵞のすみか",
+		imgurl: "https://retmon.cc/pic/head.jpg",
+		desc: "你开源的代码写的很不错，现在是我的了~",
+		siteurl: "https://retmon.cc",
+		tags: ["技术"],
+	},
 ];
 
 /** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */
