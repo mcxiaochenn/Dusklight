@@ -24,9 +24,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/mdx": "^8.0.1",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/sitemap": "^3.7.4",
     "@astrojs/svelte": "^9.0.1",
     "@expressive-code/core": "^0.44.1",
     "@expressive-code/plugin-collapsible-sections": "^0.44.1",
@@ -37,7 +37,7 @@
     "@iconify-json/simple-icons": "^1.2.93",
     "@iconify/tailwind4": "^1.2.3",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.2.0",
+    "astro": "^7.3.3",
     "astro-expressive-code": "^0.44.1",
     "astro-icon": "^1.1.5",
     "hast-util-select": "^6.0.4",
@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "^7.2.2",
+    "@astrojs/markdown-remark": "^7.3.1",
     "@types/qrcode": "^1.5.6",
     "cn-font-split": "^7.4.3",
     "pangu": "^9.1.0",
