@@ -1,7 +1,7 @@
 ---
 /**
  * 侧栏个人介绍卡片 — 竖版（上下比左右长）
- * 主题色渐变背景；问候语胶囊在头像上方，点击随机更换语录；
+ * 深浅实体表面；问候语胶囊在头像上方，点击随机更换语录；
  * 加载时先显示时间感知问候。蓝本：blog.zhheo.com 的 card-content
  */
 import { Icon } from "astro-icon/components";
@@ -91,28 +91,29 @@ import { profileConfig, mottosConfig } from "@/config";
     padding: var(--space-5);
     gap: var(--space-4);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-md), var(--glass-highlight);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
-    color: oklch(0.98 0.008 var(--hue));
+    color: var(--foreground);
   }
 
-  /* 主题色渐变背景（zhheo -25deg 渐变）；isolation 保证 ::before 垫在内容下 */
+  /* 只保留局部主题色辉光，让 Hero 和文章流保持第一视觉层级。 */
   .profile-card::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(-25deg, var(--accent), var(--accent-dim));
+    background: linear-gradient(145deg, oklch(from var(--accent) l c h / 0.13), transparent 58%);
   }
 
   .profile-card__greet {
     cursor: pointer;
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-full);
-    border: 1px solid oklch(1 0 0 / 0.25);
-    background: oklch(1 0 0 / 0.14);
-    color: inherit;
+    border: 1px solid oklch(from var(--accent) l c h / 0.22);
+    background: var(--accent-subtle);
+    color: var(--foreground);
     font-size: var(--text-sm);
     font-weight: 500;
     max-width: 100%;
@@ -127,7 +128,7 @@ import { profileConfig, mottosConfig } from "@/config";
   }
 
   .profile-card__greet:hover {
-    background: oklch(1 0 0 / 0.24);
+    background: oklch(from var(--accent) l c h / 0.18);
     transform: translateY(-1px);
   }
 
@@ -145,7 +146,7 @@ import { profileConfig, mottosConfig } from "@/config";
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid oklch(1 0 0 / 0.4);
+    border: 3px solid oklch(from var(--accent) l c h / 0.28);
     box-shadow: var(--shadow-md);
     transition: transform var(--duration-slow) var(--ease-material);
   }
@@ -181,7 +182,7 @@ import { profileConfig, mottosConfig } from "@/config";
 
   .profile-card__bio {
     font-size: var(--text-xs);
-    opacity: 0.85;
+    color: var(--foreground-secondary);
   }
 
   .profile-card__socials {
@@ -199,14 +200,15 @@ import { profileConfig, mottosConfig } from "@/config";
     width: 32px;
     height: 32px;
     border-radius: var(--radius-md);
-    color: inherit;
+    color: var(--foreground-secondary);
     transition:
       background var(--duration-fast) var(--ease-material),
       transform var(--duration-fast) var(--ease-material);
   }
 
   .profile-card__social:hover {
-    background: oklch(1 0 0 / 0.18);
+    background: var(--accent-subtle);
+    color: var(--accent);
     transform: translateY(-1px);
   }
 

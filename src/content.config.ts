@@ -29,6 +29,8 @@ const blog = defineCollection({
 		category: z.string().optional(),
 		cover: z.string().optional(),
 		pinned: z.boolean().default(false),
+		featured: z.boolean().default(false),
+		bannerCover: z.string().optional(),
 		author: z.string().optional(),
 		draft: z.boolean().default(false),
 		abbrlink: z.string().optional(),

@@ -8,6 +8,9 @@ import Announcement from "./Announcement.astro";
 import SiteStats from "./SiteStats.astro";
 import Calendar from "./Calendar.astro";
 import BoringBay from "./BoringBay.astro";
+import RecentComments from "./RecentComments.svelte";
+import { commentConfig } from "../../config/comment";
+import { siteConfig } from "../../config/site";
 
 export interface SidebarStats {
   postCount: number;
@@ -28,6 +31,15 @@ const { stats } = Astro.props;
 <aside class="sidebar">
   <ProfileCard />
   <Announcement />
+  {commentConfig.enabled && commentConfig.recentComments.enabled && (
+    <RecentComments
+      client:visible
+      envId={commentConfig.twikoo.envId}
+      siteUrl={siteConfig.site}
+      limit={commentConfig.recentComments.limit}
+      includeReply={commentConfig.recentComments.includeReply}
+    />
+  )}
   <SiteStats
     postCount={stats.postCount}
     categoryCount={stats.categoryCount}

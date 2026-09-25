@@ -14,6 +14,7 @@ import JsonLd from "../components/seo/JsonLd.astro";
 import Encryptor from "../components/blog/Encryptor.astro";
 import ArticleFooter from "../components/blog/ArticleFooter.astro";
 import { Icon } from "astro-icon/components";
+import { commentConfig } from "../config/comment";
 
 import "../styles/expressive-code.css";
 import "../styles/encrypted-content.css";
@@ -48,6 +49,7 @@ const { title, date, updated, description, tags, category, cover, author, toc: s
 const displayUpdated = updated || date;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isEncrypted = !!password;
+const commentsEnabled = showComment && commentConfig.enabled;
 ---
 
 <BaseLayout title={title} description={description} image={cover}>
@@ -99,7 +101,7 @@ const isEncrypted = !!password;
         license={license}
       />
 
-      {showComment && <TwikooComments />}
+      {commentsEnabled && <TwikooComments />}
     </article>
 
     {/* 加密文章不渲染目录：headings 来自 render(post) 的明文结果，
@@ -112,9 +114,12 @@ const isEncrypted = !!password;
     )}
   </div>
 
-  {/* 浮动操作按钮组 — TOC / 回顶部
-      两个按钮共享 .fab 基类，入场时从右边缘逐个弹入，出场时逐个缩回。
-      跳评论按钮由 TwikooComments 组件内部渲染（有评论的页面才显示） */}
+  {/* 浮动操作按钮组 — TOC / 评论 / 回顶部 */}
+  {commentsEnabled && (
+    <button class="fab fab--comments" id="fab-comments" aria-label="跳转到评论">
+      <Icon name="fa7-solid:comment-dots" />
+    </button>
+  )}
   {showToc && !isEncrypted && headings.length > 0 && (
     <button class="fab fab--toc" id="fab-toc" aria-label="文章目录">
       <Icon name="fa7-solid:list" />
@@ -199,12 +204,11 @@ const isEncrypted = !!password;
   }
 
   /* ── 浮动操作按钮组（TOC / 跳评论 / 回顶部） ──
-     两个 FAB 共享 .fab 基类玻璃 pill 样式（跳评论按钮已移至
-     TwikooComments 组件内，有评论的页面才显示）。
      动画：入场时从右边缘逐个弹入（自下而上），出场反向。
      Bottom 偏移（自底向上堆叠）：
      - 回顶部 (BackToTop)：--space-10 + 20px
-     - TOC：   + 44px + --space-2 */
+     - 评论：+ 44px + --space-2
+     - TOC：+ 88px + --space-4 */
   .fab {
     position: fixed;
     right: var(--space-4);
@@ -231,6 +235,7 @@ const isEncrypted = !!password;
   }
 
   .fab--top { bottom: calc(var(--space-10) + 20px); }
+  .fab--comments { bottom: calc(var(--space-10) + 20px + 44px + var(--space-2)); }
   .fab--toc { bottom: calc(var(--space-10) + 20px + 88px + var(--space-4)); }
 
   .fab:hover {
@@ -260,6 +265,7 @@ const isEncrypted = !!password;
 
   /* 出场交错延迟（自上而下消失） */
   .fab--hiding.fab--top { transition-delay: 0s; }
+  .fab--hiding.fab--comments { transition-delay: 0.06s; }
   .fab--hiding.fab--toc { transition-delay: 0.12s; }
 
   /* ── TOC 弹出面板 ── */
@@ -364,6 +370,7 @@ const isEncrypted = !!password;
     .fab { width: 40px; height: 40px; }
     .fab svg { width: 16px; height: 16px; }
     .fab--top { bottom: calc(var(--space-8) + 16px); }
+    .fab--comments { bottom: calc(var(--space-8) + 16px + 40px + var(--space-2)); }
     .fab--toc { bottom: calc(var(--space-8) + 16px + 80px + var(--space-4)); }
   }
 </style>
@@ -383,6 +390,7 @@ const isEncrypted = !!password;
 
   function initFabs() {
     const backToTop = document.getElementById("back-to-top");
+    const fabComments = document.getElementById("fab-comments");
     const fabToc = document.getElementById("fab-toc");
     const tocOverlay = document.getElementById("toc-overlay");
     const tocClose = document.getElementById("toc-overlay-close");
@@ -391,7 +399,7 @@ const isEncrypted = !!password;
     (backToTop as HTMLElement).dataset.fabInit = "1";
 
     // 按距离底部的顺序排列（最近的先出现）
-    const fabs = [backToTop, fabToc].filter(Boolean) as HTMLElement[];
+    const fabs = [backToTop, fabComments, fabToc].filter(Boolean) as HTMLElement[];
 
     let visible = false;
 
@@ -469,6 +477,10 @@ const isEncrypted = !!password;
       });
 
     }
+
+    fabComments?.addEventListener("click", () => {
+      document.getElementById("twikoo")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   // 模块脚本只会执行一次；每次按键都查询当前页面的面板，避免换页后保留旧 DOM 闭包。

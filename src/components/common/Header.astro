@@ -67,7 +67,7 @@ const navIcons: Record<string, string> = {
                     {child.icon && (
                       <Icon name={child.icon} class="header__dropdown-icon" />
                     )}
-                    {child.label}
+                    <span class="header__dropdown-label">{child.label}</span>
                     {child.external && <Icon name="fa7-solid:arrow-up-right-from-square" class="header__external-icon" />}
                   </a>
                 ))}
@@ -129,7 +129,10 @@ const navIcons: Record<string, string> = {
                 data-astro-prefetch={child.external ? false : true}
                 class:list={["mobile-menu__link mobile-menu__link--sub", { "mobile-menu__link--active": isActive(child.href) }]}
               >
-                {child.label}
+                {child.icon && (
+                  <Icon name={child.icon} class="mobile-menu__link-icon" />
+                )}
+                <span class="mobile-menu__link-label">{child.label}</span>
                 {child.external && <Icon name="fa7-solid:arrow-up-right-from-square" class="header__external-icon" />}
               </a>
             ))}
@@ -321,7 +324,9 @@ const navIcons: Record<string, string> = {
     top: calc(100% + var(--space-2));
     left: 50%;
     transform: translateX(-50%) translateY(4px);
-    min-width: 140px;
+    width: max-content;
+    min-width: 160px;
+    max-width: min(280px, calc(100vw - var(--space-8)));
     padding: var(--space-1);
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -368,12 +373,25 @@ const navIcons: Record<string, string> = {
   }
 
   .header__dropdown-icon {
+    flex: 0 0 auto;
     width: 16px;
     height: 16px;
     opacity: 0.7;
   }
 
-  .header__external-icon { width: 11px; height: 11px; margin-left: auto; opacity: .65; }
+  .header__dropdown-label,
+  .mobile-menu__link-label {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .header__external-icon {
+    flex: 0 0 auto;
+    width: 11px;
+    height: 11px;
+    margin-left: auto;
+    opacity: .65;
+  }
 
   .header__dropdown-item:hover {
     color: var(--accent);
