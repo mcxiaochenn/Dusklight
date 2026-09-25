@@ -19,4 +19,10 @@ export const commentConfig = {
     // 是否在独立页面显示评论
     showOnPage: false,
   },
+
+  recentComments: {
+    enabled: true,
+    limit: 5,
+    includeReply: true,
+  },
 } as const;
