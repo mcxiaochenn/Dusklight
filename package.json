@@ -65,7 +65,7 @@
     "@astrojs/markdown-remark": "^7.3.1",
     "@types/qrcode": "^1.5.6",
     "cn-font-split": "^7.4.3",
-    "pangu": "^10.4.0",
+    "pangu": "^10.4.1",
     "typescript": "^7.0.2"
   }
 }
