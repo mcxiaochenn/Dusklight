@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Sitemap: https://blog.mcxiaochen.top/sitemap-index.xml
