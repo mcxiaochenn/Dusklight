@@ -10,6 +10,7 @@ export interface FriendItem {
 	imgurl: string;
 	desc: string;
 	siteurl: string;
+	rss?: string;
 	tags: string[];
 }
 
@@ -488,6 +489,14 @@ export const friendsData: FriendItem[] = [
 		imgurl: "https://retmon.cc/pic/head.jpg",
 		desc: "你开源的代码写的很不错，现在是我的了~",
 		siteurl: "https://retmon.cc",
+		tags: ["技术"],
+	},
+	{
+		title: "HZH",
+		imgurl: "https://clannad.top/favicon.png",
+		desc: "Welcome to HZH",
+		siteurl: "https://clannad.top",
+		rss: "https://clannad.top/feed.xml",
 		tags: ["技术"],
 	},
 ];

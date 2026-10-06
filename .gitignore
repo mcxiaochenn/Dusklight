@@ -33,5 +33,8 @@ src/data/bilibili-data.json
 # jetbrains setting folder
 .idea/
 
+# WorkBuddy 本地工作目录
+/.workbuddy/
+
 # temp reference repos (Mizuki analysis etc.)
 Temp/
