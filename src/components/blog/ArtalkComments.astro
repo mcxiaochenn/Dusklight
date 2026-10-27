@@ -6,7 +6,10 @@ import "../../styles/artalk.css";
 
 {commentConfig.enabled && (
   <section class="comments-section" aria-labelledby="comments-heading">
-    <h2 id="comments-heading">评论</h2>
+    <header class="comments-heading">
+      <h2 id="comments-heading">一起聊聊</h2>
+      <p>留下你的想法，让交流在这里继续。</p>
+    </header>
     <div id="comments" aria-live="polite"></div>
     <p class="comments-status" role="status">评论将在接近此处时加载。</p>
     <button class="comments-retry" type="button" hidden>重试加载评论</button>
@@ -22,6 +25,7 @@ import "../../styles/artalk.css";
   type Mount = { el: HTMLElement; client?: Artalk; mounted: boolean; disposed: boolean };
   let current: Mount | undefined;
   let observer: IntersectionObserver | undefined;
+  let controlsObserver: MutationObserver | undefined;
   let loading: Promise<typeof import("artalk")> | undefined;
   let legacyMap: Promise<Record<string, [string, number]>> | undefined;
 
@@ -46,6 +50,8 @@ import "../../styles/artalk.css";
   }
 
   function unmount() {
+    controlsObserver?.disconnect();
+    controlsObserver = undefined;
     avatarFallbacks.clear();
     observer?.disconnect();
     observer = undefined;
@@ -93,7 +99,16 @@ import "../../styles/artalk.css";
         state.mounted = true;
         // 等本轮 mounted 处理全部完成，才能完整解除库注册的监听器。
         if (state.disposed || !el.isConnected) queueMicrotask(() => client.destroy());
-        else client.setDarkMode(document.documentElement.classList.contains("dark"));
+        else {
+          client.setDarkMode(document.documentElement.classList.contains("dark"));
+          enhanceControls();
+          controlsObserver = new MutationObserver((records) => {
+            if (records.some((record) => record.target instanceof Element &&
+              (record.target.closest("#comments, .atk-layer-wrap") ||
+               [...record.addedNodes].some((node) => node instanceof Element && node.matches(".atk-layer-wrap"))))) enhanceControls();
+          });
+          controlsObserver.observe(document.body, { childList: true, subtree: true });
+        }
       });
       client.on("list-loaded", () => {
         if (!state.disposed) { status.hidden = true; retry.hidden = true; }
@@ -150,6 +165,29 @@ import "../../styles/artalk.css";
     if (!current) void mount(el);
     else void translateLegacyHash(el).catch((error) => console.warn("[Artalk] 旧链接定位失败", error));
   });
+  // 原生插件部分控件使用 span/div；补充键盘语义，点击仍交给原生处理。
+  function enhanceControls() {
+    document.querySelectorAll<HTMLElement>(
+      "#comments .atk-plug-btn, #comments .atk-common-action-btn, #comments .atk-state-btn, .atk-layer-wrap .atk-method-item, .atk-layer-wrap .atk-auth-dialog-title .atk-icon, .atk-layer-wrap .atk-form .atk-link",
+    ).forEach((control) => {
+      if (control.matches("a, button, input")) return;
+      control.setAttribute("role", "button");
+      control.tabIndex = 0;
+      control.dataset.atkKeyboard = "true";
+      const label = control.querySelector("[aria-label]")?.getAttribute("aria-label");
+      if (label) control.setAttribute("aria-label", label);
+      if (control.classList.contains("atk-close")) control.setAttribute("aria-label", "关闭登录窗口");
+      if (control.classList.contains("atk-back-btn")) control.setAttribute("aria-label", "返回登录方式");
+      if (control.classList.contains("atk-state-btn")) control.setAttribute("aria-label", control.textContent?.includes("编辑") ? "取消编辑" : "取消回复");
+    });
+  }
+  document.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") &&
+        event.target instanceof HTMLElement && event.target.dataset.atkKeyboard === "true") {
+      event.preventDefault();
+      event.target.click();
+    }
+  });
   new MutationObserver(() => {
     if (current?.mounted && current.el.isConnected) {
       current.client?.setDarkMode(document.documentElement.classList.contains("dark"));
@@ -160,7 +198,9 @@ import "../../styles/artalk.css";
 
 <style>
   .comments-section { margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); }
-  h2 { font-size: var(--text-lg); margin: 0 0 var(--space-4); }
+  .comments-heading { margin-bottom: var(--space-5); }
+  h2 { font-size: var(--text-xl); margin: 0 0 var(--space-2); }
+  .comments-heading p { margin: 0; color: var(--foreground-muted); font-size: var(--text-sm); }
   #comments { min-height: 200px; scroll-margin-top: calc(var(--header-height) + var(--space-4)); }
   .comments-status { color: var(--foreground-muted); font-size: var(--text-sm); }
   .comments-retry { color: var(--accent); background: var(--surface-1); border: 1px solid var(--border); padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); cursor: pointer; }

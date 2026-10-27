@@ -29,7 +29,7 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-5);
-  margin: var(--space-8) 0;
+  margin: var(--space-5) 0 var(--space-8);
   background: var(--surface-0);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -54,10 +54,10 @@
 #comments .atk-main-editor .atk-textarea {
   box-sizing: border-box;
   width: 100%;
-  min-height: 150px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface-1);
-  border: 1px solid var(--border);
+  min-height: 168px;
+  padding: var(--space-3) var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   font: inherit;
   font-size: var(--text-base);
@@ -79,7 +79,7 @@
   gap: var(--space-3);
   padding: 0;
   border: 0;
-  min-height: 36px;
+  min-height: 44px;
 }
 #comments .atk-main-editor > .atk-notify-wrap { order: 4; }
 #comments .atk-main-editor > .atk-notify-wrap:empty { display: none; }
@@ -107,17 +107,17 @@
   border-bottom: 1px solid var(--border-subtle);
   color: var(--foreground);
 }
-#comments .atk-list-header .atk-comment-count { font-size: var(--text-lg); font-weight: 600; }
+#comments .atk-list-header .atk-comment-count { font-size: var(--text-md); font-weight: 600; }
 #comments .atk-comment-wrap { margin: 0; }
 #comments .atk-list > .atk-comment-wrap { margin-top: var(--space-3); }
 #comments .atk-comment {
   padding: var(--space-5);
   background: var(--surface-0);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
-#comments .atk-comment .atk-main { min-width: 0; flex: 1; }
+#comments .atk-comment .atk-main { min-width: 0; margin-left: 56px; }
 #comments .atk-comment .atk-header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); }
 #comments .atk-comment .atk-avatar {
   --corner-shape: var(--corner-shape-round);
@@ -153,8 +153,9 @@
 #comments .atk-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 #comments .atk-common-action-btn { padding: var(--space-1) var(--space-2); margin: 0; color: var(--foreground-muted); border-radius: var(--radius-sm); font-size: var(--text-xs); }
 #comments .atk-common-action-btn:hover { background: var(--accent-subtle); color: var(--accent); }
-#comments .atk-comment-children { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
-#comments .atk-comment-children .atk-comment { margin-top: var(--space-2); padding: var(--space-3); background: var(--surface-1); border-radius: var(--radius-lg); box-shadow: none; }
+#comments .atk-comment-children { margin-top: var(--space-4); padding: 0 0 0 var(--space-3); border-left: 2px solid var(--border); }
+#comments .atk-comment-children .atk-comment { margin-top: var(--space-2); padding: var(--space-3); background: var(--surface-1); border: 0; border-radius: var(--radius-md); box-shadow: none; }
+#comments .atk-comment-children .atk-main { margin-left: 44px; }
 #comments .atk-comment-children .atk-avatar { width: 32px; height: 32px; margin-right: var(--space-3); }
 #comments .atk-editor-plug-preview { padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-1); }
 .atk-layer-wrap input, .atk-layer-wrap button { font-family: var(--font-body), var(--font-cjk), sans-serif; }
@@ -166,4 +167,44 @@
   #comments .atk-comment .atk-avatar { margin-right: var(--space-3); }
   #comments .atk-comment-children .atk-comment { padding: var(--space-2); }
   #comments .atk-comment-children .atk-avatar { width: 28px; height: 28px; margin-right: var(--space-2); }
+}
+
+/* 登录插件沿用原生状态；仅调整可见布局与操作层级。 */
+#comments .atk-main-editor { background: var(--surface-1); }
+#comments .atk-main-editor > .atk-bottom { padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
+#comments .atk-main-editor .atk-send-btn { min-height: 44px; padding-inline: var(--space-5); }
+#comments .atk-list-header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+#comments .atk-list-header .atk-comment-count { font-weight: 700; }
+#comments .atk-comment { background: var(--surface-1); }
+#comments .atk-comment .atk-header .atk-nick { font-size: var(--text-base); }
+#comments .atk-comment .atk-avatar { border: 0; padding: 0; }
+#comments .atk-comment .atk-avatar img { width: 100%; height: 100%; }
+#comments .atk-comment .atk-actions .atk-common-action-btn { min-height: 36px; align-items: center; }
+#comments .atk-comment .atk-reply-to { background: var(--surface-2); border-radius: var(--radius-sm); }
+#comments .atk-editor-plug-emoticons { background: var(--surface-1); }
+#comments .atk-editor-plug-emoticons .atk-item { border-radius: var(--radius-sm); }
+#comments .atk-main-editor .atk-textarea:focus-visible { outline: 2px solid var(--accent-subtle); }
+.atk-layer-wrap .atk-layer-dialog { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-1); box-shadow: var(--shadow-lg); }
+.atk-layer-wrap .atk-layer-dialog input { min-height: 44px; border-radius: var(--radius-md); }
+.atk-layer-wrap .atk-layer-dialog button { min-height: 44px; border-radius: var(--radius-md); }
+.atk-layer-wrap :is(a, button, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.atk-layer-wrap .atk-auth-plugin-dialog { width: min(400px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); background: var(--surface-1); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-auth-dialog-title { padding: var(--space-4) var(--space-4) 0; font-weight: 700; }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-methods { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-method-item { border: 1px solid var(--border); background: var(--surface-2); border-radius: var(--radius-md); min-height: 64px; }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-method-item:hover { border-color: var(--accent); background: var(--accent-subtle); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-method-item .atk-method-icon { width: 36px; height: 36px; background-color: #fff; border-radius: var(--radius-sm); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-form { padding: var(--space-5); }
+.atk-layer-wrap .atk-auth-plugin-dialog input { min-height: 44px; border-radius: var(--radius-md); background: var(--surface-0); color: var(--foreground); }
+.atk-layer-wrap .atk-auth-plugin-dialog button { min-height: 44px; border-radius: var(--radius-md); }
+#comments .atk-editor-user-wrap { border-radius: var(--radius-md); color: var(--foreground); }
+#comments [role="button"]:focus-visible, .atk-layer-wrap [role="button"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 768px) {
+  #comments .atk-comment > .atk-main { margin-left: 48px; }
+  #comments .atk-comment-children .atk-comment > .atk-main { margin-left: 36px; }
+  #comments .atk-comment-children { padding-left: var(--space-2); }
+  #comments .atk-comment-children .atk-comment-children { margin-left: -36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #comments *, .atk-layer-wrap * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
