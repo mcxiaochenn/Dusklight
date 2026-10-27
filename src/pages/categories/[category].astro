@@ -1,80 +1,27 @@
 ---
-import { getCollection, render } from "astro:content";
-import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostCard from "../../components/blog/PostCard.astro";
+import BrowsePostList from "../../components/blog/BrowsePostList.astro";
 import TaxonomyBar from "../../components/blog/TaxonomyBar.astro";
-import type { TaxonomyItem } from "../../components/blog/TaxonomyBar.astro";
-
-interface CategoryProps {
-  category: string;
-  posts: CollectionEntry<"blog">[];
-  excerpts: Record<string, string>;
-  categoryItems: TaxonomyItem[];
-}
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
-  const categories = [
-    ...new Set(
-      posts
-        .map((post) => post.data.category?.trim())
-        .filter((category): category is string => Boolean(category))
-    ),
-  ];
-  const categoryItems = categories
-    .map((name) => ({
-      name,
-      count: posts.filter((post) => post.data.category?.trim() === name).length,
-    }))
-    .sort((a, b) => b.count - a.count);
-
-  const excerpts: Record<string, string> = {};
-  await Promise.all(
-    posts.map(async (post) => {
-      const { remarkPluginFrontmatter } = await render(post);
-      excerpts[post.id] = remarkPluginFrontmatter?.excerpt || "";
-    })
-  );
-
-  return categories.map((category) => ({
-    params: { category },
-    props: {
-      category,
-      posts: posts
-        .filter((post) => post.data.category?.trim() === category)
-        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
-      excerpts,
-      categoryItems,
-    },
-  }));
-};
-
-const { category, posts, excerpts, categoryItems } = Astro.props as unknown as CategoryProps;
+import { groupTopics } from "@/utils/browse";
+import "../../styles/browse.css";
+export const getStaticPaths = (async () => {
+  const posts = (await getCollection("blog")).filter((post) => !post.data.draft);
+  const topics = groupTopics(posts, "categories");
+  return topics.map((topic) => {
+    const items = topics.slice(0, 12).map(({ name, count }) => ({ name, count }));
+    if (!items.some(({ name }) => name === topic.name)) items.push({ name: topic.name, count: topic.count });
+    return { params: { category: topic.name }, props: { topic, items } };
+  });
+}) satisfies GetStaticPaths;
+const { topic, items } = Astro.props;
 ---
-
-<BaseLayout title={`分类: ${category}`} description={`分类 ${category} 下的 ${posts.length} 篇文章`}>
-  <section class="categories-page section">
-    <div class="content-container">
-      <div class="categories-page__header">
-        <h1 class="categories-page__title">分类: {category}</h1>
-        <p class="categories-page__count">共 {posts.length} 篇文章</p>
-      </div>
-      <div class="categories-page__bar">
-        <TaxonomyBar kind="categories" items={categoryItems} current={category} />
-      </div>
-      <div class="categories-page__list">
-        {posts.map((post) => <PostCard post={post} excerpt={excerpts[post.id]} />)}
-      </div>
-    </div>
-  </section>
+<BaseLayout title={`分类: ${topic.name}`} description={`分类 ${topic.name} 下的 ${topic.count} 篇文章`}>
+  <section class="section"><div class="content-container">
+    <a class="browse-back" href="/categories/">‹ 返回全部分类</a>
+    <header class="browse-header"><h1>{topic.name}</h1><p>分类 / 共 {topic.count} 篇文章</p></header>
+    <div class="browse-topics"><TaxonomyBar kind="categories" items={items} current={topic.name} /></div>
+    <BrowsePostList posts={topic.posts} />
+  </div></section>
 </BaseLayout>
-
-<style>
-  .categories-page__header { margin-bottom: var(--space-5); }
-  .categories-page__bar { margin-bottom: var(--space-8); }
-  .categories-page__title { font-size: var(--text-xl); font-weight: 700; margin: 0 0 var(--space-2); }
-  .categories-page__count { color: var(--foreground-muted); margin: 0; }
-  .categories-page__list { display: flex; flex-direction: column; gap: var(--space-4); }
-</style>

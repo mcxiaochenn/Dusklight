@@ -1,72 +1,61 @@
 ---
-/**
- * 归档页面
- * 按年份分组展示所有文章
- */
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import FormattedDate from "../components/FormattedDate.astro";
-import { getPostUrl } from "@/utils/abbrlink";
-
-const posts = (await getCollection("blog"))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-const postsByYear = posts.reduce((acc, post) => {
-  const year = post.data.date.getUTCFullYear();
-  if (!acc[year]) acc[year] = [];
-  acc[year].push(post);
-  return acc;
-}, {} as Record<number, typeof posts>);
-
-const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
+import BrowseNav from "../components/blog/BrowseNav.astro";
+import BrowsePostList from "../components/blog/BrowsePostList.astro";
+import { groupTopics } from "@/utils/browse";
+import "../styles/browse.css";
+const posts = (await getCollection("blog")).filter((post) => !post.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))];
 ---
-
 <BaseLayout title="全部文章" description="所有文章归档">
-  <section class="archive section">
-    <div class="content-container">
-      <h1 class="archive__title">全部文章</h1>
-      <p class="archive__count">共 {posts.length} 篇文章</p>
-
-      {years.map((year) => (
-        <section class="archive__year">
-          <h2 class="archive__year-title">{year}</h2>
-          <ul class="archive__list">
-            {postsByYear[year].map((post) => (
-              <li class="archive__item">
-                <a href={getPostUrl(post)} class="archive__link">
-                  <span class="archive__date"><FormattedDate date={post.data.date} /></span>
-                  <span class="archive__post-title">{post.data.title}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+  <section class="section"><div class="content-container" data-archive>
+    <header class="browse-header"><h1>全部文章</h1><p>共 {posts.length} 篇文章，按时间慢慢翻阅。</p></header>
+    <BrowseNav current="archive" posts={posts.length} tags={groupTopics(posts, "tags").length} categories={groupTopics(posts, "categories").length} />
+    <nav class="archive-years" aria-label="按年份浏览">
+      <a href="/archive/#archive-list" data-year="" aria-current="true">全部</a>
+      {years.map((year) => <a href={`/archive/?year=${year}#year-${year}`} data-year={year}>{year}</a>)}
+    </nav>
+    <p class="sr-only" role="status" data-archive-status></p>
+    <div id="archive-list">
+      {years.map((year) => {
+        const items = posts.filter((post) => post.data.date.getUTCFullYear() === year);
+        return <section class="archive-year" id={`year-${year}`} data-archive-year={year} aria-labelledby={`heading-${year}`}>
+          <h2 id={`heading-${year}`}>{year}<span>{items.length} 篇</span></h2>
+          <BrowsePostList posts={items} />
+        </section>;
+      })}
+      {!posts.length && <p class="browse-empty">还没有公开文章。</p>}
     </div>
-  </section>
+  </div></section>
 </BaseLayout>
-
+<script>
+  // 交由 ClientRouter 导航保存历史及滚动状态，不自行 pushState。
+  function selectYear() {
+    const root = document.querySelector("[data-archive]");
+    if (!root) return;
+    const years = [...root.querySelectorAll<HTMLElement>("[data-archive-year]")];
+    const requested = new URL(location.href).searchParams.get("year");
+    const year = years.some((section) => section.dataset.archiveYear === requested) ? requested : "";
+    years.forEach((section) => { section.hidden = !!year && section.dataset.archiveYear !== year; });
+    root.querySelectorAll<HTMLAnchorElement>("[data-year]").forEach((link) => {
+      if (link.dataset.year === year) link.setAttribute("aria-current", "true");
+      else link.removeAttribute("aria-current");
+    });
+    const status = root.querySelector("[data-archive-status]");
+    if (status) status.textContent = year ? `正在浏览 ${year} 年的文章` : "正在浏览全部文章";
+  }
+  document.addEventListener("astro:page-load", selectYear);
+  selectYear();
+</script>
 <style>
-  .archive__title { font-size: var(--text-xl); font-weight: 700; margin: 0 0 var(--space-2); }
-  .archive__count { color: var(--foreground-muted); margin: 0 0 var(--space-10); }
-  .archive__year { margin-bottom: var(--space-8); }
-  .archive__year-title {
-    font-size: var(--text-lg); font-weight: 600;
-    margin: 0 0 var(--space-4); padding-bottom: var(--space-2);
-    border-bottom: 2px solid var(--accent); display: inline-block;
-  }
-  .archive__list { display: flex; flex-direction: column; gap: var(--space-1); }
-  .archive__link {
-    display: flex; align-items: center; gap: var(--space-4);
-    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
-    text-decoration: none; color: var(--foreground);
-    transition: background var(--duration-fast) var(--ease-material);
-  }
-  .archive__link:hover { background: var(--glass-bg); }
-  .archive__date { color: var(--foreground-muted); font-size: var(--text-sm); min-width: 100px; }
-  .archive__post-title { font-weight: 500; font-size: var(--text-sm); }
-  @media (max-width: 768px) {
-    .archive__link { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
-  }
+  .archive-years { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-3); margin-bottom: var(--space-6); background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .archive-years a { display: inline-flex; align-items: center; justify-content: center; min-width: 64px; min-height: 44px; padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); background: var(--surface-2); color: var(--foreground-secondary); text-decoration: none; font-weight: 600; }
+  .archive-years a:hover { color: var(--accent); background: var(--accent-subtle); }
+  .archive-years a[aria-current] { background: var(--accent); color: var(--surface-1); }
+  .archive-years a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .archive-year { margin-bottom: var(--space-8); scroll-margin-top: calc(var(--header-height) + var(--space-4)); }
+  .archive-year[hidden] { display: none; }
+  .archive-year h2 { display: flex; align-items: baseline; gap: var(--space-3); margin: 0 0 var(--space-4); font-size: var(--text-lg); }
+  .archive-year h2 span { font-size: var(--text-sm); font-weight: 400; color: var(--foreground-muted); }
 </style>

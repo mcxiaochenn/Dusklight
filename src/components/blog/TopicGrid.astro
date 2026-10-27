@@ -1,0 +1,38 @@
+---
+import { Icon } from "astro-icon/components";
+import { getPostUrl } from "@/utils/abbrlink";
+import type { groupTopics } from "@/utils/browse";
+interface Props { kind: "tags" | "categories"; topics: ReturnType<typeof groupTopics> }
+const { kind, topics } = Astro.props;
+---
+<div class="topic-grid">
+  {topics.map((topic) => (
+    <article class="topic-card">
+      <a class="topic-card__label" href={`/${kind}/${encodeURIComponent(topic.name)}/`}>
+        <Icon name={kind === "tags" ? "fa7-solid:hashtag" : "fa7-regular:folder-open"} />
+        <h2>{topic.name}</h2><span>{topic.count} 篇文章</span>
+      </a>
+      <ul class="topic-card__posts" aria-label={`${topic.name}最近文章`}>
+        {topic.posts.slice(0, 3).map((post) => (
+          <li><a href={getPostUrl(post)} title={post.data.title}>{post.data.title}</a></li>
+        ))}
+      </ul>
+    </article>
+  ))}
+</div>
+<style>
+  .topic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .topic-card { display: flex; align-items: stretch; min-width: 0; gap: var(--space-4); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-1); box-shadow: var(--shadow-sm); }
+  .topic-card:focus-within, .topic-card:hover { border-color: var(--accent); }
+  .topic-card__label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); flex: 0 0 112px; min-width: 0; padding: var(--space-4) var(--space-2); border-radius: var(--radius-md); background: var(--surface-2); color: var(--foreground); text-decoration: none; text-align: center; }
+  .topic-card__label:hover { background: var(--accent-subtle); color: var(--accent); }
+  .topic-card__label :global(svg) { color: var(--accent); font-size: 24px; }
+  h2 { font-size: var(--text-base); line-height: 1.4; margin: 0; overflow-wrap: anywhere; max-width: 100%; }
+  .topic-card__label span { color: var(--foreground-muted); font-size: var(--text-xs); }
+  .topic-card__posts { flex: 1; min-width: 0; align-self: center; margin: 0; padding: 0; list-style: none; }
+  .topic-card__posts a { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: var(--space-2); border-radius: var(--radius-sm); color: var(--foreground-secondary); font-size: var(--text-sm); line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; }
+  .topic-card__posts a::before { content: ""; width: 4px; height: 4px; flex-shrink: 0; border-radius: 50%; background: var(--accent); }
+  .topic-card__posts a:hover { color: var(--accent); background: var(--accent-subtle); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 768px) { .topic-grid { grid-template-columns: minmax(0, 1fr); } .topic-card { gap: var(--space-3); padding: var(--space-3); } .topic-card__label { flex-basis: 88px; } }
+</style>
