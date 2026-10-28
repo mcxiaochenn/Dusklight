@@ -19,6 +19,9 @@ updates:
         patterns:
           - "astro"
           - "@astrojs/*"
+      expressive-code:
+        patterns:
+          - "*expressive-code*"
       markdown:
         patterns:
           - "remark-*"
