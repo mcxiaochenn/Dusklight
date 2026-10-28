@@ -36,6 +36,16 @@ for source_name, target in [
 ]:
     shutil.copy2(root / source_name, backup / target)
 shutil.copy2(active_data / "artalk.yml", backup / "runtime.private.yml")
+runtime = json.loads((active_data / "artalk.yml").read_text())
+for template in (
+    runtime.get("email", {}).get("mail_tpl", ""),
+    runtime.get("admin_notify", {}).get("email", {}).get("mail_tpl", ""),
+    runtime.get("auth", {}).get("email", {}).get("verify_tpl", ""),
+):
+    if template.startswith("/data/mail-templates/"):
+        assert (active_data / template.removeprefix("/data/")).is_file(), "邮件模板缺失，停止备份"
+if (active_data / "mail-templates").is_dir():
+    shutil.copytree(active_data / "mail-templates", backup / "mail-templates")
 for source, target in [
     (release / ("legacy-map.json" if production else "legacy-map-final-verified.json"), "legacy-map.json"),
     (release / "data-verification.json", "data-verification.json"),
@@ -69,9 +79,9 @@ observations = sorted((root / "observations").glob("*-immediate.json"))
 if observations:
     shutil.copy2(observations[-1], backup / "immediate-observation.json")
 with (backup / "SHA256SUMS").open("x") as manifest:
-    for file in sorted(backup.iterdir()):
-        if file.name != "SHA256SUMS":
-            manifest.write(hashlib.sha256(file.read_bytes()).hexdigest() + "  ./" + file.name + "\n")
+    for file in sorted(backup.rglob("*")):
+        if file.is_file() and file.name != "SHA256SUMS":
+            manifest.write(hashlib.sha256(file.read_bytes()).hexdigest() + "  ./" + file.relative_to(backup).as_posix() + "\n")
 archive = backup.with_suffix(".tar.gz")
 with tarfile.open(archive, "x:gz") as tar:
     tar.add(backup, arcname=backup.name)

@@ -6,6 +6,10 @@ import secrets
 import sqlite3
 import sys
 
+# 显式把脚本目录加入模块搜索路径，从任意 cwd 调用都能导入同目录模块。
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from email_templates import install_templates
+
 os.umask(0o077)
 root = pathlib.Path(sys.argv[1])
 backup = pathlib.Path(sys.argv[2])
@@ -41,6 +45,7 @@ settings = {
                        "username": config["SMTP_USER"], "password": config["SMTP_PASS"]}},
     "admin_notify": {"email": {"enabled": True, "mail_subject": "[{{site_name}}] 您的文章「{{page_title}}」有新回复"}},
 }
+install_templates(settings, data)
 (root / "production.private.yml").write_text(json.dumps(settings, ensure_ascii=False, indent=2))
 (root / "admin.private.json").write_text(json.dumps(admin, ensure_ascii=False, indent=2))
 # 候选服务不会发送真实邮件，正式切换时才使用已准备好的生产配置。
