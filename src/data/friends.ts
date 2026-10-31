@@ -490,6 +490,20 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://retmon.cc",
 		tags: ["技术"],
 	},
+	{
+		title: "Dinosaur's Blog",
+		imgurl: "https://i.imgs.ovh/2026/10/25/c60f98e36ba6d875c7de3857b175668e.png",
+		desc: "拾一缕月光藏于袖，携满程星河赴远方。",
+		siteurl: "https://dinonode.org",
+		tags: ["技术"],
+	},
+	{
+		title: "JerryLife",
+		imgurl: "https://img.jerry-nis.top/d8703c5c-4c4a-49cc-bd94-3363c9eda2d8.png",
+		desc: "Enjoy life",
+		siteurl: "https://www.jerrynis.com",
+		tags: ["技术"],
+	},
 ];
 
 /** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */
