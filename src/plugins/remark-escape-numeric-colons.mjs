@@ -16,7 +16,9 @@ export function escapeNumericColons(source) {
 
 /** @this {import('unified').Processor} */
 export function remarkEscapeNumericColons() {
-	const parser = this.parser;
+	// unified 以 Processor 作为 this 调用插件，并非构造函数。
+	const processor = this;
+	const parser = processor.parser;
 
 	if (typeof parser !== "function") {
 		throw new TypeError(
@@ -24,7 +26,9 @@ export function remarkEscapeNumericColons() {
 		);
 	}
 
-	this.parser = function parseWithEscapedNumericColons(source) {
-		return parser(escapeNumericColons(String(source)));
-	};
+	Object.assign(processor, {
+		parser(source) {
+			return parser(escapeNumericColons(String(source)));
+		},
+	});
 }

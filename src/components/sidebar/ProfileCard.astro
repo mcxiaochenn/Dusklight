@@ -29,7 +29,7 @@ import { profileConfig, mottosConfig } from "@/config";
       height="120"
       loading="eager"
       decoding="async"
-      onerror="this.src='/images/avatar-fallback.svg';this.onerror=null"
+      data-avatar-fallback="/images/avatar-fallback.svg"
     />
   </a>
 
@@ -54,6 +54,10 @@ import { profileConfig, mottosConfig } from "@/config";
     </div>
   </div>
 </div>
+
+<script>
+  import "../../utils/avatar-fallback";
+</script>
 
 <script data-astro-rerun>
   (() => {

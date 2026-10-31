@@ -41,7 +41,7 @@ const blog = defineCollection({
 		share: z.boolean().default(true),
 		license: z.union([
 			z.literal(false),
-			z.object({ name: z.string(), url: z.string().url() }),
+			z.object({ name: z.string(), url: z.url() }),
 		]).optional(),
 	}),
 });

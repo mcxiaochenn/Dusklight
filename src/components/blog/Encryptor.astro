@@ -13,7 +13,7 @@ const htmlContent = await Astro.slots.render("default");
 const encryptedContent = encryptContent(htmlContent, String(password));
 ---
 
-<div id="password-protection" class="password-protection">
+<div id="password-protection" class="password-protection" data-encrypted-content={encryptedContent}>
 	<div class="password-modal">
 		<div class="password-modal__icon">
 			<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16M96 56a32 32 0 0 1 64 0v24H96Zm112 152H48V96h160zm-68-56a12 12 0 1 1-12-12a12 12 0 0 1 12 12"/></svg>
@@ -158,7 +158,7 @@ const encryptedContent = encryptContent(htmlContent, String(password));
 	}
 </style>
 
-{/* data-astro-rerun 不能省：本脚本因 define:vars 必须 is:inline，而同一篇文章
+{/* data-astro-rerun 不能省：本脚本使用 is:inline，而同一篇文章
     每次构建出的脚本正文字节级相同。Astro 的 swap-functions.js 里
     detectScriptExecuted() 用内联脚本的 textContent 作 key 存进全局
     scriptsAlreadyRan，第二次遇到同样内容就打上 data-astro-exec 跳过执行
@@ -169,11 +169,10 @@ const encryptedContent = encryptContent(htmlContent, String(password));
 <script
 	is:inline
 	data-astro-rerun
-	define:vars={{
-		encryptedContent,
-	}}
 >
 	(function() {
+		var encryptedContent = document.getElementById("password-protection")?.dataset.encryptedContent;
+		if (!encryptedContent) return;
 		var VERIFY_PREFIX = "DUSKLIGHT-VERIFY:";
 		var PBKDF2_ITERATIONS = 100000;
 		var SALT_LENGTH = 16;

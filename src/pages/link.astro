@@ -186,7 +186,7 @@ function normalizeFriendLink(value: string): string {
                         loading="lazy"
                         decoding="async"
                         referrerpolicy="no-referrer"
-                        onerror="this.src='/images/avatar-fallback.svg';this.onerror=null"
+                        data-avatar-fallback="/images/avatar-fallback.svg"
                       />
                     </div>
                     <div class="friend-card__info">
@@ -219,6 +219,10 @@ function normalizeFriendLink(value: string): string {
      View Transitions 下不能用纯 IIFE：导航时序中 DOM 可能未就绪导致
      if (!grid) return 静默跳过。改为双事件监听 + dataset 防重入，
      每次换页必然重新 fetch。 */}
+<script>
+  import "../utils/avatar-fallback";
+</script>
+
 <script is:inline define:vars={{ fcliteApiUrl: siteConfig.fcliteApiUrl }}>
   (function () {
     var API = fcliteApiUrl + "all.json";
