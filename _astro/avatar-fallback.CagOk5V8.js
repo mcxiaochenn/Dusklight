@@ -1,0 +1,1 @@
+function e(e){let t=e.dataset.avatarFallback;t&&(delete e.dataset.avatarFallback,e.src=t)}document.addEventListener(`error`,t=>{t.target instanceof HTMLImageElement&&e(t.target)},!0);function t(){document.querySelectorAll(`img[data-avatar-fallback]`).forEach(t=>{t.complete&&t.naturalWidth===0&&e(t)})}t(),document.addEventListener(`astro:page-load`,t);
