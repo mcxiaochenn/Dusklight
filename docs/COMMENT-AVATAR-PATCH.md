@@ -68,6 +68,18 @@ python3 scripts/comments/backfill-avatars.py /isolated/data/artalk.db
 
 **验收边界：尚未完成新候选上的真实 GitHub 浏览器授权、授权后发表评论，以及真实邮件收件。** 认证函数测试、既有身份回填和合成浏览器图片不能替代这些验收。候选 SMTP/OAuth 默认禁用，不会发送生产通知。当前不能把此记录描述为生产上线完成。
 
+### 发布产物核验（2026-11-01）
+
+[PR #59](https://github.com/mcxiaochenn/Dusklight/pull/59) 保持草稿；实现提交为 `025f593fa879ed3e34e2b79910d208f4c6a57942`。[镜像 CI](https://github.com/mcxiaochenn/Dusklight/actions/runs/41217114575) 的单测、构建及 GHCR 发布全部成功。不可变镜像：
+
+```text
+ghcr.io/mcxiaochenn/dusklight-artalk@sha256:9891aee51da307f0a99322c5ef73e6942d493ca183f92fd65d20b6e00c8d48ec
+```
+
+服务器直连下载受网络影响，改为从公开 GHCR 下载 OCI 归档、逐 blob 校验 SHA-256 后传输导入；归档 SHA-256 为 `7ea5060eb55dfabcf912d3a68a204a8614007259db776109f4eab0b6f71a213e`。Docker 导入后的索引 digest 与上述值一致。发布镜像在另一个独立副本正常启动，上报 `v2.10.0-avatar.1/82a7aae`；评论列表与最新评论响应、Artalk 脚本、OAuth 插件、后台页面均与已测候选一致。未将本机重新构建的镜像冒充 CI 产物。
+
+服务器还实际请求了接口给出的 QQ/GitHub 图片样本，均返回 JPEG（分别为 5,092 / 29,826 字节），哈希保存在私有验收报告中；这仅验证图片地址可用，不替代真实 OAuth 授权。验收结束后停止本次原版恢复、回退、候选及发布镜像测试容器，保留数据库副本与证据。原生产镜像、挂载和启动时间未变。
+
 ## 上线与回退
 
 1. 先确认镜像 CI 成功、记录并拉取输出 digest。在独立可写生产副本上用该镜像复核，不复用生产数据挂载。
