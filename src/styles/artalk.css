@@ -120,6 +120,7 @@
 #comments .atk-comment .atk-main { min-width: 0; margin-left: 56px; }
 #comments .atk-comment .atk-header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); }
 #comments .atk-comment .atk-avatar {
+  position: relative;
   --corner-shape: var(--corner-shape-round);
   corner-shape: round;
   flex-shrink: 0;
@@ -130,7 +131,8 @@
   border-radius: 50%;
   overflow: hidden;
 }
-#comments .atk-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; corner-shape: round; }
+#comments .comment-avatar-fallback { position: absolute; inset: 25%; width: 50%; height: 50%; }
+#comments .atk-avatar img { position: relative; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; corner-shape: round; }
 #comments .atk-avatar img[hidden] { display: none; }
 #comments .atk-nick { font-weight: 600; color: var(--foreground); }
 #comments a.atk-nick:hover { color: var(--accent); }

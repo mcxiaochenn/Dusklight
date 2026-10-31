@@ -19,7 +19,7 @@ import "../../styles/artalk.css";
 <script>
   import { commentConfig } from "../../config/comment";
   import { commentPageKey } from "../../utils/comment-path";
-  import { commentAvatarURL, fallbackCommentAvatar, gravatarURL, loadCommentAvatars } from "../../utils/comment-avatar";
+  import { commentAvatarURL, fallbackCommentAvatar, loadCommentAvatars } from "../../utils/comment-avatar";
   import type Artalk from "artalk";
 
   type Mount = { el: HTMLElement; client?: Artalk; mounted: boolean; disposed: boolean };
@@ -52,7 +52,6 @@ import "../../styles/artalk.css";
   function unmount() {
     controlsObserver?.disconnect();
     controlsObserver = undefined;
-    avatarFallbacks.clear();
     observer?.disconnect();
     observer = undefined;
     if (current) {
@@ -85,13 +84,8 @@ import "../../styles/artalk.css";
         pageKey: commentPageKey(location.pathname), pageTitle: document.title,
         darkMode: document.documentElement.classList.contains("dark"), locale: "zh-CN",
         emoticons: new URL(commentConfig.emoticons, location.origin).href,
-        gravatar: commentConfig.gravatar,
         placeholder: "博主人很好哒\n每日高强度在线，看到会立即回复，没回大概是忙去了，见谅哈 :)",
-        avatarURLBuilder: (comment) => {
-          // 保存失败回退地址；不将邮箱或作者资料写入公开映射。
-          avatarFallbacks.set(comment.id, gravatarURL(comment));
-          return commentAvatarURL(comment);
-        },
+        avatarURLBuilder: commentAvatarURL,
         pvAdd: false, pageVote: false, imgUpload: false, versionCheck: false,
         vote: true, voteDown: true, preferRemoteConf: false,
       });
@@ -141,12 +135,9 @@ import "../../styles/artalk.css";
   }
 
   document.addEventListener("astro:before-swap", unmount);
-  const avatarFallbacks = new Map<number, string>();
   document.addEventListener("error", (event) => {
     const image = event.target;
     if (!(image instanceof HTMLImageElement) || !image.closest("#comments .atk-avatar")) return;
-    const id = Number(image.closest(".atk-comment-wrap")?.id.replace("atk-comment-", ""));
-    image.dataset.gravatar = avatarFallbacks.get(id) || "";
     fallbackCommentAvatar(image);
   }, true);
   document.addEventListener("astro:page-load", init);
@@ -167,6 +158,13 @@ import "../../styles/artalk.css";
   });
   // 原生插件部分控件使用 span/div；补充键盘语义，点击仍交给原生处理。
   function enhanceControls() {
+    document.querySelectorAll<HTMLElement>("#comments .atk-avatar").forEach((avatar) => {
+      if (avatar.querySelector(".comment-avatar-fallback")) return;
+      const icon = document.createElement("span");
+      icon.className = "icon-[fa7-solid--user] comment-avatar-fallback";
+      icon.setAttribute("aria-hidden", "true");
+      avatar.prepend(icon);
+    });
     document.querySelectorAll<HTMLElement>(
       "#comments .atk-plug-btn, #comments .atk-common-action-btn, #comments .atk-state-btn, .atk-layer-wrap .atk-method-item, .atk-layer-wrap .atk-auth-dialog-title .atk-icon, .atk-layer-wrap .atk-form .atk-link",
     ).forEach((control) => {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { commentPageKey } from "../../utils/comment-path";
-  import { commentAvatarURL, fallbackCommentAvatar, gravatarURL, loadCommentAvatars } from "../../utils/comment-avatar";
+  import { commentAvatarURL, fallbackCommentAvatar, loadCommentAvatars } from "../../utils/comment-avatar";
 
   interface RecentCommentResponse {
     id: number;
@@ -10,12 +10,11 @@
     date: string;
     page_key: string;
     page_url: string;
-    email_encrypted?: string;
+    avatar_url?: string;
   }
 
   interface RecentComment {
     avatar?: string;
-    gravatar: string;
     content: string;
     created: string | number;
     id: number;
@@ -60,7 +59,6 @@
   function normalize(items: RecentCommentResponse[]): RecentComment[] {
     return items.filter((item) => commentPageKey(item.page_key) !== "/essay/").slice(0, limit).map((item) => ({
       avatar: commentAvatarURL(item),
-      gravatar: gravatarURL(item),
       content: plainText(item.content) || "[空评论]",
       created: item.date,
       id: item.id,
@@ -145,7 +143,7 @@
             <span class="recent-comments__avatar" aria-hidden="true">
               <span class="icon-[fa7-solid--user] recent-comments__avatar-fallback"></span>
               {#if comment.avatar}
-                <img src={comment.avatar} data-gravatar={comment.gravatar} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror={(event) => fallbackCommentAvatar(event.currentTarget)} />
+                <img src={comment.avatar} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror={(event) => fallbackCommentAvatar(event.currentTarget)} />
               {/if}
             </span>
             <span class="recent-comments__body">
