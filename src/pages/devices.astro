@@ -2,6 +2,7 @@
 /**
  * 设备页 — src/data/devices.ts 按类别分组展示
  */
+import ArtalkComments from "../components/blog/ArtalkComments.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { devicesData } from "@/data/devices";
 
@@ -46,6 +47,7 @@ const groups = Object.entries(devicesData).filter(([, list]) => list && list.len
           </div>
         </div>
       ))}
+      <ArtalkComments />
     </div>
   </section>
 </BaseLayout>

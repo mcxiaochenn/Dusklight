@@ -80,10 +80,14 @@ const label = isCategories ? "分类" : "标签";
 
     const update = () => {
       const overflowing = viewport.scrollWidth > viewport.clientWidth + 1;
+      bar.dataset.overflowing = String(overflowing);
       button.hidden = !overflowing;
       if (!overflowing) viewport.scrollLeft = 0;
 
+      const atStart = viewport.scrollLeft <= 2;
       const atEnd = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 2;
+      bar.dataset.atStart = String(atStart);
+      bar.dataset.atEnd = String(atEnd);
       button.setAttribute(
         "aria-label",
         atEnd ? "回到开头" : button.dataset.forwardLabel || button.getAttribute("aria-label") || "向右滚动"
@@ -136,6 +140,8 @@ const label = isCategories ? "分类" : "标签";
     flex: 1;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
+    scroll-padding-inline: var(--space-2);
+    scroll-snap-type: x proximity;
     scrollbar-width: none;
     scroll-behavior: smooth;
   }
@@ -172,6 +178,7 @@ const label = isCategories ? "分类" : "标签";
     gap: var(--space-1);
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
+    scroll-snap-align: start;
     transition:
       color var(--duration-fast) var(--ease-material),
       background var(--duration-fast) var(--ease-material);
@@ -234,6 +241,21 @@ const label = isCategories ? "分类" : "标签";
   }
 
   @media (max-width: 640px) {
+    .taxonomy-bar[data-overflowing="true"] .taxonomy-bar__viewport {
+      -webkit-mask-image: linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent);
+      mask-image: linear-gradient(to right, transparent, black 18px, black calc(100% - 18px), transparent);
+    }
+
+    .taxonomy-bar[data-overflowing="true"][data-at-start="true"] .taxonomy-bar__viewport {
+      -webkit-mask-image: linear-gradient(to right, black 0, black calc(100% - 18px), transparent);
+      mask-image: linear-gradient(to right, black 0, black calc(100% - 18px), transparent);
+    }
+
+    .taxonomy-bar[data-overflowing="true"][data-at-end="true"] .taxonomy-bar__viewport {
+      -webkit-mask-image: linear-gradient(to right, transparent, black 18px, black 100%);
+      mask-image: linear-gradient(to right, transparent, black 18px, black 100%);
+    }
+
     .taxonomy-bar__items {
       padding: var(--space-1);
     }
@@ -244,6 +266,10 @@ const label = isCategories ? "分类" : "标签";
 
     .taxonomy-bar__more {
       padding-inline: var(--space-2);
+    }
+
+    .taxonomy-bar__scroll {
+      display: none;
     }
   }
 </style>

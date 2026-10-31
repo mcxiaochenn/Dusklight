@@ -57,18 +57,18 @@ import { siteConfig } from "../config/site";
                   <td>本站</td>
                 </tr>
                 <tr>
-                  <td>Twikoo 评论数据</td>
+                  <td>Artalk 评论数据</td>
                   <td>服务端存储</td>
                   <td>存储评论内容、昵称、邮箱等信息，支持评论展示和管理</td>
                   <td>持久化（服务端数据库）</td>
-                  <td>本站自托管 Twikoo</td>
+                  <td>本站自托管 Artalk</td>
                 </tr>
                 <tr>
-                  <td>Twikoo 登录态</td>
+                  <td>Artalk 登录态</td>
                   <td>localStorage</td>
-                  <td>Twikoo 运行时可能将登录相关的会话数据（如登录 token）写入浏览器 localStorage，用于记住登录状态</td>
+                  <td>Artalk 运行时可能将登录相关的会话数据（如登录 token）写入浏览器 localStorage，用于记住登录状态</td>
                   <td>持久（直到手动清除）</td>
-                  <td>本站自托管 Twikoo</td>
+                  <td>本站自托管 Artalk</td>
                 </tr>
                 <tr>
                   <td>Umami 匿名统计</td>
@@ -95,9 +95,9 @@ import { siteConfig } from "../config/site";
             部分文章设有密码保护。当您输入正确密码后，密码会临时存储在浏览器的 sessionStorage 中（键名格式 <code>page-password-{'{路径}'}</code>），仅在当前浏览器会话内有效。关闭标签页后，该数据会自动清除，不会持久保存。
           </p>
 
-          <h3 class="cookies__sub-title">3.3 Twikoo 评论系统</h3>
+          <h3 class="cookies__sub-title">3.3 Artalk 评论系统</h3>
           <p class="cookies__text">
-            本站使用自托管的 <a href="https://twikoo.js.org/" target="_blank" rel="noopener noreferrer">Twikoo</a> 评论系统（版本 1.7.15）。当您发表评论时，您提供的昵称、邮箱地址、网站地址（可选）以及评论内容将存储在我们自建的服务端数据库中。Twikoo 本身不在您的浏览器中设置 Cookie，但其运行时可能会在浏览器 localStorage 中写入登录相关的会话数据（用于记住登录状态），该数据仅存于您的浏览器本地。
+            本站使用自托管的 <a href="https://artalk.js.org/" target="_blank" rel="noopener noreferrer">Artalk</a> 评论系统（版本 2.10.0）。昵称、邮箱地址、可选的网站地址、评论内容及用于防滥用的 IP 和浏览器信息存储在自建数据库中。Artalk 可能使用浏览器 localStorage 记住填写的信息及登录状态；清除本地存储可移除这些记录。部分历史头像通过含 QQ 号的公开直链加载，其余由 Gravatar 提供；浏览器会发送对应标识和标准网络请求信息。选择 GitHub 登录时，GitHub 和 Artalk 会使用 OAuth 会话 Cookie 完成授权；仍可跳过登录匿名评论。回复通知通过本站配置的邮件服务发送。
           </p>
 
           <h3 class="cookies__sub-title">3.4 Umami 访问统计</h3>
@@ -133,14 +133,14 @@ import { siteConfig } from "../config/site";
         <div class="cookies__section">
           <h2 class="cookies__section-title">5. 第三方服务声明</h2>
           <p class="cookies__text">
-            本站所有第三方服务（Umami、Twikoo）均为<strong>自托管</strong>，数据不会流向第三方平台。GitHub Pages 作为静态站点托管服务，可能会在其服务器端记录标准访问日志，但这不在本站的控制范围内。
+            本站 Umami、Artalk 服务均为<strong>自托管</strong>；头像与邮件通知涉及前文所述外部服务。静态托管及 EdgeOne 加速平台可能记录标准访问日志。
           </p>
           <p class="cookies__text">
             如需了解第三方服务的隐私政策，请参阅：
           </p>
           <ul class="cookies__list">
             <li><a href="https://umami.is/privacy" target="_blank" rel="noopener noreferrer">Umami 隐私政策</a></li>
-            <li><a href="https://twikoo.js.org/" target="_blank" rel="noopener noreferrer">Twikoo 官方文档</a></li>
+            <li><a href="https://artalk.js.org/" target="_blank" rel="noopener noreferrer">Artalk 官方文档</a></li>
             <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub 隐私声明</a></li>
           </ul>
         </div>

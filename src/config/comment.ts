@@ -5,18 +5,16 @@ export const commentConfig = {
   // 是否启用评论
   enabled: true,
 
-  // Twikoo 配置
-  twikoo: {
-    // 环境 ID（Vercel URL 或腾讯云环境 ID）— 生产自建服务
-    envId: "https://twikoo.mcxiaochen.top/",
+  // PUBLIC_ARTALK_SERVER 仅用于隔离预览，正式构建默认使用 EdgeOne 入口。
+  server: import.meta.env.PUBLIC_ARTALK_SERVER || "https://artalk.mcxiaochen.top",
+  site: "Dusklight",
+  emoticons: "/json/owo.json",
+  legacyMap: "/comments/legacy-map.json",
+  avatarMap: "/comments/historical-avatars.json",
+  gravatar: { mirror: "https://www.gravatar.com/avatar/", params: "sha256=1&d=identicon&s=140" },
 
-    // 腾讯云区域（使用腾讯云时填写）
-    region: "",
-
-    // 是否在文章页显示评论
-    showOnPost: true,
-
-    // 是否在独立页面显示评论
-    showOnPage: false,
+  recentComments: {
+    enabled: true,
+    limit: 5,
   },
 } as const;

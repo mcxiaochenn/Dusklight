@@ -1,0 +1,28 @@
+---
+import { commentPageKey } from "../../utils/comment-path";
+import { siteConfig } from "../../config/site";
+import "../../styles/fonts.generated.css";
+const target = commentPageKey(Astro.url.pathname);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={new URL(target, siteConfig.site)} />
+    <title>正在前往评论</title>
+  </head>
+  <body>
+    <p>此页面已迁移，<a href={target}>继续访问对应页面</a>。</p>
+    <script define:vars={{ target }} data-astro-rerun>
+      // 静态 meta refresh 会丢失 hash；旧邮件中的评论定位信息必须原样带到新页。
+      location.replace(target + location.search + location.hash);
+    </script>
+  </body>
+</html>
+
+<style>
+  body { font-family: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif; }
+</style>

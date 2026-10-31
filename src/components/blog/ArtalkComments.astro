@@ -1,0 +1,207 @@
+---
+import { commentConfig } from "../../config/comment";
+import "artalk/Artalk.css";
+import "../../styles/artalk.css";
+---
+
+{commentConfig.enabled && (
+  <section class="comments-section" aria-labelledby="comments-heading">
+    <header class="comments-heading">
+      <h2 id="comments-heading">一起聊聊</h2>
+      <p>留下你的想法，让交流在这里继续。</p>
+    </header>
+    <div id="comments" aria-live="polite"></div>
+    <p class="comments-status" role="status">评论将在接近此处时加载。</p>
+    <button class="comments-retry" type="button" hidden>重试加载评论</button>
+  </section>
+)}
+
+<script>
+  import { commentConfig } from "../../config/comment";
+  import { commentPageKey } from "../../utils/comment-path";
+  import { commentAvatarURL, fallbackCommentAvatar, gravatarURL, loadCommentAvatars } from "../../utils/comment-avatar";
+  import type Artalk from "artalk";
+
+  type Mount = { el: HTMLElement; client?: Artalk; mounted: boolean; disposed: boolean };
+  let current: Mount | undefined;
+  let observer: IntersectionObserver | undefined;
+  let controlsObserver: MutationObserver | undefined;
+  let loading: Promise<typeof import("artalk")> | undefined;
+  let legacyMap: Promise<Record<string, [string, number]>> | undefined;
+
+  async function translateLegacyHash(el: HTMLElement) {
+    let id: string;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    if (!id || /^(?:atk-comment-|comments$)/.test(id)) return;
+    legacyMap ??= fetch(commentConfig.legacyMap).then((response) => {
+      if (!response.ok) throw new Error("旧评论定位表不可用");
+      return response.json();
+    }).catch((error) => { legacyMap = undefined; throw error; });
+    const mapping = await legacyMap;
+    const target = Object.hasOwn(mapping, id) ? mapping[id] : undefined;
+    if (!el.isConnected || !target) return;
+    const hash = `#atk-comment-${target[1]}`;
+    if (commentPageKey(location.pathname) !== target[0]) {
+      location.replace(`${target[0]}${hash}`);
+      return;
+    }
+    history.replaceState(history.state, "", `${location.pathname}${location.search}${hash}`);
+    if (current?.mounted && current.el === el) current.client?.trigger("list-goto", target[1]);
+  }
+
+  function unmount() {
+    controlsObserver?.disconnect();
+    controlsObserver = undefined;
+    avatarFallbacks.clear();
+    observer?.disconnect();
+    observer = undefined;
+    if (current) {
+      current.disposed = true;
+      // 2.10.0 的初始化是异步的；未 mounted 时留给回调释放，避免销毁后又挂载。
+      if (current.mounted) current.client?.destroy();
+      current = undefined;
+    }
+  }
+
+  async function mount(el: HTMLElement) {
+    if (!el.isConnected || current?.el === el) return;
+    unmount();
+    const state: Mount = { el, mounted: false, disposed: false };
+    current = state;
+    const section = el.closest(".comments-section")!;
+    const status = section.querySelector<HTMLElement>(".comments-status")!;
+    const retry = section.querySelector<HTMLButtonElement>(".comments-retry")!;
+    status.hidden = false;
+    status.textContent = "正在加载评论…";
+    retry.hidden = true;
+    try {
+      await translateLegacyHash(el).catch((error) => console.warn("[Artalk] 旧链接定位失败", error));
+      await loadCommentAvatars();
+      loading ??= import("artalk").catch((error) => { loading = undefined; throw error; });
+      const { default: Client } = await loading;
+      if (state.disposed || !el.isConnected) return;
+      const client = state.client = Client.init({
+        el, server: commentConfig.server, site: commentConfig.site,
+        pageKey: commentPageKey(location.pathname), pageTitle: document.title,
+        darkMode: document.documentElement.classList.contains("dark"), locale: "zh-CN",
+        emoticons: new URL(commentConfig.emoticons, location.origin).href,
+        gravatar: commentConfig.gravatar,
+        placeholder: "博主人很好哒\n每日高强度在线，看到会立即回复，没回大概是忙去了，见谅哈 :)",
+        avatarURLBuilder: (comment) => {
+          // 保存失败回退地址；不将邮箱或作者资料写入公开映射。
+          avatarFallbacks.set(comment.id, gravatarURL(comment));
+          return commentAvatarURL(comment);
+        },
+        pvAdd: false, pageVote: false, imgUpload: false, versionCheck: false,
+        vote: true, voteDown: true, preferRemoteConf: false,
+      });
+      client.on("mounted", () => {
+        state.mounted = true;
+        // 等本轮 mounted 处理全部完成，才能完整解除库注册的监听器。
+        if (state.disposed || !el.isConnected) queueMicrotask(() => client.destroy());
+        else {
+          client.setDarkMode(document.documentElement.classList.contains("dark"));
+          enhanceControls();
+          controlsObserver = new MutationObserver((records) => {
+            if (records.some((record) => record.target instanceof Element &&
+              (record.target.closest("#comments, .atk-layer-wrap") ||
+               [...record.addedNodes].some((node) => node instanceof Element && node.matches(".atk-layer-wrap"))))) enhanceControls();
+          });
+          controlsObserver.observe(document.body, { childList: true, subtree: true });
+        }
+      });
+      client.on("list-loaded", () => {
+        if (!state.disposed) { status.hidden = true; retry.hidden = true; }
+      });
+      client.on("list-failed", () => {
+        if (!state.disposed) {
+          status.hidden = false;
+          status.textContent = "评论暂时不可用，请稍后重试。";
+          retry.hidden = false;
+        }
+      });
+    } catch (error) {
+      if (state.disposed) return;
+      current = undefined;
+      status.textContent = "评论暂时不可用，请稍后重试。";
+      retry.hidden = false;
+      console.error("[Artalk] 加载失败", error);
+    }
+  }
+
+  function init() {
+    const el = document.getElementById("comments");
+    if (!el || current?.el === el) return;
+    unmount();
+    if (location.hash || !("IntersectionObserver" in window)) { void mount(el); return; }
+    observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) void mount(el);
+    }, { rootMargin: "300px" });
+    observer.observe(el);
+  }
+
+  document.addEventListener("astro:before-swap", unmount);
+  const avatarFallbacks = new Map<number, string>();
+  document.addEventListener("error", (event) => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.closest("#comments .atk-avatar")) return;
+    const id = Number(image.closest(".atk-comment-wrap")?.id.replace("atk-comment-", ""));
+    image.dataset.gravatar = avatarFallbacks.get(id) || "";
+    fallbackCommentAvatar(image);
+  }, true);
+  document.addEventListener("astro:page-load", init);
+  document.addEventListener("click", (event) => {
+    if ((event.target as Element).closest(".comments-retry")) {
+      if (current?.mounted && !current.disposed) current.client?.reload();
+      else { const el = document.getElementById("comments"); if (el) void mount(el); }
+    } else if ((event.target as Element).closest("#fab-comments")) {
+      const el = document.getElementById("comments");
+      if (el) void mount(el);
+    }
+  });
+  window.addEventListener("hashchange", () => {
+    const el = document.getElementById("comments");
+    if (!el) return;
+    if (!current) void mount(el);
+    else void translateLegacyHash(el).catch((error) => console.warn("[Artalk] 旧链接定位失败", error));
+  });
+  // 原生插件部分控件使用 span/div；补充键盘语义，点击仍交给原生处理。
+  function enhanceControls() {
+    document.querySelectorAll<HTMLElement>(
+      "#comments .atk-plug-btn, #comments .atk-common-action-btn, #comments .atk-state-btn, .atk-layer-wrap .atk-method-item, .atk-layer-wrap .atk-auth-dialog-title .atk-icon, .atk-layer-wrap .atk-form .atk-link",
+    ).forEach((control) => {
+      if (control.matches("a, button, input")) return;
+      control.setAttribute("role", "button");
+      control.tabIndex = 0;
+      control.dataset.atkKeyboard = "true";
+      const label = control.querySelector("[aria-label]")?.getAttribute("aria-label");
+      if (label) control.setAttribute("aria-label", label);
+      if (control.classList.contains("atk-close")) control.setAttribute("aria-label", "关闭登录窗口");
+      if (control.classList.contains("atk-back-btn")) control.setAttribute("aria-label", "返回登录方式");
+      if (control.classList.contains("atk-state-btn")) control.setAttribute("aria-label", control.textContent?.includes("编辑") ? "取消编辑" : "取消回复");
+    });
+  }
+  document.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") &&
+        event.target instanceof HTMLElement && event.target.dataset.atkKeyboard === "true") {
+      event.preventDefault();
+      event.target.click();
+    }
+  });
+  new MutationObserver(() => {
+    if (current?.mounted && current.el.isConnected) {
+      current.client?.setDarkMode(document.documentElement.classList.contains("dark"));
+    }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  init();
+</script>
+
+<style>
+  .comments-section { margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); }
+  .comments-heading { margin-bottom: var(--space-5); }
+  h2 { font-size: var(--text-xl); margin: 0 0 var(--space-2); }
+  .comments-heading p { margin: 0; color: var(--foreground-muted); font-size: var(--text-sm); }
+  #comments { min-height: 200px; scroll-margin-top: calc(var(--header-height) + var(--space-4)); }
+  .comments-status { color: var(--foreground-muted); font-size: var(--text-sm); }
+  .comments-retry { color: var(--accent); background: var(--surface-1); border: 1px solid var(--border); padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); cursor: pointer; }
+</style>

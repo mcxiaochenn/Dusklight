@@ -1,10 +1,10 @@
 ---
 /**
- * 留言板 — spec/envelope.md 文案 + Twikoo 评论
+ * 留言板 — spec/envelope.md 文案 + Artalk 评论
  * URL /envelope/ 与生产站一致，评论线程按路径延续
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import TwikooComments from "../components/blog/TwikooComments.astro";
+import ArtalkComments from "../components/blog/ArtalkComments.astro";
 import { getEntry, render } from "astro:content";
 
 const entry = await getEntry("spec", "envelope");
@@ -19,7 +19,7 @@ const { Content } = entry ? await render(entry) : { Content: null };
           <Content />
         </div>
       )}
-      <TwikooComments />
+      <ArtalkComments />
     </div>
   </section>
 </BaseLayout>

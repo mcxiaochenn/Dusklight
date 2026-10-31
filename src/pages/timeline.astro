@@ -4,6 +4,7 @@
  * CI 上需要完整历史（deploy.yml 的 actions/checkout 配 fetch-depth: 0）。
  */
 import { execSync } from "node:child_process";
+import ArtalkComments from "../components/blog/ArtalkComments.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { siteConfig } from "@/config";
 import { Icon } from "astro-icon/components";
@@ -87,6 +88,7 @@ function commitType(subject: string): string {
           </ol>
         </div>
       ))}
+      <ArtalkComments />
     </div>
   </section>
 </BaseLayout>

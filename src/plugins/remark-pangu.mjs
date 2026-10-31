@@ -20,7 +20,7 @@ function repairDirectiveHeads(value) {
 /**
  * remark-pangu — 构建期为 CJK 与西文/数字之间补空格（盘古之白）。
  *
- * 在 mdast 文本节点上调用 pangu.spacingText，属于渲染管线内的
+ * 在 mdast 文本节点上调用 pangu.spaceText，属于渲染管线内的
  * 源头变换 —— 不是前端 JS 注入，无运行时成本、无样式优先级问题。
  * code / inlineCode / math 在 mdast 中是独立的 value 节点类型，
  * visit(tree, "text") 天然不会触及，代码内容零污染。
@@ -42,7 +42,7 @@ export function remarkPangu(options = {}) {
 			if (!p.includes("/posts/")) return;
 		}
 		visit(tree, "text", (node) => {
-			node.value = repairDirectiveHeads(pangu.spacingText(node.value));
+			node.value = repairDirectiveHeads(pangu.spaceText(node.value));
 		});
 	};
 }

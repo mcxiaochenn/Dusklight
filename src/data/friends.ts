@@ -10,6 +10,7 @@ export interface FriendItem {
 	imgurl: string;
 	desc: string;
 	siteurl: string;
+	rss?: string;
 	tags: string[];
 }
 
@@ -491,10 +492,41 @@ export const friendsData: FriendItem[] = [
 		tags: ["技术"],
 	},
 	{
+		title: "HZH",
+		imgurl: "https://clannad.top/favicon.png",
+		desc: "Welcome to HZH",
+		siteurl: "https://clannad.top",
+		rss: "https://clannad.top/feed.xml",
+		tags: ["技术"],
+	},
+	{
+		title: "Brandon's Blog",
+		imgurl: "https://cdn.oopss.top/icon.jpg",
+		desc: "Brandon的个人博客",
+		siteurl: "https://blog.oopss.top",
+		tags: ["技术", "生活"],
+	},
+	{
+		title: "知海图书馆",
+		imgurl: "https://www.zhihailib.com/favicon.ico",
+		desc: "17万+精选中文电子书馆藏与免下载在线阅读平台",
+		siteurl: "https://www.zhihailib.com",
+		tags: ["技术", "工具", "电子书库"],
+	},
+	{
+		title: "渡劫博客",
+		imgurl: "https://www.520691.xyz/images/16456faa-fdea-4a15-9d01-88efd5863791.jpg",
+		desc: "个人全栈开发者，cf生态爱好者",
+		siteurl: "https://www.520691.xyz",
+		rss: "https://www.520691.xyz/rss.xml",
+		tags: ["技术"],
+	},
+	{
 		title: "Dinosaur's Blog",
 		imgurl: "https://i.imgs.ovh/2026/10/25/c60f98e36ba6d875c7de3857b175668e.png",
 		desc: "拾一缕月光藏于袖，携满程星河赴远方。",
 		siteurl: "https://dinonode.org",
+		rss: "https://dinonode.org/feed/",
 		tags: ["技术"],
 	},
 	{
@@ -502,6 +534,7 @@ export const friendsData: FriendItem[] = [
 		imgurl: "https://img.jerry-nis.top/d8703c5c-4c4a-49cc-bd94-3363c9eda2d8.png",
 		desc: "Enjoy life",
 		siteurl: "https://www.jerrynis.com",
+		rss: "https://www.jerrynis.com/rss.xml",
 		tags: ["技术"],
 	},
 ];

@@ -1,0 +1,210 @@
+/* 复用站点材质和字体，不在评论卡片上叠加玻璃合成层。 */
+.artalk, .atk-layer-wrap, .artalk.atk-dark-mode, .atk-layer-wrap.atk-dark-mode {
+  --at-color-font: var(--foreground);
+  --at-color-deep: var(--foreground);
+  --at-color-sub: var(--foreground-secondary);
+  --at-color-grey: var(--foreground-muted);
+  --at-color-meta: var(--foreground-muted);
+  --at-color-border: var(--border);
+  --at-color-bg: var(--surface-0);
+  --at-color-bg-transl: var(--surface-0);
+  --at-color-bg-grey: var(--surface-1);
+  --at-color-bg-grey-transl: var(--surface-1);
+  --at-color-bg-light: var(--surface-2);
+  --at-color-main: var(--accent);
+  --at-color-light: var(--accent-subtle);
+  --at-color-red: var(--danger);
+  font-family: var(--font-body), var(--font-cjk), sans-serif;
+  font-size: var(--text-sm);
+}
+#comments { max-width: 100%; overflow-wrap: anywhere; }
+#comments .atk-comment { scroll-margin-top: calc(var(--header-height) + var(--space-4)); }
+#comments .atk-content img { max-width: 100%; height: auto; }
+#comments .atk-content img.tk-owo-emotion { display: inline-block; width: auto; height: 1.5em; vertical-align: middle; }
+#comments .atk-content pre { overflow-x: auto; max-width: 100%; }
+#comments .atk-content code { font-family: var(--font-mono); }
+/* 沿用生产版的卡片、输入区和信息层级；常驻区域不用背景模糊。 */
+#comments .atk-main-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  margin: var(--space-5) 0 var(--space-8);
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-fast), border-color var(--duration-fast);
+}
+#comments .atk-main-editor:focus-within { border-color: var(--accent); box-shadow: var(--shadow-md); }
+#comments .atk-main-editor > .atk-header { order: 1; display: flex; gap: var(--space-2); padding: 0; border: 0; }
+#comments .atk-main-editor > .atk-header input {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font: inherit;
+  color: var(--foreground);
+}
+#comments .atk-main-editor > .atk-textarea-wrap { order: 0; padding: 0; }
+#comments .atk-main-editor .atk-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 168px;
+  padding: var(--space-3) var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--foreground);
+  resize: vertical;
+}
+#comments .atk-main-editor input::placeholder,
+#comments .atk-textarea::placeholder { color: var(--foreground-muted); opacity: 1; }
+#comments .atk-main-editor input:focus,
+#comments .atk-textarea:focus { outline: 2px solid var(--accent-subtle); outline-offset: 1px; border-color: var(--accent); }
+#comments .atk-main-editor > .atk-plug-panel-wrap { order: 2; padding: 0; border: 0; }
+#comments .atk-main-editor > .atk-bottom {
+  order: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0;
+  border: 0;
+  min-height: 44px;
+}
+#comments .atk-main-editor > .atk-notify-wrap { order: 4; }
+#comments .atk-main-editor > .atk-notify-wrap:empty { display: none; }
+#comments .atk-main-editor .atk-send-btn {
+  position: static;
+  min-width: 72px;
+  min-height: 36px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: 600;
+}
+#comments .atk-send-btn:hover { background: var(--accent-dim); }
+#comments .atk-send-btn:disabled { opacity: .5; cursor: not-allowed; }
+#comments .atk-plug-btn { padding: var(--space-2); border-radius: var(--radius-sm); color: var(--foreground-secondary); }
+#comments .atk-plug-btn:hover { background: var(--accent-subtle); color: var(--accent); }
+#comments .atk-plug-btn:has([aria-label="预览"]) { display: inline-flex; align-items: center; gap: var(--space-1); border: 1px solid var(--border); background: var(--surface-1); }
+#comments .atk-plug-btn:has([aria-label="预览"])::after { content: "预览"; font-size: var(--text-sm); }
+#comments .atk-list-header {
+  padding: 0 0 var(--space-3);
+  margin: var(--space-6) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--foreground);
+}
+#comments .atk-list-header .atk-comment-count { font-size: var(--text-md); font-weight: 600; }
+#comments .atk-comment-wrap { margin: 0; }
+#comments .atk-list > .atk-comment-wrap { margin-top: var(--space-3); }
+#comments .atk-comment {
+  padding: var(--space-5);
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+#comments .atk-comment .atk-main { min-width: 0; margin-left: 56px; }
+#comments .atk-comment .atk-header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-2); }
+#comments .atk-comment .atk-avatar {
+  --corner-shape: var(--corner-shape-round);
+  corner-shape: round;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  margin-right: var(--space-4);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  overflow: hidden;
+}
+#comments .atk-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; corner-shape: round; }
+#comments .atk-avatar img[hidden] { display: none; }
+#comments .atk-nick { font-weight: 600; color: var(--foreground); }
+#comments a.atk-nick:hover { color: var(--accent); }
+#comments .atk-date, #comments .atk-ua { color: var(--foreground-muted); font-size: var(--text-xs); }
+#comments .atk-badge { padding: 1px var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-xs); }
+#comments .atk-content { font-size: var(--text-base); line-height: 1.7; word-break: break-word; }
+#comments .atk-content p { margin: 0 0 var(--space-2); }
+#comments .atk-content p:last-child { margin-bottom: 0; }
+#comments .atk-content a { color: var(--accent); text-underline-offset: 3px; }
+#comments .atk-content img:not(.tk-owo-emotion) { max-width: min(100%, 300px); max-height: 300px; border-radius: var(--radius-sm); }
+#comments .atk-content pre {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+#comments .atk-content :not(pre) > code { padding: .15em .4em; background: var(--surface-1); border-radius: var(--radius-sm); font-size: .85em; }
+#comments .atk-content blockquote { margin: var(--space-3) 0; padding: var(--space-3); border-left: 3px solid var(--accent); background: var(--accent-subtle); }
+#comments .atk-footer { margin-top: var(--space-3); }
+#comments .atk-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+#comments .atk-common-action-btn { padding: var(--space-1) var(--space-2); margin: 0; color: var(--foreground-muted); border-radius: var(--radius-sm); font-size: var(--text-xs); }
+#comments .atk-common-action-btn:hover { background: var(--accent-subtle); color: var(--accent); }
+#comments .atk-comment-children { margin-top: var(--space-4); padding: 0 0 0 var(--space-3); border-left: 2px solid var(--border); }
+#comments .atk-comment-children .atk-comment { margin-top: var(--space-2); padding: var(--space-3); background: var(--surface-1); border: 0; border-radius: var(--radius-md); box-shadow: none; }
+#comments .atk-comment-children .atk-main { margin-left: 44px; }
+#comments .atk-comment-children .atk-avatar { width: 32px; height: 32px; margin-right: var(--space-3); }
+#comments .atk-editor-plug-preview { padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-1); }
+.atk-layer-wrap input, .atk-layer-wrap button { font-family: var(--font-body), var(--font-cjk), sans-serif; }
+#comments button:focus-visible, #comments a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 768px) {
+  #comments .atk-main-editor, #comments .atk-comment { padding: var(--space-4); }
+  #comments .atk-main-editor > .atk-header { flex-direction: column; }
+  #comments .atk-main-editor > .atk-header input { flex-basis: auto; width: 100%; }
+  #comments .atk-comment .atk-avatar { margin-right: var(--space-3); }
+  #comments .atk-comment-children .atk-comment { padding: var(--space-2); }
+  #comments .atk-comment-children .atk-avatar { width: 28px; height: 28px; margin-right: var(--space-2); }
+}
+
+/* 登录插件沿用原生状态；仅调整可见布局与操作层级。 */
+#comments .atk-main-editor { background: var(--surface-1); }
+#comments .atk-main-editor > .atk-bottom { padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
+#comments .atk-main-editor .atk-send-btn { min-height: 44px; padding-inline: var(--space-5); }
+#comments .atk-list-header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+#comments .atk-list-header .atk-comment-count { font-weight: 700; }
+#comments .atk-comment { background: var(--surface-1); }
+#comments .atk-comment .atk-header .atk-nick { font-size: var(--text-base); }
+#comments .atk-comment .atk-avatar { border: 0; padding: 0; }
+#comments .atk-comment .atk-avatar img { width: 100%; height: 100%; }
+#comments .atk-comment .atk-actions .atk-common-action-btn { min-height: 36px; align-items: center; }
+#comments .atk-comment .atk-reply-to { background: var(--surface-2); border-radius: var(--radius-sm); }
+#comments .atk-editor-plug-emoticons { background: var(--surface-1); }
+#comments .atk-editor-plug-emoticons .atk-item { border-radius: var(--radius-sm); }
+#comments .atk-main-editor .atk-textarea:focus-visible { outline: 2px solid var(--accent-subtle); }
+.atk-layer-wrap .atk-layer-dialog { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-1); box-shadow: var(--shadow-lg); }
+.atk-layer-wrap .atk-layer-dialog input { min-height: 44px; border-radius: var(--radius-md); }
+.atk-layer-wrap .atk-layer-dialog button { min-height: 44px; border-radius: var(--radius-md); }
+.atk-layer-wrap :is(a, button, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.atk-layer-wrap .atk-auth-plugin-dialog { width: min(400px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); background: var(--surface-1); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-auth-dialog-title { padding: var(--space-4) var(--space-4) 0; font-weight: 700; }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-methods { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-method-item { border: 1px solid var(--border); background: var(--surface-2); border-radius: var(--radius-md); min-height: 64px; }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-method-item:hover { border-color: var(--accent); background: var(--accent-subtle); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-method-item .atk-method-icon { width: 36px; height: 36px; background-color: #fff; border-radius: var(--radius-sm); }
+.atk-layer-wrap .atk-auth-plugin-dialog .atk-form { padding: var(--space-5); }
+.atk-layer-wrap .atk-auth-plugin-dialog input { min-height: 44px; border-radius: var(--radius-md); background: var(--surface-0); color: var(--foreground); }
+.atk-layer-wrap .atk-auth-plugin-dialog button { min-height: 44px; border-radius: var(--radius-md); }
+#comments .atk-editor-user-wrap { border-radius: var(--radius-md); color: var(--foreground); }
+#comments [role="button"]:focus-visible, .atk-layer-wrap [role="button"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 768px) {
+  #comments .atk-comment > .atk-main { margin-left: 48px; }
+  #comments .atk-comment-children .atk-comment > .atk-main { margin-left: 36px; }
+  #comments .atk-comment-children { padding-left: var(--space-2); }
+  #comments .atk-comment-children .atk-comment-children { margin-left: -36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #comments *, .atk-layer-wrap * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

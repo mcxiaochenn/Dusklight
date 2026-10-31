@@ -1,10 +1,10 @@
 ---
 /**
  * 友链页 — v4
- * 结构：标题 → 信息+须知(左右双栏) → 朋友圈摘要 → 分组卡片墙 → Twikoo
+ * 结构：标题 → 信息+须知(左右双栏) → 朋友圈摘要 → 分组卡片墙 → Artalk
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import TwikooComments from "../components/blog/TwikooComments.astro";
+import ArtalkComments from "../components/blog/ArtalkComments.astro";
 import { friendsData, siteInfo } from "@/data/friends";
 import { siteConfig } from "@/config";
 
@@ -210,7 +210,7 @@ function normalizeFriendLink(value: string): string {
     </div>
 
     <div class="link-comments">
-      <TwikooComments />
+      <ArtalkComments />
     </div>
   </section>
 </BaseLayout>
@@ -479,7 +479,7 @@ function normalizeFriendLink(value: string): string {
     });
 
     document.getElementById("btn-apply-friend").addEventListener("click", function () {
-      var el = document.getElementById("twikoo");
+      var el = document.getElementById("comments");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   })();

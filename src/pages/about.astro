@@ -6,7 +6,7 @@
  * 数据全部来自 profileConfig。
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import TwikooComments from "../components/blog/TwikooComments.astro";
+import ArtalkComments from "../components/blog/ArtalkComments.astro";
 import { Icon } from "astro-icon/components";
 import { profileConfig } from "../config/profile";
 import { siteConfig } from "../config/site";
@@ -234,7 +234,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
       {/* ── 评论区 ── */}
       <div class="about-comments">
-        <TwikooComments />
+        <ArtalkComments />
       </div>
 
     </div>

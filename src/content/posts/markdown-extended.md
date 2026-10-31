@@ -6,6 +6,7 @@ description: 'Read more about Markdown features in Fuwari'
 tags: [Demo, Example, Markdown, Fuwari]
 category: 'Examples'
 draft: false
+featured: true
 ---
 
 ## GitHub Repository Cards

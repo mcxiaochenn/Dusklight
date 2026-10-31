@@ -1,0 +1,67 @@
+---
+import type { BrowsePost } from "@/utils/browse";
+import { getPostUrl } from "@/utils/abbrlink";
+import FormattedDate from "../FormattedDate.astro";
+import { Icon } from "astro-icon/components";
+interface Props { posts: BrowsePost[] }
+const { posts } = Astro.props;
+---
+<ul class="browse-posts">
+  {posts.map((post) => (
+    <li class="browse-post">
+      <a class="browse-post__link" href={getPostUrl(post)}>
+        <img class="browse-post__cover" src={post.data.cover || "/images/cover-fallback.svg"} alt="" width="160" height="90" loading="lazy" decoding="async" data-browse-cover />
+        <span class="browse-post__body">
+          <span class="browse-post__title">{post.data.title}</span>
+          <span class="browse-post__meta">
+            {post.data.category && <span>{post.data.category.trim()}</span>}
+            <FormattedDate date={post.data.date} />
+          </span>
+        </span>
+        <Icon name="fa7-solid:chevron-right" class="browse-post__arrow" />
+      </a>
+    </li>
+  ))}
+</ul>
+<script>
+  function fallback(image: HTMLImageElement) {
+    if (image.dataset.fallbackApplied) return;
+    image.dataset.fallbackApplied = "true";
+    image.src = "/images/cover-fallback.svg";
+  }
+  // error 不冒泡，捕获监听只注册一次；换页后查询当前文档。
+  document.addEventListener("error", (event) => {
+    if (event.target instanceof HTMLImageElement && event.target.hasAttribute("data-browse-cover")) fallback(event.target);
+  }, true);
+  function checkCovers() {
+    document.querySelectorAll<HTMLImageElement>("[data-browse-cover]").forEach((image) => {
+      if (image.complete && !image.naturalWidth) fallback(image);
+    });
+  }
+  document.addEventListener("astro:page-load", checkCovers);
+  checkCovers();
+</script>
+<style>
+  .browse-posts { list-style: none; padding: 0; margin: 0; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .browse-post { margin: 0; }
+  .browse-post + .browse-post { border-top: 1px solid var(--border-subtle); }
+  .browse-post__link { display: flex; align-items: center; gap: var(--space-6); padding: var(--space-5) var(--space-6); color: var(--foreground); text-decoration: none; transition: background var(--duration-fast); }
+  .browse-post__link:hover { background: var(--surface-2); }
+  .browse-post__link:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+  .browse-post__cover { flex: 0 0 160px; width: 160px; height: 90px; object-fit: cover; border-radius: var(--radius-md); background: var(--surface-2); }
+  .browse-post__body { min-width: 0; flex: 1; }
+  .browse-post__title { display: block; font-size: var(--text-md); font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+  .browse-post__link:hover .browse-post__title { color: var(--accent); }
+  .browse-post__meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); margin-top: var(--space-2); color: var(--foreground-muted); font-size: var(--text-sm); }
+  .browse-post__meta > span { color: var(--foreground-secondary); }
+  .browse-post__meta > span::after { content: "/"; margin-left: var(--space-3); color: var(--border); }
+  .browse-post__arrow { flex-shrink: 0; font-size: var(--text-sm); color: var(--foreground-muted); }
+  @media (max-width: 768px) {
+    .browse-post__link { gap: var(--space-3); padding: var(--space-4); }
+    .browse-post__cover { flex-basis: 96px; width: 96px; height: 54px; }
+    .browse-post__title { font-size: var(--text-base); }
+    .browse-post__meta { font-size: var(--text-xs); gap: var(--space-1) var(--space-2); }
+    .browse-post__arrow { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .browse-post__link { transition: none; } }
+</style>
