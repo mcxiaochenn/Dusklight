@@ -1,0 +1,310 @@
+From 82a7aae698004c0641be5f82fa2b8692bfb4ffde Mon Sep 17 00:00:00 2001
+From: mcxiaochenn <mcxiaochenn.yyds@gmail.com>
+Date: Sat, 31 Oct 2026 16:08:01 +0800
+Subject: [PATCH] =?UTF-8?q?fix:=20=E4=B8=BA=E8=AF=84=E8=AE=BA=E6=8F=90?=
+ =?UTF-8?q?=E4=BE=9B=20GitHub=20=E5=92=8C=20QQ=20=E5=A4=B4=E5=83=8F?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ internal/auth/avatar.go             | 23 ++++++++++
+ internal/auth/avatar_test.go        | 66 +++++++++++++++++++++++++++++
+ internal/dao/avatar.go              | 13 ++++++
+ internal/dao/avatar_test.go         | 27 ++++++++++++
+ internal/dao/cook.go                |  1 +
+ internal/entity/avatar.go           | 22 ++++++++++
+ internal/entity/avatar_test.go      | 43 +++++++++++++++++++
+ internal/entity/comment_cooked.go   |  1 +
+ internal/entity/user.go             |  1 +
+ server/handler/auth_social_login.go |  2 +
+ 10 files changed, 199 insertions(+)
+ create mode 100644 internal/auth/avatar.go
+ create mode 100644 internal/auth/avatar_test.go
+ create mode 100644 internal/dao/avatar.go
+ create mode 100644 internal/dao/avatar_test.go
+ create mode 100644 internal/entity/avatar.go
+ create mode 100644 internal/entity/avatar_test.go
+
+diff --git a/internal/auth/avatar.go b/internal/auth/avatar.go
+new file mode 100644
+index 0000000..52cf7f0
+--- /dev/null
++++ b/internal/auth/avatar.go
+@@ -0,0 +1,23 @@
++package auth
++
++import (
++	"net/url"
++
++	"github.com/artalkjs/artalk/v2/internal/dao"
++	"github.com/artalkjs/artalk/v2/internal/entity"
++	"github.com/artalkjs/artalk/v2/internal/log"
++)
++
++// SyncGitHubAvatar 在身份关联完成后调用；失败不阻断登录，也不输出提供方资料。
++func SyncGitHubAvatar(dao *dao.Dao, user *entity.User, social SocialUser) {
++	if social.Provider != "github" || user == nil || user.IsEmpty() || social.AvatarURL == "" || social.AvatarURL == user.AvatarURL {
++		return
++	}
++	parsed, err := url.Parse(social.AvatarURL)
++	if err != nil || parsed.Scheme != "https" || parsed.Hostname() == "" || parsed.User != nil {
++		return
++	}
++	if err := dao.UpdateUserAvatar(user, social.AvatarURL); err != nil {
++		log.Warn("[SocialLogin] GitHub 头像保存失败，继续登录")
++	}
++}
+diff --git a/internal/auth/avatar_test.go b/internal/auth/avatar_test.go
+new file mode 100644
+index 0000000..74934ae
+--- /dev/null
++++ b/internal/auth/avatar_test.go
+@@ -0,0 +1,66 @@
++package auth
++
++import (
++	"testing"
++
++	"github.com/artalkjs/artalk/v2/internal/cache"
++	"github.com/artalkjs/artalk/v2/internal/config"
++	"github.com/artalkjs/artalk/v2/internal/dao"
++	"github.com/artalkjs/artalk/v2/internal/db"
++	"github.com/artalkjs/artalk/v2/internal/entity"
++	"github.com/markbates/goth"
++)
++
++func TestSyncGitHubAvatar(t *testing.T) {
++	database, err := db.NewTestDB()
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() { db.CloseDB(database) })
++	d := dao.NewDao(database)
++	c, err := cache.New(config.CacheConf{Type: config.CacheTypeBuiltin})
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() { c.Close() })
++	d.SetCache(dao.NewCacheAdaptor(c))
++	user := entity.User{Name: "测试用户", Email: "avatar@example.com"}
++	if err := database.Create(&user).Error; err != nil {
++		t.Fatal(err)
++	}
++	d.FindUserByID(user.ID) // 先填充缓存，验证更新会失效。
++	writes := 0
++	database.Callback().Update().After("gorm:update").Register("avatar_write_count", func(tx *dao.DB) { writes++ })
++	social := SocialUser{User: goth.User{Provider: "github", AvatarURL: "https://avatars.githubusercontent.com/u/12345?v=4"}}
++	SyncGitHubAvatar(d, &user, social)
++	if user.AvatarURL != social.AvatarURL || d.FindUserByID(user.ID).AvatarURL != social.AvatarURL {
++		t.Fatal("头像未保存或缓存未失效")
++	}
++	SyncGitHubAvatar(d, &user, social)
++	if writes != 1 {
++		t.Fatal("重复登录发生额外写入")
++	}
++	for _, address := range []string{"", "http://example.com/a", "https:///a", "https://user:secret@example.com/a", "javascript:alert(1)"} {
++		social.AvatarURL = address
++		SyncGitHubAvatar(d, &user, social)
++	}
++	social.Provider = "google"
++	social.AvatarURL = "https://example.com/google"
++	SyncGitHubAvatar(d, &user, social)
++	if writes != 1 {
++		t.Fatal("无效头像或非 GitHub 提供方触发了写入")
++	}
++	old := user.AvatarURL
++	if err := database.Exec("CREATE TRIGGER deny_avatar BEFORE UPDATE ON atk_users BEGIN SELECT RAISE(ABORT, '测试失败'); END").Error; err != nil {
++		t.Fatal(err)
++	}
++	social.Provider = "github"
++	social.AvatarURL = "https://example.com/new"
++	SyncGitHubAvatar(d, &user, social) // 不抛出错误，调用方继续生成登录令牌。
++	if user.AvatarURL != old || d.FindUserByID(user.ID).AvatarURL != old {
++		t.Fatal("失败写入污染了用户或缓存")
++	}
++	if d.FindUserByID(user.ID).Name != "测试用户" {
++		t.Fatal("无关字段发生变化")
++	}
++}
+diff --git a/internal/dao/avatar.go b/internal/dao/avatar.go
+new file mode 100644
+index 0000000..56e38fc
+--- /dev/null
++++ b/internal/dao/avatar.go
+@@ -0,0 +1,13 @@
++package dao
++
++import "github.com/artalkjs/artalk/v2/internal/entity"
++
++// UpdateUserAvatar 只写头像列，成功后使用户缓存失效，保留其他资料。
++func (dao *Dao) UpdateUserAvatar(user *entity.User, avatarURL string) error {
++	if err := dao.DB().Model(&entity.User{}).Where("id = ?", user.ID).UpdateColumn("avatar_url", avatarURL).Error; err != nil {
++		return err
++	}
++	user.AvatarURL = avatarURL
++	dao.CacheAction(func(cache *DaoCache) { cache.UserCacheDel(user) })
++	return nil
++}
+diff --git a/internal/dao/avatar_test.go b/internal/dao/avatar_test.go
+new file mode 100644
+index 0000000..90748fe
+--- /dev/null
++++ b/internal/dao/avatar_test.go
+@@ -0,0 +1,27 @@
++package dao_test
++
++import (
++	"github.com/artalkjs/artalk/v2/internal/db"
++	"github.com/artalkjs/artalk/v2/internal/entity"
++	"testing"
++)
++
++func TestCookCommentAvatar(t *testing.T) {
++	d, database := newTestDao(t)
++	defer db.CloseDB(database)
++	user := entity.User{Name: "测试", Email: "12345@qq.com"}
++	if err := database.Create(&user).Error; err != nil {
++		t.Fatal(err)
++	}
++	comment := entity.Comment{UserID: user.ID, Content: "保持内容", Page: &entity.Page{}}
++	got := d.CookComment(&comment)
++	if got.AvatarURL != "https://thirdqq.qlogo.cn/g?b=sdk&nk=12345&s=140" {
++		t.Fatal("未装配 QQ 头像")
++	}
++	user.AvatarURL = "https://example.com/github"
++	comment.User = &user
++	got2 := d.CookAllComments([]*entity.Comment{&comment})[0]
++	if got2.AvatarURL != user.AvatarURL || got2.EmailEncrypted != got.EmailEncrypted || got2.Content != got.Content {
++		t.Fatal("头像或既有字段错误")
++	}
++}
+diff --git a/internal/dao/cook.go b/internal/dao/cook.go
+index 253fd0d..cae0ffd 100644
+--- a/internal/dao/cook.go
++++ b/internal/dao/cook.go
+@@ -49,6 +49,7 @@ func (dao *Dao) CookComment(c *entity.Comment) entity.CookedComment {
+ 		ContentMarked:  markedContent,
+ 		UserID:         c.UserID,
+ 		Nick:           user.Name,
++		AvatarURL:      entity.ResolveAvatarURL(user),
+ 		EmailEncrypted: getCommentEmailHash(user.Email),
+ 		Link:           user.Link,
+ 		UA:             c.UA,
+diff --git a/internal/entity/avatar.go b/internal/entity/avatar.go
+new file mode 100644
+index 0000000..b255b09
+--- /dev/null
++++ b/internal/entity/avatar.go
+@@ -0,0 +1,22 @@
++package entity
++
++import (
++	"regexp"
++	"strings"
++)
++
++var numericQQEmail = regexp.MustCompile(`^([1-9][0-9]{4,10})@qq\.com$`)
++
++// ResolveAvatarURL 仅下发头像，不向客户端提供邮箱明文。
++func ResolveAvatarURL(user *User) string {
++	if user == nil {
++		return ""
++	}
++	if user.AvatarURL != "" {
++		return user.AvatarURL
++	}
++	if match := numericQQEmail.FindStringSubmatch(strings.ToLower(strings.TrimSpace(user.Email))); match != nil {
++		return "https://thirdqq.qlogo.cn/g?b=sdk&nk=" + match[1] + "&s=140"
++	}
++	return ""
++}
+diff --git a/internal/entity/avatar_test.go b/internal/entity/avatar_test.go
+new file mode 100644
+index 0000000..e8a414f
+--- /dev/null
++++ b/internal/entity/avatar_test.go
+@@ -0,0 +1,43 @@
++package entity
++
++import (
++	"encoding/json"
++	"strings"
++	"testing"
++)
++
++func TestResolveAvatarURL(t *testing.T) {
++	for _, tc := range []struct{ email, qq string }{
++		{"12345@qq.com", "12345"}, {" 12345678901@QQ.COM\t", "12345678901"},
++		{"1234@qq.com", ""}, {"123456789012@qq.com", ""}, {"012345@qq.com", ""},
++		{"abc@qq.com", ""}, {"12345+tag@qq.com", ""}, {"12345@QQ.COM.evil", ""},
++		{"12345@example.com", ""}, {"１２３４５@qq.com", ""}, {"", ""},
++	} {
++		t.Run(tc.email, func(t *testing.T) {
++			want := ""
++			if tc.qq != "" {
++				want = "https://thirdqq.qlogo.cn/g?b=sdk&nk=" + tc.qq + "&s=140"
++			}
++			if got := ResolveAvatarURL(&User{Email: tc.email}); got != want {
++				t.Fatalf("got %q, want %q", got, want)
++			}
++		})
++	}
++	if ResolveAvatarURL(nil) != "" {
++		t.Fatal("空用户必须返回空")
++	}
++	if ResolveAvatarURL(&User{Email: "12345@qq.com", AvatarURL: "https://example.com/avatar"}) != "https://example.com/avatar" {
++		t.Fatal("已保存头像必须优先")
++	}
++}
++
++func TestAvatarJSONOptional(t *testing.T) {
++	b, _ := json.Marshal(CookedComment{})
++	if strings.Contains(string(b), "avatar_url") {
++		t.Fatal("空值应省略")
++	}
++	b, _ = json.Marshal(CookedComment{AvatarURL: "https://example.com/avatar"})
++	if !strings.Contains(string(b), `"avatar_url":"https://example.com/avatar"`) {
++		t.Fatal("头像未序列化")
++	}
++}
+diff --git a/internal/entity/comment_cooked.go b/internal/entity/comment_cooked.go
+index 822e043..21ab781 100644
+--- a/internal/entity/comment_cooked.go
++++ b/internal/entity/comment_cooked.go
+@@ -6,6 +6,7 @@ type CookedComment struct {
+ 	ContentMarked  string `json:"content_marked"`
+ 	UserID         uint   `json:"user_id"`
+ 	Nick           string `json:"nick"`
++	AvatarURL      string `json:"avatar_url,omitempty"`
+ 	EmailEncrypted string `json:"email_encrypted"`
+ 	Link           string `json:"link"`
+ 	UA             string `json:"ua"`
+diff --git a/internal/entity/user.go b/internal/entity/user.go
+index a639a44..384fc59 100644
+--- a/internal/entity/user.go
++++ b/internal/entity/user.go
+@@ -16,6 +16,7 @@ type User struct {
+ 	Name           string `gorm:"index;size:255"`
+ 	Email          string `gorm:"index;size:255"`
+ 	Link           string
++	AvatarURL      string
+ 	Password       string
+ 	BadgeName      string
+ 	BadgeColor     string
+diff --git a/server/handler/auth_social_login.go b/server/handler/auth_social_login.go
+index 61a3d8a..2271155 100644
+--- a/server/handler/auth_social_login.go
++++ b/server/handler/auth_social_login.go
+@@ -100,6 +100,8 @@ func AuthSocialLogin(app *core.App, router fiber.Router) {
+ 			return common.RespError(c, 500, "Failed to find user")
+ 		}
+ 
++		auth.SyncGitHubAvatar(app.Dao(), &user, socialUser)
++
+ 		// Get user token
+ 		jwtToken, err := common.LoginGetUserToken(user, app.Conf().AppKey, app.Conf().LoginTimeout)
+ 		if err != nil {
+-- 
+2.51.0.windows.2
+

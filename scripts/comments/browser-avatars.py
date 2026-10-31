@@ -20,6 +20,23 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={"width": 1440, "height": 1000})
     page.route("**/umami.mcxiaochen.top/**", lambda route: route.abort())
     page.on("pageerror", lambda error: report["page_errors"].append(str(error)))
+    backend_avatars = {}
+
+    def collect_avatars(response):
+        if "/api/v2/comments?" not in response.url and "/api/v2/stats/latest_comments?" not in response.url:
+            return
+        if not response.ok:
+            return
+        payload = response.json()
+        items = payload.get("comments", payload.get("data", []))
+        if isinstance(items, dict):
+            items = items.get("data", [])
+        backend_avatars.update({str(item["id"]): item.get("avatar_url") for item in items})
+
+    page.on("response", collect_avatars)
+
+    def expected_avatar(comment_id):
+        return backend_avatars.get(comment_id) or mapping.get(comment_id) or args.base_url + "/images/avatar-fallback.svg"
 
     def ready():
         page.wait_for_function("document.querySelector('.comments-status')?.hidden === true", timeout=30000)
@@ -29,10 +46,10 @@ with sync_playwright() as p:
     ready()
     page.wait_for_function("[...document.querySelectorAll('.atk-avatar img')].filter(e=>e.src.includes('qlogo')).every(e=>e.complete&&e.naturalWidth>0)", timeout=30000)
     pictures = page.locator(".atk-avatar img").evaluate_all("els => els.map(e=>({id:e.closest('.atk-comment-wrap').id.replace('atk-comment-',''),src:e.src,width:e.naturalWidth,height:e.naturalHeight}))")
-    qq = [image for image in pictures if image["id"] in mapping]
+    qq = [image for image in pictures if "thirdqq.qlogo.cn" in image["src"]]
     assert qq, "当前页面未显示已匹配的 QQ 头像"
-    assert all(image["src"] == mapping[image["id"]] and image["width"] > 1 and image["height"] > 1 for image in qq)
-    assert all("d=identicon" in image["src"] for image in pictures if image["id"] not in mapping)
+    assert all(image["src"] == expected_avatar(image["id"]) and image["width"] > 1 and image["height"] > 1 for image in qq)
+    assert all(image["src"] == expected_avatar(image["id"]) for image in pictures)
     samples = []
     for url in list(dict.fromkeys(image["src"] for image in qq))[:5]:
         with urllib.request.urlopen(url, timeout=20) as response:
@@ -47,7 +64,7 @@ with sync_playwright() as p:
     page.wait_for_selector(".recent-comments li img", timeout=20000)
     recent = page.locator(".recent-comments li").evaluate_all("els => els.map(e=>({id:e.querySelector('a').hash.replace('#atk-comment-',''),src:e.querySelector('img')?.src}))")
     assert len(recent) == 5
-    assert all(item["src"] == mapping[item["id"]] if item["id"] in mapping else "d=identicon" in item["src"] for item in recent)
+    assert all(item["src"] == expected_avatar(item["id"]) for item in recent)
     report["sidebar_uses_same_avatar_rules"] = "ok"
     page.goto(args.base_url + "/envelope/#comments", wait_until="domcontentloaded")
     ready()
@@ -81,12 +98,13 @@ with sync_playwright() as p:
     page.route("**/thirdqq.qlogo.cn/**", lambda route: route.abort())
     page.reload(wait_until="domcontentloaded")
     ready()
-    page.wait_for_function("document.querySelector('.atk-avatar img[data-avatar-fallback=\"1\"]')", timeout=20000)
-    failed = page.locator('.atk-avatar img[data-avatar-fallback="1"]').first
-    assert "gravatar.com/avatar/" in failed.get_attribute("src") and "d=identicon" in failed.get_attribute("src")
+    page.wait_for_function("document.querySelector('.atk-avatar img[data-comment-avatar-fallback=\"1\"]')", timeout=20000)
+    failed = page.locator('.atk-avatar img[data-comment-avatar-fallback="1"]').first
+    assert failed.get_attribute("src") == "/images/avatar-fallback.svg"
     before = failed.get_attribute("src")
     failed.evaluate("e => e.dispatchEvent(new Event('error'))")
     assert failed.get_attribute("src") == before, "失败回退循环修改了图片地址"
+    assert failed.evaluate("e => e.hidden"), "本地图失败应显示容器图标"
     report["qq_failure_falls_back_once"] = "ok"
     assert not report["page_errors"], report["page_errors"]
     browser.close()
