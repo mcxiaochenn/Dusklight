@@ -25,10 +25,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^8.0.3",
+    "@astrojs/mdx": "^8.1.1",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
-    "@astrojs/svelte": "^9.0.1",
+    "@astrojs/svelte": "^9.1.1",
     "@expressive-code/core": "^0.44.3",
     "@expressive-code/plugin-collapsible-sections": "^0.44.3",
     "@expressive-code/plugin-line-numbers": "^0.44.3",
@@ -39,7 +39,7 @@
     "@iconify/tailwind4": "^1.2.3",
     "@tailwindcss/vite": "^4.3.3",
     "artalk": "2.10.0",
-    "astro": "^7.3.8",
+    "astro": "^7.4.2",
     "astro-expressive-code": "^0.44.3",
     "astro-icon": "^1.2.0",
     "hast-util-select": "^6.0.4",
@@ -63,8 +63,8 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "^7.3.2",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/markdown-remark": "^7.3.4",
     "@types/qrcode": "^1.5.6",
     "cn-font-split": "^7.4.3",
     "pangu": "^10.4.1",
