@@ -513,6 +513,14 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://www.zhihailib.com",
 		tags: ["技术", "工具", "电子书库"],
 	},
+	{
+		title: "渡劫博客",
+		imgurl: "https://www.520691.xyz/images/16456faa-fdea-4a15-9d01-88efd5863791.jpg",
+		desc: "个人全栈开发者，cf生态爱好者",
+		siteurl: "https://www.520691.xyz",
+		rss: "https://www.520691.xyz/rss.xml",
+		tags: ["技术"],
+	},
 ];
 
 /** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */
