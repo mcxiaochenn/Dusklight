@@ -105,5 +105,6 @@ ghcr.io/mcxiaochenn/dusklight-artalk@sha256:9891aee51da307f0a99322c5ef73e6942d49
 
 - 上游 `v2.10.1`（commit `53d15ee0c3a908b4a58fc43f42c44b5e709279bd`）应用原补丁无冲突，生成 `patches/artalk/v2.10.1-avatar.patch`（补丁提交 `5fef66542b8ec456e7cbf4c4d4eeef4eea60f2ab`）。
 - `go test ./internal/entity ./internal/dao ./internal/auth` 通过；`go test ./server/handler` 中 `TestEmailCodeResendAfterExpiry` 失败，纯净 `v2.10.1` 同样失败，单独运行通过，判定为上游测试间状态污染，与头像补丁无关。
-- `v2.10.1` 的后端安全修复（OAuth 回调鉴权、邮箱验证、评论/通知归属、page title 抓取域名限制、评论 data URL 限位图）随镜像生效；前端 `artalk` npm 包需同步升级到 2.10.1，否则评论框会提示「请更新 Artalk 服务端」。
-- 待完成：镜像 CI 构建、候选环境四类头像与版本提示验证、生产切换。
+- `v2.10.1` 的后端安全修复（OAuth 回调鉴权、邮箱验证、评论/通知归属、page title 抓取域名限制、评论 data URL 限位图）随镜像生效；前端 `artalk` npm 包需同步升级到 2.10.1 保持前后端一致（生产 `versionCheck` 为 false，未开启版本提示）。
+- 2026-11-03 已完成：镜像 CI 构建（digest `sha256:98c9b4947e6f2888d22d507f693ee6cc48f3957a89a4586dd0874cfe0ad23682`）；候选环境验证（版本 `2.10.1-avatar.1`，`/envelope/` 55 条评论的 id 与字段逐条一致，46 条带 `avatar_url`，`/sidebar/` 与 auth 插件均 200）；生产切换完成，备份在 `/opt/backups/dusklight-comments/20261103-194018-artalk-production`，切换后 556 评论 / 155 用户 / 1 个已存头像，无错误日志。
+- 前端 `artalk` npm 包已同步升级到 2.10.1（#66），生产评论框无版本提示，登录层与 Escape 焦点行为正常。
