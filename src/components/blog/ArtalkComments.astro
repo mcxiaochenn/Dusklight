@@ -21,6 +21,7 @@ import "../../styles/artalk.css";
   import { commentPageKey } from "../../utils/comment-path";
   import { commentAvatarURL, fallbackCommentAvatar, loadCommentAvatars } from "../../utils/comment-avatar";
   import type Artalk from "artalk";
+  import { commentDialogs } from "../../utils/comment-dialogs";
 
   type Mount = { el: HTMLElement; client?: Artalk; mounted: boolean; disposed: boolean };
   let current: Mount | undefined;
@@ -78,6 +79,7 @@ import "../../styles/artalk.css";
       await loadCommentAvatars();
       loading ??= import("artalk").catch((error) => { loading = undefined; throw error; });
       const { default: Client } = await loading;
+      Client.use(commentDialogs);
       if (state.disposed || !el.isConnected) return;
       const client = state.client = Client.init({
         el, server: commentConfig.server, site: commentConfig.site,
@@ -166,7 +168,7 @@ import "../../styles/artalk.css";
       avatar.prepend(icon);
     });
     document.querySelectorAll<HTMLElement>(
-      "#comments .atk-plug-btn, #comments .atk-common-action-btn, #comments .atk-state-btn, .atk-layer-wrap .atk-method-item, .atk-layer-wrap .atk-auth-dialog-title .atk-icon, .atk-layer-wrap .atk-form .atk-link",
+      "#comments .atk-plug-btn, #comments .atk-common-action-btn, #comments .atk-state-btn, .atk-layer-wrap .atk-method-item, .atk-layer-wrap .atk-auth-dialog-title .atk-icon, .atk-layer-wrap .atk-form .atk-link, .atk-layer-wrap .atk-send-verify-btn",
     ).forEach((control) => {
       if (control.matches("a, button, input")) return;
       control.setAttribute("role", "button");
