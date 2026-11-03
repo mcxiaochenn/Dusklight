@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/comments", "destination": "/comments/index.html" },
+    { "source": "/comments/", "destination": "/comments/index.html" },
+    { "source": "/equipment", "destination": "/equipment/index.html" },
+    { "source": "/equipment/", "destination": "/equipment/index.html" },
+    { "source": "/log", "destination": "/log/index.html" },
+    { "source": "/log/", "destination": "/log/index.html" },
+    { "source": "/posts/p562369c9", "destination": "/posts/p562369c9/index.html" },
+    { "source": "/posts/p562369c9/", "destination": "/posts/p562369c9/index.html" }
+  ]
+}
