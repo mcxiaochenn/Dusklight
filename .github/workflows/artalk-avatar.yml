@@ -3,7 +3,7 @@ name: Build Artalk avatar image
 on:
   workflow_dispatch:
   push:
-    branches: [main, codex/artalk-comment-avatar]
+    branches: [main, codex/artalk-comment-avatar, codex/artalk-2.10.1-avatar]
     paths:
       - patches/artalk/**
       - scripts/comments/**
@@ -50,6 +50,6 @@ jobs:
           file: scripts/comments/avatar.Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/mcxiaochenn/dusklight-artalk:v2.10.0-avatar.1-${{ github.sha }}
+          tags: ghcr.io/mcxiaochenn/dusklight-artalk:v2.10.1-avatar.1-${{ github.sha }}
       - name: 记录不可变镜像地址
         run: echo 'ghcr.io/mcxiaochenn/dusklight-artalk@${{ steps.image.outputs.digest }}' >> "$GITHUB_STEP_SUMMARY"
