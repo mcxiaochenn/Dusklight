@@ -44,6 +44,8 @@ document.addEventListener("keydown", (event) => {
   if (!layer || event.defaultPrevented) return;
   // Escape 语义独立于遮罩关闭策略：优先点原生取消/关闭，仅在允许遮罩关闭时才裸 hide。
   if (event.key === "Escape") {
+    // 中文输入法按 Esc 取消候选词也会派发 keydown，不能当成关闭弹窗。
+    if (event.isComposing || (event as { keyCode?: number }).keyCode === 229) return;
     event.preventDefault();
     // 验证器的取消按钮还会结束待处理 Promise，不能只隐藏 DOM。
     const close = layer.getEl().querySelector<HTMLElement>('[data-action="cancel"], .atk-auth-dialog-title .atk-close');
