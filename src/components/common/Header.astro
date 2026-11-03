@@ -90,12 +90,14 @@ const navIcons: Record<string, string> = {
 
       <div class="header__actions">
         {siteConfig.features.search && <SearchDialog client:idle pagefindUrl={resourceConfig.scripts.pagefind} />}
-        <ThemeToggle />
+        <div class="header__theme"><ThemeToggle /></div>
         <button
           id="mobile-menu-toggle"
           class="header__menu-btn"
           aria-label="打开菜单"
           aria-expanded="false"
+          aria-controls="mobile-menu"
+          aria-haspopup="dialog"
         >
           <Icon name="fa7-solid:bars" class="header__menu-icon" />
         </button>
@@ -104,16 +106,16 @@ const navIcons: Record<string, string> = {
   </div>
 
   {/* 移动端菜单 */}
-  {/* 关闭态由 CSS 的 visibility 控制，不能用 HTML hidden 属性 —— 见样式块说明 */}
-  <div id="mobile-menu" class="mobile-menu">
+  <dialog id="mobile-menu" class="mobile-menu" aria-labelledby="mobile-menu-title">
     <div class="mobile-menu__backdrop"></div>
     <div class="mobile-menu__panel">
       <div class="mobile-menu__header">
-        <span class="mobile-menu__title">菜单</span>
+        <span id="mobile-menu-title" class="mobile-menu__title">菜单</span>
         <button id="mobile-menu-close" class="mobile-menu__close" aria-label="关闭菜单">
           <Icon name="fa7-solid:xmark" />
         </button>
       </div>
+      <button type="button" class="mobile-menu__theme" data-theme-toggle>切换主题</button>
       {navConfig.main.map((item) => (
         item.children ? (
           <div class="mobile-menu__group">
@@ -151,12 +153,13 @@ const navIcons: Record<string, string> = {
         )
       ))}
     </div>
-  </div>
+  </dialog>
 </header>
 
 <style>
   /* ── Header container ── */
   .main-header {
+    container: header / inline-size;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -237,7 +240,14 @@ const navIcons: Record<string, string> = {
     opacity: 1;
   }
 
+  .header__pill--left { min-width: 0; }
+  .header__pill--right { flex-shrink: 0; }
+
   .header__logo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-family: var(--font-display);
     font-size: var(--text-base);
     font-weight: 700;
@@ -418,8 +428,8 @@ const navIcons: Record<string, string> = {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-full);
     color: var(--foreground-secondary);
     transition:
@@ -438,29 +448,36 @@ const navIcons: Record<string, string> = {
   }
 
   /* ── Mobile menu ── */
-  /* 关闭态必须用 visibility，不能用 HTML 的 hidden 属性。抽屉的滑入/滑出靠下面
-     .mobile-menu[data-open="true"] .mobile-menu__panel 的 transform 过渡实现，
-     容器本身需要一直保持 fixed 布局；而 hidden 会命中 UA 样式表的
-     [hidden]{display:none}，本组件又从未给 .mobile-menu 声明过 display，没有
-     作者样式与之竞争，于是整个抽屉连遮罩一起不进渲染树 —— 移动端实测（390×844）
-     点击汉堡按钮后 data-open/aria-expanded 都正常翻到 true，但 display 恒为 none、
-     盒子恒为 0×0，导航完全不可用。visibility 既在关闭态移出无障碍树与 Tab 序，
-     又不打断 transform 过渡；隐藏延迟到过渡结束，滑出动画才播得完。
-
-     z-index 用 110 而非 100：utilities.css 的 .scroll-progress 同为 100，且
-     BaseLayout 里 <ScrollProgress /> 排在 <Header /> 之后，同层级下后来者居上，
-     会让进度条压在遮罩顶部露出一条彩色线。110 仍低于 skip-link 与灯箱的 200。 */
+  /* 原生 dialog 提供焦点隔离、Escape 和背景 inert，避免自行维护第二套焦点陷阱。 */
   .mobile-menu {
     position: fixed;
     inset: 0;
-    z-index: 110;
-    visibility: hidden;
-    transition: visibility 0s linear var(--duration-normal);
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
   }
-
-  .mobile-menu[data-open="true"] {
-    visibility: visible;
-    transition-delay: 0s;
+  .mobile-menu::backdrop { background: transparent; }
+  .mobile-menu__theme { display: none; }
+  @container header (max-width: 480px) {
+    .header__theme { display: none; }
+    .header__pill { padding-inline: 6px; }
+    .header__logo { padding-inline: 0; }
+    .header__actions { margin-left: 0; }
+    .mobile-menu__theme {
+      display: block;
+      min-height: 44px;
+      padding: var(--space-2) var(--space-4);
+      text-align: left;
+      border-radius: var(--radius-md);
+      background: var(--accent-subtle);
+      color: var(--accent);
+    }
   }
 
   .mobile-menu__backdrop {
@@ -497,7 +514,7 @@ const navIcons: Record<string, string> = {
     background: oklch(0.18 0.012 var(--hue) / 0.85);
   }
 
-  .mobile-menu[data-open="true"] .mobile-menu__panel {
+  .mobile-menu[open] .mobile-menu__panel {
     transform: translateX(0);
   }
 
@@ -520,8 +537,8 @@ const navIcons: Record<string, string> = {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
     color: var(--foreground-muted);
     transition: color var(--duration-fast) var(--ease-material),
@@ -596,7 +613,16 @@ const navIcons: Record<string, string> = {
     .main-header {
       padding: var(--space-2) var(--space-3);
     }
+    /* 无 @container 支持时的降级：视口宽度近似容器宽度，先保证导航不溢出 */
+    .header__links {
+      display: none;
+    }
 
+    .header__menu-btn {
+      display: flex;
+    }
+  }
+  @container header (max-width: 768px) {
     .header__links {
       display: none;
     }
@@ -658,20 +684,33 @@ const navIcons: Record<string, string> = {
     const toggle = document.getElementById("mobile-menu-toggle");
     const closeBtn = document.getElementById("mobile-menu-close");
     const menu = document.getElementById("mobile-menu");
-    if (toggle && menu) {
+    if (toggle && menu instanceof HTMLDialogElement) {
       const menuToggle = toggle;
       const mobileMenu = menu;
       function openMenu() {
-        mobileMenu.setAttribute("data-open", "true");
+        mobileMenu.showModal();
+        closeBtn?.focus();
         menuToggle.setAttribute("aria-expanded", "true");
       }
       function closeMenu() {
-        mobileMenu.setAttribute("data-open", "false");
-        menuToggle.setAttribute("aria-expanded", "false");
+        mobileMenu.close();
       }
 
+      mobileMenu.addEventListener("close", () => {
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.focus();
+      });
+      mobileMenu.addEventListener("keydown", (event) => {
+        if (event.key !== "Tab") return;
+        const controls = [...mobileMenu.querySelectorAll<HTMLElement>("a[href], button:not([disabled])")]
+          .filter((control) => control.getClientRects().length > 0);
+        const target = event.shiftKey && document.activeElement === controls[0]
+          ? controls.at(-1) : !event.shiftKey && document.activeElement === controls.at(-1) ? controls[0] : undefined;
+        if (target) { event.preventDefault(); target.focus(); }
+      });
+
       menuToggle.addEventListener("click", () => {
-        const isOpen = mobileMenu.getAttribute("data-open") === "true";
+        const isOpen = mobileMenu.open;
         isOpen ? closeMenu() : openMenu();
       });
 

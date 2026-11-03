@@ -11,7 +11,7 @@ export const commentConfig = {
   emoticons: "/json/owo.json",
   legacyMap: "/comments/legacy-map.json",
   avatarMap: "/comments/historical-avatars.json",
-  gravatar: { mirror: "https://www.gravatar.com/avatar/", params: "sha256=1&d=identicon&s=140" },
+  defaultAvatar: "/images/avatar-fallback.svg",
 
   recentComments: {
     enabled: true,

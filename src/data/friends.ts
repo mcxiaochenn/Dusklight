@@ -513,6 +513,30 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://www.zhihailib.com",
 		tags: ["技术", "工具", "电子书库"],
 	},
+	{
+		title: "渡劫博客",
+		imgurl: "https://www.520691.xyz/images/16456faa-fdea-4a15-9d01-88efd5863791.jpg",
+		desc: "个人全栈开发者，cf生态爱好者",
+		siteurl: "https://www.520691.xyz",
+		rss: "https://www.520691.xyz/rss.xml",
+		tags: ["技术"],
+	},
+	{
+		title: "Dinosaur's Blog",
+		imgurl: "https://i.imgs.ovh/2026/10/25/c60f98e36ba6d875c7de3857b175668e.png",
+		desc: "拾一缕月光藏于袖，携满程星河赴远方。",
+		siteurl: "https://dinonode.org",
+		rss: "https://dinonode.org/feed/",
+		tags: ["技术"],
+	},
+	{
+		title: "JerryLife",
+		imgurl: "https://img.jerry-nis.top/d8703c5c-4c4a-49cc-bd94-3363c9eda2d8.png",
+		desc: "Enjoy life",
+		siteurl: "https://www.jerrynis.com",
+		rss: "https://www.jerrynis.com/rss.xml",
+		tags: ["技术"],
+	},
 ];
 
 /** 供友链检测与朋友圈服务共用的数据，保持展示列表的原始顺序。 */

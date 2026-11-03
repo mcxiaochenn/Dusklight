@@ -25,7 +25,7 @@
 </script>
 
 <button
-  id="theme-toggle"
+  data-theme-toggle
   type="button"
   aria-label="切换主题"
   class="theme-toggle"
@@ -60,8 +60,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
     color: var(--foreground-secondary);
     transition:
@@ -179,6 +179,11 @@
       }
 
       localStorage.setItem("theme", theme);
+      const label = { light: "浅色", dark: "深色", auto: "跟随系统" }[theme] ?? "跟随系统";
+      document.querySelectorAll<HTMLElement>("[data-theme-toggle]").forEach((button) => {
+        button.setAttribute("aria-label", `当前主题：${label}，点击切换`);
+        button.title = `当前主题：${label}`;
+      });
     },
 
     init() {
@@ -245,23 +250,16 @@
 
   ThemeManager.init();
 
-  let bound = false;
-  function bindToggle() {
-    if (bound) return;
-    const toggle = document.getElementById("theme-toggle");
+  // 两个入口共享状态；事件委托不会随路由切换重复绑定。
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
+    const toggle = event.target.closest<HTMLElement>("[data-theme-toggle]");
     if (!toggle) return;
-    bound = true;
-    toggle.addEventListener("click", (e) => {
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      ThemeManager.toggleWithAnimation(rect.left + rect.width / 2, rect.top + rect.height / 2);
-    });
-  }
-
-  bindToggle();
+    const rect = toggle.getBoundingClientRect();
+    ThemeManager.toggleWithAnimation(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  });
 
   document.addEventListener("astro:after-swap", () => {
     ThemeManager.applyTheme(ThemeManager.getStored());
-    bound = false;
-    bindToggle();
   });
 </script>
