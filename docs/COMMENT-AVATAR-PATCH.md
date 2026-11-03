@@ -4,7 +4,7 @@
 
 主评论和侧栏最新评论共用解析规则：**后端 `avatar_url` → 419 条历史映射 → 本站 `/images/avatar-fallback.svg`**。有后端头像的历史评论允许更新显示，映射文件本身不变。远程图片失败只回退一次，本地图也失败时隐藏图片、保留容器中的本地图标，不请求 Gravatar。
 
-后端基于 Artalk `v2.10.0`（上游提交 `1bf21404bd618d61bc336d0618f82de4872d6d74`），补丁提交为 `82a7aae698004c0641be5f82fa2b8692bfb4ffde`，版本标识 `v2.10.0-avatar.1`。不修改邮箱哈希、权限、身份关联、评论内容或登录方式。
+后端基于 Artalk `v2.10.1`（上游提交 `53d15ee0c3a908b4a58fc43f42c44b5e709279bd`），补丁提交为 `5fef66542b8ec456e7cbf4c4d4eeef4eea60f2ab`，版本标识 `v2.10.1-avatar.1`。`v2.10.0-avatar.1` 的补丁与镜像记录保留，用于回滚与追溯。不修改邮箱哈希、权限、身份关联、评论内容或登录方式。
 
 - 用户实体新增 `avatar_url` 列；评论响应新增同名可选字段，空值不输出。
 - 头像解析优先使用持久化头像；否则将邮箱去除首尾空白、转小写，严格匹配 `^[1-9][0-9]{4,10}@qq\.com$`，构造与历史映射相同格式的 QQ URL。
@@ -16,25 +16,26 @@
 
 ## 补丁与构建
 
-`patches/artalk/v2.10.0-avatar.patch` 是可由 `git am` 应用的后端提交，集中修改用户/评论实体、评论装配和 OAuth 回调，并包含实体、DAO、认证测试。新增逻辑位于独立的 `avatar.go` 中。上游回调、用户实体和 `CookComment` 是升级时需要检查的交叉点。
+`patches/artalk/v2.10.1-avatar.patch` 是可由 `git am` 应用的后端提交，集中修改用户/评论实体、评论装配和 OAuth 回调，并包含实体、DAO、认证测试。新增逻辑位于独立的 `avatar.go` 中。上游回调、用户实体和 `CookComment` 是升级时需要检查的交叉点。`patches/artalk/v2.10.0-avatar.patch` 保留为上一个可用版本。
 
 本地上游分支保存在 `Temp/artalk-avatar-upstream` 的 `codex/comment-avatar`；可追溯交付物是纳入本仓库版本控制的补丁，不依赖临时目录，也不要求创建远程 fork。需要独立 fork 时可直接应用同一提交。
 
 ```sh
-git clone --branch v2.10.0 https://github.com/ArtalkJS/Artalk.git artalk-avatar
+git clone --branch v2.10.1 https://github.com/ArtalkJS/Artalk.git artalk-avatar
 cd artalk-avatar
 git switch -c codex/comment-avatar
-git am /path/to/Dusklight/patches/artalk/v2.10.0-avatar.patch
-go test ./internal/entity ./internal/dao ./internal/auth ./server/handler
+git am /path/to/Dusklight/patches/artalk/v2.10.1-avatar.patch
+go test ./internal/entity ./internal/dao ./internal/auth
+go test ./server/handler -skip 'TestEmailCodeResendAfterExpiry'
 ```
 
 在 Dusklight 根目录构建镜像：
 
 ```sh
-docker build -f scripts/comments/avatar.Dockerfile -t dusklight-artalk:v2.10.0-avatar.1 .
+docker build -f scripts/comments/avatar.Dockerfile -t dusklight-artalk:v2.10.1-avatar.1 .
 ```
 
-Dockerfile 固定上游提交和 Go 版本；嵌入官方同版本 `artalk_ui.tar.gz`，校验 SHA-256 `6e6b5456a3265e29cecb36b7d935dbafb6639035e2681901123b6b150e307379`，保留完整管理后台与登录插件。最终运行层复用原生产镜像 digest，替换后端二进制。Dockerfile 专属忽略文件只允许头像补丁进入构建上下文，数据库、配置和密钥不进入上下文。
+Dockerfile 固定上游提交和 Go 版本；嵌入官方同版本 `artalk_ui.tar.gz`，校验 SHA-256 `85580ad4c149e236f1300d135a9f30c622d1722f5e8dc517a295c93af10b6c3b`，保留完整管理后台与登录插件。上游 v2.10.1 的 `TestEmailCodeResendAfterExpiry` 在包级全量运行时存在测试间状态污染（纯净上游同样失败，单独运行通过），因此镜像构建跳过该用例，其余 handler 测试照常执行。最终运行层复用原生产镜像 digest，替换后端二进制。Dockerfile 专属忽略文件只允许头像补丁进入构建上下文，数据库、配置和密钥不进入上下文。
 
 `.github/workflows/artalk-avatar.yml` 先执行前端及回填单测，再构建并发布 GHCR 镜像；标签包含站点提交 SHA，工作流摘要输出不可变 digest。博客前端由原站点流水线独立构建。内置管理界面头像适配不在本次范围内。
 
@@ -99,3 +100,11 @@ ghcr.io/mcxiaochenn/dusklight-artalk@sha256:9891aee51da307f0a99322c5ef73e6942d49
 最终核对所有原有表和原有列逐条一致：556 条评论、155 个用户、145 条投票、34 个页面、4 条通知、1 条 GitHub 身份。新增头像列，回填 1 个 GitHub 用户，重复预览 0 更新。配置备份含私密数据，禁止入库。旧前端 gh-pages 提交为 `42c0a7d598b50fc33619f7ea7f34c49633712c9b`，前端通过本 PR 合并 main 后的现有流水线发布。
 
 真实 OAuth 授权和真实邮件收件在此次操作中尚无验收证据，仍不标记为通过；用户已明确要求上线。隔离测试库不合并到生产。
+
+## v2.10.1 升级记录（2026-11-03）
+
+- 上游 `v2.10.1`（commit `53d15ee0c3a908b4a58fc43f42c44b5e709279bd`）应用原补丁无冲突，生成 `patches/artalk/v2.10.1-avatar.patch`（补丁提交 `5fef66542b8ec456e7cbf4c4d4eeef4eea60f2ab`）。
+- `go test ./internal/entity ./internal/dao ./internal/auth` 通过；`go test ./server/handler` 中 `TestEmailCodeResendAfterExpiry` 失败，纯净 `v2.10.1` 同样失败，单独运行通过，判定为上游测试间状态污染，与头像补丁无关。
+- `v2.10.1` 的后端安全修复（OAuth 回调鉴权、邮箱验证、评论/通知归属、page title 抓取域名限制、评论 data URL 限位图）随镜像生效；前端 `artalk` npm 包需同步升级到 2.10.1 保持前后端一致（生产 `versionCheck` 为 false，未开启版本提示）。
+- 2026-11-03 已完成：镜像 CI 构建（digest `sha256:98c9b4947e6f2888d22d507f693ee6cc48f3957a89a4586dd0874cfe0ad23682`）；候选环境验证（版本 `2.10.1-avatar.1`，`/envelope/` 55 条评论的 id 与字段逐条一致，46 条带 `avatar_url`，`/sidebar/` 与 auth 插件均 200）；生产切换完成，备份在 `/opt/backups/dusklight-comments/20261103-194018-artalk-production`，切换后 556 评论 / 155 用户 / 1 个已存头像，无错误日志。
+- 前端 `artalk` npm 包已同步升级到 2.10.1（#66），生产评论框无版本提示，登录层与 Escape 焦点行为正常。
