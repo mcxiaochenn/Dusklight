@@ -26,7 +26,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^8.1.2",
+    "@astrojs/mdx": "^8.1.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@astrojs/svelte": "^9.1.2",
@@ -40,7 +40,7 @@
     "@iconify/tailwind4": "^1.2.3",
     "@tailwindcss/vite": "^4.3.3",
     "artalk": "2.10.1",
-    "astro": "^7.4.4",
+    "astro": "^7.4.7",
     "astro-expressive-code": "^0.44.3",
     "astro-icon": "^1.2.0",
     "hast-util-select": "^6.0.4",
@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/markdown-remark": "^7.3.5",
+    "@astrojs/markdown-remark": "^7.3.6",
     "@types/qrcode": "^1.5.6",
     "cn-font-split": "^7.4.3",
     "pangu": "^10.4.1",
