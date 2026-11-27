@@ -1057,11 +1057,9 @@ function normalizeFriendLink(value: string): string {
     line-height: 1.6;
     color: var(--foreground-secondary);
     margin: 0;
-    flex: 1;
-    min-height: 0;
+    /* 不能用 flex: 1：会把盒高撑过 2 行，导致 -webkit-line-clamp 省略号下面露出第 3 行半截 */
+    max-height: 3.2em;
     overflow: hidden;
-    /* 卡片固定 155px 高：只靠 overflow 会把第 3 行裁成半行。
-       默认态与悬停态（头像折叠后）可用高度都只够 2 行完整显示。 */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
