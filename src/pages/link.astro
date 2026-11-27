@@ -194,7 +194,7 @@ function normalizeFriendLink(value: string): string {
                       <span class="friend-card__url">{new URL(f.siteurl).hostname}</span>
                     </div>
                   </div>
-                  <p class="friend-card__desc">{f.desc}</p>
+                  <p class="friend-card__desc" title={f.desc}>{f.desc}</p>
                   <span
                     class="friend-card__status"
                     data-link-status
@@ -1060,6 +1060,12 @@ function normalizeFriendLink(value: string): string {
     flex: 1;
     min-height: 0;
     overflow: hidden;
+    /* 卡片固定 155px 高：只靠 overflow 会把第 3 行裁成半行。
+       默认态与悬停态（头像折叠后）可用高度都只够 2 行完整显示。 */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   /* ── 页面操作按钮 ── */

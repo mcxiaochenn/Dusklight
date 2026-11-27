@@ -120,7 +120,9 @@ export default defineConfig({
 	markdown: {
 		processor: unified({
 			remarkPlugins: [
-			remarkMath,
+			// 关闭单 $ 行内公式：口令、价格、Shell 变量等普通文本里的 $…$ 会被误渲染。
+			// 行内公式统一写 $$…$$（段落内的 $$ 仍按行内公式渲染）。
+			[remarkMath, { singleDollarTextMath: false }],
 			// pangu 在 remarkContent 之前：摘录/字数统计基于补完空格的文本
 			[remarkPangu, { mode: siteConfig.pangu }],
 			remarkContent,

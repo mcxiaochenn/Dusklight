@@ -8,7 +8,7 @@
     fullBleed: boolean;
   }
 
-  let { posts }: { posts: HeroPost[] } = $props();
+  let { posts, label = "全站推荐" }: { posts: HeroPost[]; label?: string } = $props();
   let viewport: HTMLDivElement;
   let activeIndex = $state(0);
   let paused = $state(false);
@@ -96,7 +96,7 @@
           <div class="home-hero__content">
             <span class="home-hero__eyebrow">
               <span class="icon-[fa7-solid--star]" aria-hidden="true"></span>
-              全站推荐
+              {label}
             </span>
             <h2>{post.title}</h2>
           </div>
@@ -224,6 +224,10 @@
   .home-hero h2 {
     max-width: 46rem;
     margin: 0;
+    /* base.css 的全局 h1~h6 { color: var(--foreground) } 会覆盖 slide 继承的
+       浅色，浅色主题下标题变成深字压在暗色 scrim 上几乎不可见。 */
+    color: inherit;
+    text-shadow: 0 1px 12px oklch(0 0 0 / 0.35);
     font-size: var(--text-lg);
     line-height: 1.25;
     letter-spacing: var(--tracking-snug);

@@ -365,7 +365,8 @@ const commentsEnabled = showComment && commentConfig.enabled;
   .toc-overlay__panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-sm); }
 
   @media (max-width: 768px) {
-    .fab { width: 40px; height: 40px; }
+    /* 与 BackToTop 的移动端 right 对齐，三个按钮保持同一竖线 */
+    .fab { right: var(--space-3); width: 40px; height: 40px; }
     .fab svg { width: 16px; height: 16px; }
     .fab--top { bottom: calc(var(--space-8) + 16px); }
     .fab--comments { bottom: calc(var(--space-8) + 16px + 40px + var(--space-2)); }

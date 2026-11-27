@@ -69,19 +69,32 @@
      Header、返回顶部和进度条共享单个被动监听器；所有读写合并到下一帧，
      避免滚动期间多次同步布局。事件内始终查询当前页面节点，兼容 ClientRouter。 */
   let scrollFrame = 0;
+  let lastScrollY = 0;
+  // 移动端悬浮按钮紧贴正文右缘：向下阅读时收起，向上滚动或接近底部时再出现。
+  const mobileFabMedia = window.matchMedia("(max-width: 768px)");
   function updateShellScrollState() {
     scrollFrame = 0;
     const scrollTop = window.scrollY;
+    const delta = scrollTop - lastScrollY;
+    lastScrollY = scrollTop;
+    const viewportHeight = window.innerHeight;
 
     const header = document.getElementById("main-header");
     header?.classList.toggle("header-scrolled", scrollTop > 20);
 
     const btn = document.getElementById("back-to-top");
-    btn?.classList.toggle("fab--visible", scrollTop > 1);
+    btn?.classList.toggle("fab--visible", scrollTop > viewportHeight * 0.5);
+
+    const scrollable = document.documentElement.scrollHeight - viewportHeight;
+    const root = document.documentElement;
+    if (!mobileFabMedia.matches || scrollTop >= scrollable - 80) {
+      root.classList.remove("fab-retracted");
+    } else if (Math.abs(delta) > 4) {
+      root.classList.toggle("fab-retracted", delta > 0);
+    }
 
     const bar = document.getElementById("scroll-progress");
     if (bar) {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollable > 0 ? Math.min(scrollTop / scrollable, 1) : 0;
       bar.style.transform = `scaleX(${progress})`;
     }
