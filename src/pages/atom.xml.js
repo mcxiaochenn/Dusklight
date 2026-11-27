@@ -17,6 +17,11 @@ function esc(s) {
 		.replace(/'/g, "&apos;");
 }
 
+/** CDATA 结束符转义，避免摘要/标题出现 ]]> 时破坏 XML */
+function escCdata(s) {
+	return String(s).replace(/\]\]>/g, "]]]]><![CDATA[>");
+}
+
 export async function GET(context) {
 	const site = context.site.href.replace(/\/$/, "");
 
@@ -39,12 +44,12 @@ export async function GET(context) {
 				.join("\n");
 
 			return `  <entry>
-    <title type="html"><![CDATA[${post.data.title}]]></title>
+    <title type="html"><![CDATA[${escCdata(post.data.title)}]]></title>
     <link href="${esc(link)}" />
     <id>${esc(link)}</id>
     <published>${toRFC3339(post.data.date)}</published>
     <updated>${toRFC3339(updated)}</updated>
-    <summary type="html"><![CDATA[${excerpt}]]></summary>
+    <summary type="html"><![CDATA[${escCdata(excerpt)}]]></summary>
     <author><name>${esc(post.data.author || siteConfig.author)}</name></author>
 ${categories}
   </entry>`;
