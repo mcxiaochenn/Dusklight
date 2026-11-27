@@ -45,7 +45,7 @@
     "astro-icon": "^1.2.0",
     "hast-util-select": "^6.0.4",
     "hast-util-to-html": "^9.0.6",
-    "hastscript": "^9.0.1",
+    "hastscript": "^9.0.3",
     "katex": "^0.19.1",
     "pagefind": "^1.5.2",
     "qrcode": "^1.5.4",
