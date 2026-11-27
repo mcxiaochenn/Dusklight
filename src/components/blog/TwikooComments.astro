@@ -1,0 +1,228 @@
+---
+import { commentConfig } from "../../config/comment";
+import "../../styles/twikoo-vendor.css";
+import "../../styles/twikoo.css";
+---
+
+{commentConfig.enabled && (
+  <section class="comments-section" aria-labelledby="comments-heading">
+    <header class="comments-heading">
+      <h2 id="comments-heading">一起聊聊</h2>
+      <p>留下你的想法，让交流在这里继续。</p>
+    </header>
+    <div id="comments" aria-live="polite"></div>
+    <p class="comments-status" role="status">评论将在接近此处时加载。</p>
+    <button class="comments-retry" type="button" hidden>重试加载评论</button>
+  </section>
+)}
+
+<script>
+  import { commentConfig } from "../../config/comment";
+  import { resourceConfig } from "../../config/resources";
+  import { commentPageKey } from "../../utils/comment-path";
+
+  interface TwikooClient {
+    init: (options: Record<string, unknown>) => Promise<void> | void;
+    destroy?: () => void;
+  }
+
+  declare global {
+    interface Window {
+      twikoo?: TwikooClient;
+    }
+  }
+
+  let currentEl: HTMLElement | undefined;
+  let mountVersion = 0;
+  let observer: IntersectionObserver | undefined;
+  let inputsObserver: MutationObserver | undefined;
+  let loadPromise: Promise<TwikooClient> | undefined;
+
+  function loadTwikoo(): Promise<TwikooClient> {
+    if (window.twikoo && typeof window.twikoo.init === "function") {
+      return Promise.resolve(window.twikoo);
+    }
+    if (loadPromise) return loadPromise;
+
+    loadPromise = new Promise<TwikooClient>((resolve, reject) => {
+      const old = document.querySelector(`script[src="${resourceConfig.scripts.twikoo}"]`);
+      if (old) old.remove();
+
+      const script = document.createElement("script");
+      script.src = resourceConfig.scripts.twikoo;
+      script.async = true;
+
+      script.addEventListener(
+        "load",
+        () => {
+          if (window.twikoo && typeof window.twikoo.init === "function") {
+            resolve(window.twikoo);
+          } else {
+            loadPromise = undefined;
+            reject(new Error("Twikoo script loaded without init API"));
+          }
+        },
+        { once: true },
+      );
+
+      script.addEventListener(
+        "error",
+        () => {
+          loadPromise = undefined;
+          reject(new Error(`Failed to load Twikoo: ${resourceConfig.scripts.twikoo}`));
+        },
+        { once: true },
+      );
+
+      document.head.appendChild(script);
+    });
+
+    return loadPromise;
+  }
+
+  function unmount() {
+    mountVersion++;
+    observer?.disconnect();
+    observer = undefined;
+    inputsObserver?.disconnect();
+    inputsObserver = undefined;
+    currentEl = undefined;
+
+    if (window.twikoo && typeof window.twikoo.destroy === "function") {
+      try {
+        window.twikoo.destroy();
+      } catch {
+        // 忽略销毁期内部异常
+      }
+    }
+    // 清理全局实例与脚本标签，防止 View Transitions 换页后 Vue 状态损坏。
+    delete window.twikoo;
+    loadPromise = undefined;
+    document.querySelector(`script[src="${resourceConfig.scripts.twikoo}"]`)?.remove();
+  }
+
+  async function mount(el: HTMLElement) {
+    if (!el.isConnected || currentEl === el) return;
+    const version = ++mountVersion;
+    observer?.disconnect();
+    observer = undefined;
+    inputsObserver?.disconnect();
+    inputsObserver = undefined;
+    currentEl = el;
+
+    const section = el.closest(".comments-section");
+    const status = section?.querySelector<HTMLElement>(".comments-status");
+    const retry = section?.querySelector<HTMLButtonElement>(".comments-retry");
+    if (status) {
+      status.hidden = false;
+      status.textContent = "正在加载评论…";
+    }
+    if (retry) retry.hidden = true;
+
+    try {
+      const client = await loadTwikoo();
+      if (version !== mountVersion || !el.isConnected) return;
+
+      inputsObserver = new MutationObserver(() => {
+        if (!el.isConnected) return;
+        if (el.querySelector(".tk-comments-container")) {
+          if (status) status.hidden = true;
+          if (retry) retry.hidden = true;
+        }
+      });
+      inputsObserver.observe(el, { childList: true, subtree: true });
+
+      await client.init({
+        envId: commentConfig.twikoo.envId,
+        el: "#comments",
+        region: commentConfig.twikoo.region || undefined,
+        path: commentPageKey(location.pathname),
+        lang: "zh-CN",
+      });
+
+      if (version !== mountVersion || !el.isConnected) return;
+      if (status) status.hidden = true;
+      if (retry) retry.hidden = true;
+    } catch (error) {
+      if (version !== mountVersion) return;
+      currentEl = undefined;
+      if (status) {
+        status.hidden = false;
+        status.textContent = "评论暂时不可用，请稍后重试。";
+      }
+      if (retry) retry.hidden = false;
+      console.error("[Twikoo] 加载失败", error);
+    }
+  }
+
+  function init() {
+    const el = document.getElementById("comments");
+    if (!el || currentEl === el) return;
+    unmount();
+    if (location.hash || !("IntersectionObserver" in window)) {
+      void mount(el);
+      return;
+    }
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) void mount(el);
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(el);
+  }
+
+  document.addEventListener("astro:before-swap", unmount);
+  document.addEventListener("astro:page-load", init);
+  document.addEventListener("click", (event) => {
+    const target = event.target as Element | null;
+    if (!target) return;
+    if (target.closest(".comments-retry")) {
+      const el = document.getElementById("comments");
+      if (el) {
+        currentEl = undefined;
+        void mount(el);
+      }
+    } else if (target.closest("#fab-comments")) {
+      const el = document.getElementById("comments");
+      if (el) void mount(el);
+    }
+  });
+  init();
+</script>
+
+<style>
+  .comments-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-subtle);
+  }
+  .comments-heading {
+    margin-bottom: var(--space-5);
+  }
+  h2 {
+    font-size: var(--text-xl);
+    margin: 0 0 var(--space-2);
+  }
+  .comments-heading p {
+    margin: 0;
+    color: var(--foreground-muted);
+    font-size: var(--text-sm);
+  }
+  #comments {
+    min-height: 200px;
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+  .comments-status {
+    color: var(--foreground-muted);
+    font-size: var(--text-sm);
+  }
+  .comments-retry {
+    color: var(--accent);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+</style>

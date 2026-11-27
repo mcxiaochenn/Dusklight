@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BrowseNav from "../../components/blog/BrowseNav.astro";
 import TopicGrid from "../../components/blog/TopicGrid.astro";
-import ArtalkComments from "../../components/blog/ArtalkComments.astro";
+import TwikooComments from "../../components/blog/TwikooComments.astro";
 import { groupTopics } from "@/utils/browse";
 import "../../styles/browse.css";
 const posts = (await getCollection("blog")).filter((post) => !post.data.draft);
@@ -16,6 +16,6 @@ const categories = groupTopics(posts, "categories");
     <BrowseNav current="categories" posts={posts.length} tags={tags.length} categories={categories.length} />
     <TopicGrid kind="categories" topics={categories} />
     {!categories.length && <p class="browse-empty">还没有公开分类。</p>}
-    <ArtalkComments />
+    <TwikooComments />
   </div></section>
 </BaseLayout>

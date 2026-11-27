@@ -1,37 +1,37 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { commentPageKey } from "../../utils/comment-path";
-  import { commentAvatarURL, fallbackCommentAvatar, loadCommentAvatars } from "../../utils/comment-avatar";
+  import { fallbackCommentAvatar } from "../../utils/comment-avatar";
 
   interface RecentCommentResponse {
-    id: number;
+    avatar?: string;
+    comment?: string;
+    commentText?: string;
+    created: string | number;
+    id: string;
     nick: string;
-    content: string;
-    date: string;
-    page_key: string;
-    page_url: string;
-    avatar_url?: string;
+    url?: string;
   }
 
   interface RecentComment {
     avatar?: string;
     content: string;
     created: string | number;
-    id: number;
+    id: string;
     nick: string;
     href?: string;
   }
 
   let {
-    server,
-    site,
+    envId,
     siteUrl,
     limit,
+    includeReply,
   }: {
-    server: string;
-    site: string;
+    envId: string;
     siteUrl: string;
     limit: number;
+    includeReply: boolean;
   } = $props();
 
   let comments = $state<RecentComment[]>([]);
@@ -44,27 +44,30 @@
     return parsed.body.textContent?.replace(/\s+/g, " ").trim() || "";
   }
 
-  function normalizeHref(url: string | undefined, id: number): string | undefined {
+  function normalizeHref(url: string | undefined, id: string): string | undefined {
     if (!url) return undefined;
     try {
       const target = new URL(url, siteUrl);
       const canonical = new URL(siteUrl);
       if (target.origin !== canonical.origin && target.origin !== window.location.origin) return undefined;
-      return `${commentPageKey(target.pathname)}#atk-comment-${id}`;
+      return `${commentPageKey(target.pathname)}#${encodeURIComponent(id)}`;
     } catch {
       return undefined;
     }
   }
 
   function normalize(items: RecentCommentResponse[]): RecentComment[] {
-    return items.filter((item) => commentPageKey(item.page_key) !== "/essay/").slice(0, limit).map((item) => ({
-      avatar: commentAvatarURL(item),
-      content: plainText(item.content) || "[空评论]",
-      created: item.date,
-      id: item.id,
-      nick: item.nick?.trim() || "匿名访客",
-      href: normalizeHref(item.page_key || item.page_url, item.id),
-    }));
+    return items
+      .filter((item) => !item.url || commentPageKey(item.url) !== "/essay/")
+      .slice(0, limit)
+      .map((item) => ({
+        avatar: item.avatar,
+        content: item.commentText?.trim() || plainText(item.comment || "") || "[空评论]",
+        created: item.created,
+        id: item.id,
+        nick: item.nick?.trim() || "匿名访客",
+        href: normalizeHref(item.url, item.id),
+      }));
   }
 
   function formatDate(value: string | number): string {
@@ -91,19 +94,21 @@
     controller?.abort();
     status = "loading";
     controller = new AbortController();
-    const requestController = controller;
     try {
-      const url = new URL("api/v2/stats/latest_comments", server.replace(/\/?$/, "/"));
-      url.searchParams.set("site_name", site);
-      // 接口上限 100；取足候选后过滤只归档的即刻短文，仍展示最近 5 条。
-      url.searchParams.set("limit", "100");
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await fetch(envId, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "GET_RECENT_COMMENTS",
+          includeReply,
+          pageSize: Math.max(limit * 4, 20),
+        }),
+        signal: controller.signal,
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
-      const data = payload?.data?.data ?? payload?.data;
+      const data = Array.isArray(payload) ? payload : payload?.data;
       if (!Array.isArray(data)) throw new Error("Invalid recent comments response");
-      await loadCommentAvatars();
-      if (requestController.signal.aborted) return;
       comments = normalize(data);
       status = comments.length ? "ready" : "empty";
     } catch (error) {

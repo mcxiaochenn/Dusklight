@@ -34,10 +34,10 @@ const { stats } = Astro.props;
   {commentConfig.enabled && commentConfig.recentComments.enabled && (
     <RecentComments
       client:visible
-      server={commentConfig.server}
-      site={commentConfig.site}
+      envId={commentConfig.twikoo.envId}
       siteUrl={siteConfig.site}
       limit={commentConfig.recentComments.limit}
+      includeReply={commentConfig.recentComments.includeReply}
     />
   )}
   <SiteStats

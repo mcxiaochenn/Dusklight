@@ -6,7 +6,6 @@ import icons from "astro-icon";
 import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
-import { artalkNetworkErrors } from "./src/plugins/artalk-network-errors.mjs";
 import { unified } from "@astrojs/markdown-remark";
 import expressiveCode from "astro-expressive-code";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
@@ -195,8 +194,7 @@ export default defineConfig({
 
 	// Vite 配置
 	vite: {
-		plugins: [tailwindcss(), artalkNetworkErrors()],
-		optimizeDeps: { exclude: ["artalk"] },
+		plugins: [tailwindcss()],
 		resolve: {
 			alias: {
 				"@": "/src",

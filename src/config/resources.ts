@@ -6,6 +6,7 @@ export const resourceConfig = {
   scripts: {
     umami: "https://umami.mcxiaochen.top/script.js",
     mermaid: "/vendor/mermaid.min.js",
+    twikoo: "/vendor/twikoo.all.nocss.js",
     friendCircleLite: "/vendor/fclite.min.js",
     pagefind: "/pagefind/pagefind.js",
   },
