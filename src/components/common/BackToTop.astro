@@ -76,5 +76,14 @@ import { Icon } from "astro-icon/components";
       width: 16px;
       height: 16px;
     }
+
+    /* 向下阅读时收起所有悬浮按钮（GlobalScripts 切换 html.fab-retracted）。
+       #back-to-top 单独列出：它的可见态选择器带 id，特异性更高。 */
+    html.fab-retracted .fab.fab--visible,
+    html.fab-retracted #back-to-top.fab--visible {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(calc(100% + 20px));
+    }
   }
 </style>

@@ -338,6 +338,8 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       const response = await fetch(card.dataset.api ?? "");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
+      // 统计代理异常时会返回全 0（含累计 total_pv），此时展示 0 有误导性
+      if (Number(data.total_pv) === 0) throw new Error("Statistics unavailable");
 
       keys.forEach((key) => {
         const value = Number(data[key]);

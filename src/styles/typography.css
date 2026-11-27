@@ -49,6 +49,8 @@
   margin-bottom: 0.5rem;
   color: var(--foreground);
   font-optical-sizing: auto;
+  /* TOC / 锚点跳转时为悬浮顶栏留出空间，避免标题被胶囊导航压住 */
+  scroll-margin-top: calc(var(--header-height) + var(--space-6));
 }
 
 /* 首个子元素不要顶边距 —— 避免文章正文第一行与 header 之间出现空白 */
