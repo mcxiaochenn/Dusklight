@@ -30,7 +30,7 @@
   --foreground-muted: oklch(0.52 0.015 var(--hue));
 
   /* ═══════════════════════════════════════════════════════
-     ACCENT COLORS — Muted blue-violet. Chroma never exceeds 0.18.
+     ACCENT COLORS — Muted mint-teal (hue 170). Chroma never exceeds 0.18.
      ═══════════════════════════════════════════════════════ */
   --accent: oklch(0.55 0.16 var(--hue));
   --accent-dim: oklch(0.45 0.12 var(--hue));
@@ -206,7 +206,9 @@
   /* Text — brighter on dark */
   --foreground: oklch(0.93 0.008 var(--hue));
   --foreground-secondary: oklch(0.70 0.015 var(--hue));
-  --foreground-muted: oklch(0.50 0.012 var(--hue));
+  /* 0.50 时在 surface-0 上的小字（日期、meta）对比度约 3.5:1，低于 AA；
+     0.60 约 4.9:1 */
+  --foreground-muted: oklch(0.60 0.012 var(--hue));
 
   /* Accent — slightly brighter for dark backgrounds */
   --accent: oklch(0.72 0.14 var(--hue));

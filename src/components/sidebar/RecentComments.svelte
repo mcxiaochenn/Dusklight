@@ -127,7 +127,17 @@
   </header>
 
   {#if status === "loading"}
-    <p class="recent-comments__state">正在读取评论…</p>
+    <ul class="recent-comments__skeleton" aria-hidden="true">
+      {#each Array(limit) as _}
+        <li class="recent-comments__skeleton-item">
+          <span class="recent-comments__skeleton-avatar"></span>
+          <span class="recent-comments__skeleton-lines">
+            <span class="recent-comments__skeleton-line recent-comments__skeleton-line--short"></span>
+            <span class="recent-comments__skeleton-line"></span>
+          </span>
+        </li>
+      {/each}
+    </ul>
   {:else if status === "empty"}
     <p class="recent-comments__state">暂时还没有评论</p>
   {:else if status === "error"}
@@ -291,5 +301,38 @@
     color: var(--accent);
     background: var(--accent-subtle);
     cursor: pointer;
+  }
+
+  .recent-comments__skeleton-item {
+    display: flex;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .recent-comments__skeleton-avatar {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface-2);
+  }
+
+  .recent-comments__skeleton-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 2px;
+  }
+
+  .recent-comments__skeleton-line {
+    display: block;
+    height: 11px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+  }
+
+  .recent-comments__skeleton-line--short {
+    width: 45%;
   }
 </style>

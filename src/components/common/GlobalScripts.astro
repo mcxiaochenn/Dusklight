@@ -6,27 +6,40 @@
  */
 ---
 
-<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="图片预览" hidden>
+<dialog id="lightbox" class="lightbox" aria-label="图片预览">
   <img id="lightbox-img" class="lightbox__img" alt="" />
-</div>
+</dialog>
 
 <style>
+  /* 原生 dialog：自带焦点隔离、Esc（cancel 事件）与背景 inert */
   .lightbox {
     position: fixed;
     inset: 0;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: oklch(0 0 0 / 0.8);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
     cursor: zoom-out;
     opacity: 0;
     transition: opacity var(--duration-normal) var(--ease-material);
   }
 
-  .lightbox[hidden] { display: none; }
+  .lightbox[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox::backdrop {
+    background: oklch(0 0 0 / 0.8);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
   .lightbox--open { opacity: 1; }
 
   .lightbox__img {
@@ -39,29 +52,80 @@
   }
 
   .lightbox--open .lightbox__img { transform: scale(1); }
+
+  :global(.prose img[data-lb]) { cursor: zoom-in; }
+  :global(.prose img[data-lb]:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
 </style>
 
 <script>
-  function initLightbox() {
+  /* ── 图片灯箱 ──
+     点击 / 键盘均走 document 级事件委托（模块顶层只绑定一次），
+     解密后插入的正文图片同样可用。链接内的图片保持原有跳转行为。 */
+  const LIGHTBOX_SELECTOR = ".prose img:not(a img)";
+  let lightboxTrigger: HTMLImageElement | null = null;
+  let lightboxCloseTimer = 0;
+
+  function openLightbox(img: HTMLImageElement) {
     const lb = document.getElementById("lightbox");
-    const lbImg = document.getElementById("lightbox-img") as HTMLImageElement;
-    if (!lb || !lbImg) return;
-    document.querySelectorAll(".prose img").forEach((img) => {
-      if ((img as HTMLElement).dataset.lbInit) return;
-      (img as HTMLElement).dataset.lbInit = "1";
-      (img as HTMLElement).style.cursor = "zoom-in";
-      img.addEventListener("click", () => {
-        lbImg.src = (img as HTMLImageElement).src;
-        lbImg.alt = (img as HTMLImageElement).alt;
-        lb.hidden = false;
-        requestAnimationFrame(() => lb.classList.add("lightbox--open"));
-      });
-    });
-    if (lb.dataset.lbCloseInit) return;
-    lb.dataset.lbCloseInit = "1";
-    lb.addEventListener("click", () => {
-      lb.classList.remove("lightbox--open");
-      setTimeout(() => { lb.hidden = true; }, 300);
+    const lbImg = document.getElementById("lightbox-img");
+    if (!(lb instanceof HTMLDialogElement) || !(lbImg instanceof HTMLImageElement)) return;
+    window.clearTimeout(lightboxCloseTimer);
+    lightboxTrigger = img;
+    lbImg.src = img.currentSrc || img.src;
+    lbImg.alt = img.alt;
+    if (!lb.open) lb.showModal();
+    requestAnimationFrame(() => lb.classList.add("lightbox--open"));
+  }
+
+  function closeLightbox() {
+    const lb = document.getElementById("lightbox");
+    if (!(lb instanceof HTMLDialogElement) || !lb.open) return;
+    lb.classList.remove("lightbox--open");
+    window.clearTimeout(lightboxCloseTimer);
+    lightboxCloseTimer = window.setTimeout(() => {
+      lb.close();
+      if (lightboxTrigger?.isConnected) lightboxTrigger.focus({ preventScroll: true });
+      lightboxTrigger = null;
+    }, 250);
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!(e.target instanceof Element)) return;
+    if (e.target.closest("#lightbox")) {
+      closeLightbox();
+      return;
+    }
+    const img = e.target.closest(LIGHTBOX_SELECTOR);
+    if (img instanceof HTMLImageElement) openLightbox(img);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const img = e.target instanceof Element ? e.target.closest(LIGHTBOX_SELECTOR) : null;
+    if (!(img instanceof HTMLImageElement)) return;
+    e.preventDefault();
+    openLightbox(img);
+  });
+
+  // Esc 触发 dialog 的 cancel：拦截默认的瞬间关闭，改走淡出动画
+  document.addEventListener("cancel", (e) => {
+    if (e.target instanceof HTMLElement && e.target.id === "lightbox") {
+      e.preventDefault();
+      closeLightbox();
+    }
+  }, true);
+
+  /** 每次换页给正文图片补上键盘可达性 */
+  function initLightbox() {
+    document.querySelectorAll<HTMLImageElement>(LIGHTBOX_SELECTOR).forEach((img) => {
+      if (img.dataset.lb) return;
+      img.dataset.lb = "1";
+      img.tabIndex = 0;
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-label", img.alt ? `查看大图：${img.alt}` : "查看大图");
     });
   }
 

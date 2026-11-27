@@ -246,7 +246,7 @@ function normalizeFriendLink(value: string): string {
         el.rel = "noopener noreferrer";
         el.className = "fcl-card glass-card";
         el.innerHTML =
-          '<img class="fcl-card__avatar" src="' + escapeHtml(a.avatar) + '" alt="' + escapeHtml(a.author) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.src=\'/images/avatar-fallback.svg\';this.onerror=null">' +
+          '<img class="fcl-card__avatar" src="' + escapeHtml(a.avatar) + '" alt="' + escapeHtml(a.author) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-avatar-fallback="/images/avatar-fallback.svg">' +
           '<div class="fcl-card__body">' +
             '<span class="fcl-card__title">' + escapeHtml(a.title) + '</span>' +
             '<span class="fcl-card__meta">' + escapeHtml(a.author) + ' · ' + escapeHtml(a.created) + '</span>' +

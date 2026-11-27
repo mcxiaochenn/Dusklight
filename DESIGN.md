@@ -56,7 +56,7 @@ Pages differ only in **how components are composed**, not in how they look.
 
 ### What Dusklight Looks Like
 
-A dark editorial canvas with deep, desaturated blue-violet undertones. Generous vertical rhythm. Article titles that command attention through scale alone. Paragraphs that breathe. Code blocks that sit comfortably in the flow. Floating glass elements that feel like physical panes hovering above the content.
+A dark editorial canvas with deep, desaturated mint-teal undertones (`--hue: 170`). Generous vertical rhythm. Article titles that command attention through scale alone. Paragraphs that breathe. Code blocks that sit comfortably in the flow. Floating glass elements that feel like physical panes hovering above the content.
 
 ### What Dusklight Does NOT Look Like
 
@@ -213,7 +213,7 @@ Dark mode is primary. The palette is designed dark-first and adapted to light mo
 
 ### 6.2 Accent Colors
 
-The accent hue is `250` (a desaturated blue-violet). This is intentionally muted — saturated colors fight with content for attention.
+The accent hue is `170` (a muted mint-teal). This is intentionally desaturated — saturated colors fight with content for attention.
 
 ```css
 /* Accent */
@@ -235,7 +235,7 @@ The accent hue is `250` (a desaturated blue-violet). This is intentionally muted
 /* Text */
 --foreground:            oklch(0.93 0.008 var(--hue));  /* Primary text */
 --foreground-secondary:  oklch(0.70 0.015 var(--hue)); /* Secondary text */
---foreground-muted:      oklch(0.50 0.012 var(--hue)); /* Muted text */
+--foreground-muted:      oklch(0.60 0.012 var(--hue)); /* Muted text (AA >= 4.5:1) */
 
 /* Borders */
 --border:        oklch(0.25 0.015 var(--hue));        /* Default border */
@@ -356,32 +356,32 @@ Glass is reserved for **interactive overlay surfaces** — elements that float a
 | Theme toggle        | Yes    | Floating control                           |
 | Context menus       | Yes    | Dropdown overlay                           |
 | Article cards       | **No** | Content surface — opaque                   |
-| Article body        | **No** | Content surface — opaque                   |
+| Article body        | **Yes** (`.glass-panel` exception) | Single frosted container over site backdrop |
 | Footer              | **No** | Structural element — opaque                |
-| About page content  | **No** | Content surface — opaque                   |
+| About page content  | **No** (migration in progress) | Content surface — prefer opaque |
 | Post list items     | **No** | Content surface — opaque                   |
 
 ### 8.2 Glass Specification
 
 ```css
 /* Dark mode glass */
---glass-bg:          oklch(0.155 0.013 var(--hue) / 0.72);
---glass-border:      oklch(1.00 0.000 var(--hue) / 0.08);
---glass-blur:        16px;
---glass-saturation:  160%;
---glass-highlight:   inset 0 0.5px 0 oklch(1.00 0.000 var(--hue) / 0.06);
+--glass-bg:          oklch(0.18 0.012 var(--hue) / 0.45);
+--glass-border:      oklch(1.00 0.000 var(--hue) / 0.15);
+--glass-blur:        24px;
+--glass-saturation:  140%;
+--glass-highlight:   inset 0 0.5px 0 oklch(1.00 0.000 var(--hue) / 0.15);
 
 /* Light mode glass */
---glass-bg:          oklch(0.99 0.003 var(--hue) / 0.72);
---glass-border:      oklch(0.00 0.000 var(--hue) / 0.06);
---glass-blur:        16px;
---glass-saturation:  160%;
+--glass-bg:          oklch(0.98 0.006 var(--hue) / 0.55);
+--glass-border:      oklch(0.90 0.010 var(--hue) / 0.35);
+--glass-blur:        24px;
+--glass-saturation:  140%;
 --glass-highlight:   inset 0 0.5px 0 oklch(1.00 0.000 var(--hue) / 0.5);
 ```
 
 ### 8.3 Glass Rules
 
-1. **Blur radius**: `16px` standard. Never exceed `24px`. Higher blur feels like fog, not glass.
+1. **Blur radius**: `24px` standard (site backdrop already carries an 8px pre-blur; lower radii lose frosted separation).
 2. **Background opacity**: `0.72` — enough to separate from content, not enough to feel opaque. Never below `0.6` (too transparent) or above `0.85` (defeats the purpose).
 3. **Border**: Extremely subtle — `0.08` opacity in dark mode. The border is a light edge catch, not a visible frame.
 4. **Highlight**: A single `0.5px` inset top border simulating light catching the glass edge. This is the key to making glass feel physical.

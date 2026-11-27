@@ -763,8 +763,14 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     .about-comic-item--landscape:hover .about-comic-cover img { transform: scale(1.44); }
   }
 
+  /* 顶部加暗色渐变遮罩，保证白色标题在亮色封面图上可读 */
   .about-item--comic::after {
-    box-shadow: 0 -48px 203px 11px oklch(0.9 0.05 70 / 0.6) inset;
+    background: linear-gradient(
+      180deg,
+      oklch(0.12 0.02 190 / 0.78) 0%,
+      oklch(0.12 0.02 190 / 0.25) 55%,
+      transparent 100%
+    );
     position: absolute;
     content: "";
     width: 100%;
@@ -772,10 +778,6 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     top: 0;
     left: 0;
     pointer-events: none;
-  }
-
-  :global(.dark) .about-item--comic::after {
-    box-shadow: 0 -48px 203px 11px oklch(0.15 0.02 70 / 0.6) inset;
   }
 
   /* ── 站点资料与关于我 ── */
@@ -844,17 +846,14 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   }
 
+  /* 浅色模式跟随站点浅色表面，深色模式保留深色背景图；不再在浅色页面中出现纯黑卡片 */
   .about-item--statistics {
     min-height: 280px;
-    color: #fff;
-    background-image: linear-gradient(oklch(0.12 0.02 230 / 0.72), oklch(0.12 0.02 230 / 0.88)),
-      url("/images/bg/xiowo-bg-dark.webp");
-    background-size: cover;
-    background-position: center;
+    color: var(--foreground);
   }
 
-  .about-item--statistics .about-card-tips,
-  .about-item--statistics .about-item-title { color: #fff; }
+  .about-item--statistics .about-card-tips { color: var(--foreground-muted); }
+  .about-item--statistics .about-item-title { color: var(--foreground); }
 
   .about-statistics-grid {
     display: grid;
@@ -866,7 +865,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-statistics-grid div { min-width: 0; }
   .about-statistics-grid dt {
     font-size: var(--text-xs);
-    color: oklch(1 0 0 / 0.7);
+    color: var(--foreground-secondary);
   }
   .about-statistics-grid dd {
     margin: var(--space-1) 0 0;
@@ -874,14 +873,28 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     line-height: 1;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: #fff;
+    color: var(--foreground);
   }
 
   .about-statistics-error {
     margin: var(--space-4) 0 0;
     font-size: var(--text-sm);
-    color: oklch(0.88 0.07 35);
+    color: var(--danger);
   }
+
+  :global(.dark) .about-item--statistics {
+    color: #fff;
+    background-image: linear-gradient(oklch(0.12 0.02 230 / 0.72), oklch(0.12 0.02 230 / 0.88)),
+      url("/images/bg/xiowo-bg-dark.webp");
+    background-size: cover;
+    background-position: center;
+  }
+
+  :global(.dark) .about-item--statistics .about-card-tips,
+  :global(.dark) .about-item--statistics .about-item-title { color: #fff; }
+  :global(.dark) .about-item--statistics .about-statistics-grid dt { color: oklch(1 0 0 / 0.7); }
+  :global(.dark) .about-item--statistics .about-statistics-grid dd { color: #fff; }
+  :global(.dark) .about-item--statistics .about-statistics-error { color: oklch(0.88 0.07 35); }
 
   .about-item--selfinfo {
     display: grid;

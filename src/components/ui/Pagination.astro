@@ -90,13 +90,12 @@ const showNav = lastPage > 1;
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    border: 1px solid var(--glass-border);
+    /* 常驻内容区：实体表面，不使用 backdrop-filter */
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     color: var(--foreground-secondary);
-    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    box-shadow: var(--shadow-sm);
     text-decoration: none;
     cursor: pointer;
     transition: all var(--duration-fast) var(--ease-material);
@@ -104,8 +103,9 @@ const showNav = lastPage > 1;
 
   .pagination__btn:hover {
     color: var(--foreground);
-    background: oklch(from var(--glass-bg) l c h / calc(alpha + 0.1));
-    box-shadow: var(--shadow-md), var(--glass-highlight);
+    background: var(--surface-2);
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
   }
 
   .pagination__btn:active {
@@ -131,23 +131,22 @@ const showNav = lastPage > 1;
     min-width: 36px;
     height: 36px;
     padding: 0 var(--space-2);
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    border: 1px solid var(--glass-border);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     color: var(--foreground-secondary);
     font-size: var(--text-sm);
     font-weight: 500;
     text-decoration: none;
-    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    box-shadow: var(--shadow-sm);
     transition: all var(--duration-fast) var(--ease-material);
   }
 
   .pagination__page:hover {
     color: var(--foreground);
-    background: oklch(from var(--glass-bg) l c h / calc(alpha + 0.1));
-    box-shadow: var(--shadow-md), var(--glass-highlight);
+    background: var(--surface-2);
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
   }
 
   .pagination__page:active {
@@ -159,8 +158,6 @@ const showNav = lastPage > 1;
     color: oklch(1 0 0) !important;
     border-color: var(--accent) !important;
     box-shadow: var(--shadow-sm) !important;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
     font-weight: 600;
     cursor: default;
   }

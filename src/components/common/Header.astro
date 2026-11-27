@@ -43,12 +43,13 @@ const navIcons: Record<string, string> = {
 
     <nav class="header__pill header__pill--right" aria-label="主导航">
       <div class="header__links">
-        {navConfig.main.map((item) => (
+        {navConfig.main.map((item, idx) => (
           item.children ? (
             <div class="header__dropdown">
-              <a
-                href={item.href}
-                data-astro-prefetch={false}
+              <button
+                type="button"
+                aria-expanded="false"
+                aria-controls={`nav-dropdown-${idx}`}
                 class:list={["header__link header__dropdown-trigger", { "header__link--active": isParentActive(item) }]}
               >
                 {navIcons[item.label] && (
@@ -56,8 +57,8 @@ const navIcons: Record<string, string> = {
                 )}
                 {item.label}
                 <Icon name="fa7-solid:caret-down" class="header__caret" />
-              </a>
-              <div class="header__dropdown-menu">
+              </button>
+              <div class="header__dropdown-menu" id={`nav-dropdown-${idx}`}>
                 {item.children.map((child) => (
                   <a
                     href={child.external ? toExternalRedirect(child.href) : child.href}
@@ -313,6 +314,9 @@ const navIcons: Record<string, string> = {
 
   .header__dropdown-trigger {
     cursor: pointer;
+    background: transparent;
+    font-family: inherit;
+    line-height: inherit;
   }
 
   /* 桥接 pseudo-element：填补 trigger 和 menu 之间的间隙，避免 hover 丢失 */
@@ -643,13 +647,20 @@ const navIcons: Record<string, string> = {
   function closeAllDropdowns() {
     document
       .querySelectorAll<HTMLElement>(".header__dropdown")
-      .forEach((d) => d.classList.remove("open"));
+      .forEach((d) => {
+        d.classList.remove("open");
+        d.querySelector(".header__dropdown-trigger")?.setAttribute("aria-expanded", "false");
+      });
   }
 
-  // 点击页面空白处关闭所有下拉
+  // 点击页面空白处或按 Escape 关闭所有下拉
   document.addEventListener("click", (e) => {
     if (!(e.target instanceof Element)) return;
     if (!e.target.closest(".header__dropdown")) closeAllDropdowns();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAllDropdowns();
   });
 
   function initHeader() {
@@ -665,18 +676,20 @@ const navIcons: Record<string, string> = {
     if (header.dataset.headerInit === "1") return;
     header.dataset.headerInit = "1";
 
-    // ── 桌面端下拉菜单（点击切换，点外部关闭见顶层监听器） ──
+    // ── 桌面端下拉菜单（点击切换，点外部/Esc 关闭见顶层监听器） ──
     const dropdowns = header.querySelectorAll<HTMLElement>(".header__dropdown");
     dropdowns.forEach((dd) => {
       const trigger = dd.querySelector<HTMLElement>(".header__dropdown-trigger");
       if (!trigger) return;
 
-      trigger.addEventListener("click", (e) => {
-        e.preventDefault(); // 阻止 <a> 跳转
+      trigger.addEventListener("click", () => {
         const isOpen = dd.classList.contains("open");
         // 先关闭所有其他下拉
         closeAllDropdowns();
-        if (!isOpen) dd.classList.add("open");
+        if (!isOpen) {
+          dd.classList.add("open");
+          trigger.setAttribute("aria-expanded", "true");
+        }
       });
     });
 
