@@ -43,7 +43,7 @@ importers:
         version: 1.2.103
       '@iconify/tailwind4':
         specifier: ^1.2.3
-        version: 1.2.3(tailwindcss@4.3.3)
+        version: 1.2.3(tailwindcss@4.3.5)
       '@tailwindcss/vite':
         specifier: ^4.3.5
         version: 4.3.5(vite@8.3.5(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -111,8 +111,8 @@ importers:
         specifier: ^5.58.0
         version: 5.58.0
       tailwindcss:
-        specifier: ^4.3.3
-        version: 4.3.3
+        specifier: ^4.3.5
+        version: 4.3.5
       unist-util-visit:
         specifier: ^5.2.0
         version: 5.2.0
@@ -2520,9 +2520,6 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  tailwindcss@4.3.3:
-    resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
-
   tailwindcss@4.3.5:
     resolution: {integrity: sha512-FcQk9BuffmEHJP2G0XmB2SplU1aLTI7j07Kunk+U74Ny+XiWOtzXz9aujFZ/avntw1e2cOv/3PkgzflQ7gX2vQ==}
 
@@ -3407,12 +3404,12 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify/tailwind4@1.2.3(tailwindcss@4.3.3)':
+  '@iconify/tailwind4@1.2.3(tailwindcss@4.3.5)':
     dependencies:
       '@iconify/tools': 5.0.14
       '@iconify/types': 2.0.0
       '@iconify/utils': 3.1.7
-      tailwindcss: 4.3.3
+      tailwindcss: 4.3.5
 
   '@iconify/tools@5.0.14':
     dependencies:
@@ -5860,8 +5857,6 @@ snapshots:
       csso: 5.0.5
       picocolors: 1.1.1
       sax: 1.6.1
-
-  tailwindcss@4.3.3: {}
 
   tailwindcss@4.3.5: {}
 
