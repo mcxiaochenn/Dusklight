@@ -25,13 +25,17 @@
 
 ## 内容配置
 
+首页顶部的“全站推荐”轮播展示顺序由 `src/config/site.ts` 的 `featuredSlugs` 统一指定（例如 `["p6eae1621", "mi-unlock-713", "p801b", "pae3"]`）；演示环境无匹配 slug 时会回退到 frontmatter `featured: true` 或近期带封面文章。
+
+对应文章需配置独立的 `bannerCover`：
+
 ```yaml
 featured: true
 cover: https://example.com/article-card.webp
 bannerCover: https://example.com/article-hero.webp
 ```
 
-- `featured` 决定文章是否进入 Hero。
+- `siteConfig.featuredSlugs`（及回退 `featured`）决定哪些文章进入 Hero 推荐轮播。
 - `bannerCover` 只决定 Hero 图片；`cover` 继续用于文章卡片和正文封面。
 - 未配置 `bannerCover` 时会回退到 `cover`，但仅作为兼容行为，不应作为正式推荐图方案。
 
