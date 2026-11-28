@@ -219,10 +219,18 @@ import "../../styles/twikoo.css";
   }
   .comments-retry {
     color: var(--accent);
-    background: var(--surface-1);
-    border: 1px solid var(--border);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid var(--glass-border);
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-sm);
     cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-material),
+                box-shadow var(--duration-fast) var(--ease-material);
+  }
+  .comments-retry:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow);
   }
 </style>

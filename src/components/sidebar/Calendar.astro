@@ -437,10 +437,20 @@ import { Icon } from "astro-icon/components";
     min-width: 0;
     padding: var(--space-3) var(--space-4) var(--space-4);
     overflow: hidden;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  .calendar:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
   .calendar__header {
@@ -720,7 +730,9 @@ import { Icon } from "astro-icon/components";
     gap: var(--space-2);
     padding: var(--space-3);
     overflow-y: auto;
-    background: var(--surface-0);
+    background: var(--glass-dropdown-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
     border-radius: var(--radius-md);
   }
 

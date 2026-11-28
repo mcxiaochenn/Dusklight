@@ -202,8 +202,8 @@ const groups = (
     padding: 1px var(--space-2);
     border-radius: var(--radius-full);
     background: oklch(0.2 0.02 var(--hue) / 0.75);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
+    backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur));
     color: oklch(0.9 0.1 85);
     font-size: var(--text-xs);
     font-weight: 700;

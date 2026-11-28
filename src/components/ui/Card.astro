@@ -1,7 +1,7 @@
 ---
 /**
  * 基础卡片组件
- * surface-1 背景 + 边框 + 圆角。PostCard 等扩展此组件。
+ * 毛玻璃背景 + 边框 + 圆角。PostCard 等扩展此组件。
  */
 interface Props {
   href?: string;
@@ -20,20 +20,22 @@ const Tag = href ? "a" : "div";
   .card {
     display: flex;
     flex-direction: column;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
     transition:
       box-shadow var(--duration-fast) var(--ease-material),
       border-color var(--duration-fast) var(--ease-material);
   }
 
   .card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--border);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
+    border-color: var(--accent);
   }
 </style>

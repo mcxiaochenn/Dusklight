@@ -76,24 +76,26 @@ const postUrl = getPostUrl(post);
 </article>
 
 <style>
-  /* 内容卡片保持实体表面，避免列表滚动时叠加多层 backdrop-filter。 */
+  /* 内容卡片采用统一毛玻璃材质，悬停点亮主题色边框与弥散微光。 */
   .post-card {
     position: relative;
     display: flex;
     flex-direction: row;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
     transition: box-shadow var(--duration-fast) var(--ease-material),
                 border-color var(--duration-fast) var(--ease-material);
     height: 100%;
   }
 
   .post-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--border);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
+    border-color: var(--accent);
   }
 
   /* 主链接覆盖层 — 承接整卡点击；标签/分类 z-index 浮在其上 */
@@ -117,11 +119,20 @@ const postUrl = getPostUrl(post);
     height: 100%;
     object-fit: cover;
     border-radius: 0;
-    transition: transform var(--duration-slow) var(--ease-material);
+    transition: transform var(--duration-slow) var(--ease-material),
+                filter var(--duration-fast) var(--ease-material);
+  }
+
+  :global(:root.dark) .post-card__cover img {
+    filter: brightness(0.82);
   }
 
   .post-card:hover .post-card__cover img {
     transform: scale(1.03);
+  }
+
+  :global(:root.dark) .post-card:hover .post-card__cover img {
+    filter: brightness(0.88);
   }
 
   .post-card__body {

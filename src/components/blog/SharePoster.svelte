@@ -190,8 +190,8 @@
   .share-actions button span { width: 14px; height: 14px; }
   .share-actions__status { flex-basis: 100%; min-height: 1em; color: var(--foreground-muted); font-size: var(--text-xs); text-align: right; }
   .poster-dialog { position: fixed; inset: 0; width: min(520px, calc(100vw - 2rem)); max-height: 90dvh; margin: auto; padding: 0; border: 0; background: transparent; overflow: auto; }
-  .poster-dialog::backdrop { background: oklch(0 0 0 / .55); backdrop-filter: blur(8px); }
-  .poster-dialog__panel { padding: var(--space-4); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--surface-1); box-shadow: var(--shadow-xl); }
+  .poster-dialog::backdrop { background: oklch(0 0 0 / .55); -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); }
+  .poster-dialog__panel { padding: var(--space-4); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass-dropdown-bg); -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); box-shadow: var(--shadow-xl), var(--glass-highlight); }
   canvas { display: block; width: 100%; height: auto; max-height: 72dvh; object-fit: contain; border-radius: var(--radius-lg); }
   .poster-dialog__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3); }
 

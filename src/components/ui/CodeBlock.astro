@@ -1,7 +1,7 @@
 ---
 /**
  * 代码块包装组件
- * surface-1 背景 + 圆角 + 边框。
+ * 毛玻璃背景 + 圆角 + 边框。
  */
 interface Props {
   lang?: string;
@@ -22,10 +22,12 @@ const { lang, title, class: className } = Astro.props;
 <style>
   .code-block {
     margin: var(--space-8) 0;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
+    background: var(--code-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
     overflow: hidden;
   }
 

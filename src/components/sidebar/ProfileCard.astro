@@ -1,7 +1,7 @@
 ---
 /**
  * 侧栏个人介绍卡片 — 竖版（上下比左右长）
- * 深浅实体表面；问候语胶囊在头像上方，点击随机更换语录；
+ * 毛玻璃表面 + 局部主题色辉光；问候语胶囊在头像上方，点击随机更换语录；
  * 加载时先显示时间感知问候。蓝本：blog.zhheo.com 的 card-content
  */
 import { Icon } from "astro-icon/components";
@@ -95,11 +95,21 @@ import { profileConfig, mottosConfig } from "@/config";
     padding: var(--space-5);
     gap: var(--space-4);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-subtle);
-    background: var(--surface-1);
-    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
     overflow: hidden;
     color: var(--foreground);
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  .profile-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
   /* 只保留局部主题色辉光，让 Hero 和文章流保持第一视觉层级。 */

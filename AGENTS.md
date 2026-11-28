@@ -32,7 +32,7 @@ Consult these guides before working on related tasks:
 ## 性能与路由维护
 
 - 全局滚动状态只能由一个 passive + `requestAnimationFrame` 调度器更新；进度、位移等视觉变化优先使用 `transform`，禁止在滚动回调中反复读写布局尺寸。
-- 新增或修改常驻全屏背景、内容卡片时，禁止使用 `backdrop-filter`、`filter`、`mix-blend-mode`、SVG 噪点等重型合成。玻璃材质默认仅用于导航、菜单、弹窗等短时覆盖层；文章主体是经确认的唯一例外，只能复用预制 `.glass-panel`，不得另建玻璃参数或嵌套玻璃层，且移动端不得加载站点背景图。
+- 新增或修改常驻全屏背景时，禁止在背景图层上使用重型 `filter`、`mix-blend-mode`、SVG 噪点或过厚的不透明遮罩挡住透光纹理；移动端（`≤768px`）不得加载站点背景图。全站玻璃材质（导航、弹窗、文章主体、内容卡片、侧边栏）统一复用 `src/styles/tokens.css` 的 `--glass-*` 令牌与 `.glass-panel` 分层景深体系（基础层 `saturate(180%) blur(8px)`，深色底 `#1e1e1e99` + `#42444a` 细边框；下拉菜单层 `blur(16px)`；弹窗与遮罩层 `blur(20px)`），禁止组件私自硬编码脱离令牌的玻璃参数。
 - 启用 `ClientRouter` 时，`window`/`document` 监听器只能在模块顶层绑定一次，事件中查询当前 DOM；页面初始化须幂等，避免换页后累积监听器或闭包。
 - 非关键岛屿使用 `client:idle` 或 `client:visible`；外部统计等请求应空闲加载并复用会话缓存。导航预取只标记高频内部入口，不启用全站预取。
 - 涉及首屏资源时，必须通过 `pnpm assets:check`；当前预算为单张背景图 ≤ 1 MiB、首页预加载 MiSans ≤ 256 KiB、首页样式总量 ≤ 130 KiB。涉及滚动或路由时，额外验证桌面和移动端连续滚动、连续换页无重复交互或长任务。

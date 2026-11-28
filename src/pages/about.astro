@@ -1038,9 +1038,9 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .donate-modal__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+    backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
   }
   .donate-modal__card {
     position: relative;

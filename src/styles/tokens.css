@@ -52,35 +52,30 @@
   --shadow-xl: 0 16px 48px oklch(0.18 0.015 var(--hue) / 0.16);
 
   /* ═══════════════════════════════════════════════════════
-     GLASS — Apple-inspired material surfaces.
-     悬浮件（nav、TOC、back-to-top）与背景图透出的流内磨砂面板
-     （卡片、代码框、admonition）共用。正文文字仍直接落在背景上，
-     不套玻璃。
-     --glass-blur 基线 24px：背景图本身带 blur(8px) 预模糊，
-     玻璃模糊低于 ~16px 时在预模糊图上几乎不可见（12px 时期
-     即「玻璃感消失」的原因）。
+     GLASS — Vibrant Frosted Glass Material System.
+     全站悬浮件（nav、TOC、back-to-top）与流内磨砂面板
+     （文章主体、首页卡片、侧边栏、代码框、admonition）统一复用。
+     核心配方：saturate(180%) 提亮背景透出色彩 + 分层模糊景深
+     （基础层 8px、下拉菜单层 16px、弹窗遮罩层 20px）。
      ═══════════════════════════════════════════════════════ */
   --glass-bg: oklch(0.98 0.006 var(--hue) / 0.55);
+  --glass-dropdown-bg: oklch(0.98 0.006 var(--hue) / 0.78);
   --glass-border: oklch(0.90 0.010 var(--hue) / 0.35);
   --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.5);
-  --glass-blur: 24px;
-  --glass-saturation: 140%;
+  --glass-blur: 8px;
+  --glass-blur-md: 16px;
+  --glass-blur-lg: 20px;
+  --glass-saturation: 180%;
   --glass-brightness: 1.0;
+  --glass-hover-shadow: 0 8px 12px -3px oklch(from var(--accent) l c h / 0.16);
 
   /* ═══════════════════════════════════════════════════════
      CODE SURFACE — 代码块专用底色。
      不能直接复用 --glass-bg：正文区没有不透明底，玻璃底下
-     直接是 SiteBackdrop 那张压暗过的背景图，而 Expressive Code
-     的 github-light 配色是按纯白调的。55% 不透明度会让注释色
-     掉到 3:1 以下，且对比度随背景图局部漂移。
-     色调取 surface-1（近纯白过于生硬，对照源站
-     blog.mcxiaochen.top 的 oklch(.97 .005 170)）。
-     透明度 85% + .frame 上的深模糊（--glass-blur 24px，叠在背景图
-     自带的 8px 预模糊上）：磨砂把代码框下方的背景局部均匀化，
-     块内漂移趋近 0；比起全不透明牺牲最后几个百分点的 AA 达标率，
-     换回磨砂质感 —— 用户明确选择「更深的模糊提高可读性，
-     而不是直接删除」。alpha 再往下（55% 时代）实测会让浅色
-     AA 达标率归零，不要回去。
+     直接是 SiteBackdrop 背景图，而 Expressive Code
+     的 github-light 配色是按纯白调的。
+     色调取 surface-1（85% 不透明度）+ .frame 上的 --glass-blur-md (16px)
+     磨砂，把代码框下方的背景局部均匀化，兼顾语法对比度与磨砂质感。
      ═══════════════════════════════════════════════════════ */
   --code-bg: oklch(0.98 0.008 var(--hue) / 0.85);
 
@@ -224,14 +219,13 @@
   --shadow-lg: 0 8px 24px oklch(0.00 0.00 var(--hue) / 0.4);
   --shadow-xl: 0 16px 48px oklch(0.00 0.00 var(--hue) / 0.5);
 
-  /* Glass — Apple-inspired dark material */
-  --glass-bg: oklch(0.18 0.012 var(--hue) / 0.45);
-  --glass-border: oklch(1 0 0 / 0.15);
-  --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.15);
+  /* Glass — Mo's Notebook inspired vibrant dark glass (60% charcoal + 1px cool gray border) */
+  --glass-bg: #1e1e1e99;
+  --glass-dropdown-bg: #1e1e1eb8;
+  --glass-border: #42444a;
+  --glass-highlight: inset 0 0.5px 0 oklch(1 0 0 / 0.08);
+  --glass-hover-shadow: 0 8px 12px -3px oklch(from var(--accent) l c h / 0.18);
 
-  /* 代码块 — surface-1 色调 85% + 深模糊，与浅色同构。
-     深色背景图有一块 rgb(18,108,79) 亮绿区（未被 brightness 压过），
-     45% 时代码框在那里泛绿并吃掉最多 41% 对比度；85% 把绿色渗透
-     压到 ΔG≈11/255，磨砂再把它抹匀。不要降回 45%。 */
+  /* 代码块 — surface-1 色调 85% + 16px 中度磨砂，与浅色同构。 */
   --code-bg: oklch(0.18 0.014 var(--hue) / 0.85);
 }

@@ -168,10 +168,20 @@
 <style>
   .recent-comments {
     padding: var(--space-4);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    background: var(--surface-1);
-    box-shadow: var(--shadow-sm);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    box-shadow: var(--shadow-sm), var(--glass-highlight);
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  .recent-comments:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
   header {

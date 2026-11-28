@@ -22,9 +22,9 @@ const { kind, topics } = Astro.props;
 </div>
 <style>
   .topic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
-  .topic-card { display: flex; align-items: stretch; min-width: 0; gap: var(--space-4); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-1); box-shadow: var(--shadow-sm); }
-  .topic-card:focus-within, .topic-card:hover { border-color: var(--accent); }
-  .topic-card__label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); flex: 0 0 112px; min-width: 0; padding: var(--space-4) var(--space-2); border-radius: var(--radius-md); background: var(--surface-2); color: var(--foreground); text-decoration: none; text-align: center; }
+  .topic-card { display: flex; align-items: stretch; min-width: 0; gap: var(--space-4); padding: var(--space-4); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-bg); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)); box-shadow: var(--shadow-sm), var(--glass-highlight); transition: border-color var(--duration-fast) var(--ease-material), box-shadow var(--duration-fast) var(--ease-material); }
+  .topic-card:focus-within, .topic-card:hover { border-color: var(--accent); box-shadow: var(--glass-hover-shadow), var(--glass-highlight); }
+  .topic-card__label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); flex: 0 0 112px; min-width: 0; padding: var(--space-4) var(--space-2); border-radius: var(--radius-md); background: color-mix(in oklab, var(--surface-2) 55%, transparent); color: var(--foreground); text-decoration: none; text-align: center; }
   .topic-card__label:hover { background: var(--accent-subtle); color: var(--accent); }
   .topic-card__label :global(svg) { color: var(--accent); font-size: 24px; }
   h2 { font-size: var(--text-base); line-height: 1.4; margin: 0; overflow-wrap: anywhere; max-width: 100%; }

@@ -1,6 +1,6 @@
 /*
  * Twikoo 2.0.18 — Dusklight 视觉美化与语义 Token 适配
- * 复用站点语义 token 与字体，不在常驻卡片上叠加 backdrop-filter 合成层。
+ * 复用全站分层毛玻璃令牌（--glass-*），使评论区在独立页面与文章详情页中均呈现通透磨砂质感。
  */
 
 #comments {
@@ -10,19 +10,19 @@
   color: var(--foreground);
   font-size: var(--text-sm);
   line-height: 1.7;
-  --comment-border: color-mix(in oklch, var(--border), var(--foreground) 14%);
-  --comment-rule: color-mix(in oklch, var(--border), var(--foreground) 7%);
-  --comment-card-bg: var(--surface-1);
-  --comment-input-bg: var(--surface-0);
-  --comment-reply-bg: color-mix(in oklch, var(--surface-2) 60%, transparent);
+  --comment-border: var(--glass-border);
+  --comment-rule: color-mix(in oklch, var(--glass-border) 65%, transparent);
+  --comment-card-bg: var(--glass-bg);
+  --comment-input-bg: color-mix(in oklch, var(--glass-bg) 72%, transparent);
+  --comment-reply-bg: color-mix(in oklch, var(--glass-bg) 58%, transparent);
 }
 
 :root.dark #comments {
-  --comment-border: color-mix(in oklch, var(--border), var(--foreground) 52%);
-  --comment-rule: color-mix(in oklch, var(--border), var(--foreground) 32%);
-  --comment-card-bg: var(--surface-2);
-  --comment-input-bg: color-mix(in oklch, var(--surface-0) 85%, var(--surface-1));
-  --comment-reply-bg: color-mix(in oklch, var(--surface-1) 55%, transparent);
+  --comment-border: var(--glass-border);
+  --comment-rule: color-mix(in oklch, var(--glass-border) 65%, transparent);
+  --comment-card-bg: var(--glass-bg);
+  --comment-input-bg: color-mix(in oklch, var(--glass-bg) 78%, transparent);
+  --comment-reply-bg: color-mix(in oklch, var(--glass-bg) 62%, transparent);
 }
 
 #comments ::selection {
@@ -41,18 +41,21 @@
 #comments .tk-submit {
   position: relative;
   background: var(--comment-card-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--comment-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
   padding: var(--space-5);
   margin: var(--space-4) 0 var(--space-6);
   transition: border-color var(--duration-fast) var(--ease-material),
     box-shadow var(--duration-normal) var(--ease-material);
 }
 
+#comments .tk-submit:hover,
 #comments .tk-submit:focus-within {
-  border-color: color-mix(in oklch, var(--accent) 45%, var(--comment-border));
-  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+  box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
 }
 
 #comments .tk-submit .tk-avatar {
@@ -119,7 +122,7 @@
   height: 36px;
   line-height: 36px;
   padding: 0 var(--space-3);
-  background: color-mix(in oklch, var(--surface-2) 80%, transparent);
+  background: color-mix(in oklch, var(--glass-bg) 88%, transparent);
   color: var(--foreground-secondary);
   border: 1px solid var(--comment-border);
   border-right: 0;
@@ -170,7 +173,7 @@
 
 /* ── 按钮系统（覆盖 Twikoo 原生 #409eff） ── */
 #comments .tk-button {
-  background: var(--surface-0);
+  background: var(--comment-input-bg);
   color: var(--foreground-secondary);
   border: 1px solid var(--comment-border);
   border-radius: var(--radius-md);
@@ -224,9 +227,19 @@
 #comments .tk-comments-container {
   padding: var(--space-5) var(--space-5) var(--space-3);
   background: var(--comment-card-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--comment-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  transition:
+    border-color var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material);
+}
+
+#comments .tk-comments-container:hover {
+  border-color: var(--accent);
+  box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
 }
 
 #comments .tk-comments-title {
@@ -498,18 +511,20 @@
   margin: var(--space-3) 0;
 }
 
-/* ── OwO 表情面板 ── */
+/* ── OwO 表情面板与管理遮罩 ── */
 #comments .OwO .OwO-body {
-  background: var(--surface-1);
+  background: var(--glass-dropdown-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--comment-border);
   border-radius: var(--radius-md);
   color: var(--foreground);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
   overflow: hidden;
 }
 
 :root.dark #comments .OwO .OwO-body {
-  background: var(--surface-2);
+  background: var(--glass-dropdown-bg);
   color: var(--foreground);
 }
 
@@ -520,7 +535,17 @@
 
 #comments .OwO .OwO-body .OwO-bar {
   border-top-color: var(--comment-rule);
-  background: var(--surface-0);
+  background: color-mix(in oklch, var(--glass-bg) 80%, transparent);
+}
+
+#comments .tk-admin {
+  -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+  backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+}
+
+#comments .tk-lightbox {
+  -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+  backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
 }
 
 #comments .OwO .OwO-body .OwO-bar .OwO-packages .OwO-package-active,

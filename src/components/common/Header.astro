@@ -225,14 +225,14 @@ const navIcons: Record<string, string> = {
     -webkit-mask-image: radial-gradient(ellipse at center, transparent 60%, black 100%);
   }
 
-  :root.dark .header__pill::before {
-    background: oklch(0.2 0.01 var(--hue) / 0.15);
-  }
-
   :global(.header-scrolled) .header__pill {
     border-color: var(--glass-border);
     box-shadow: var(--shadow-lg), var(--glass-highlight);
     transform: translateY(6px);
+  }
+
+  :global(:root.dark) :global(.header-scrolled) .header__pill {
+    box-shadow: 0 5px 20px #00000080, var(--glass-highlight);
   }
 
   :global(.header-scrolled) .header__pill::before,
@@ -338,9 +338,9 @@ const navIcons: Record<string, string> = {
     min-width: 160px;
     max-width: min(280px, calc(100vw - var(--space-8)));
     padding: var(--space-1);
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    background: var(--glass-dropdown-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -495,10 +495,10 @@ const navIcons: Record<string, string> = {
     bottom: 0;
     width: min(82vw, 22rem);
     /* 液态玻璃抽屉：面板底下是 backdrop 深色遮罩，背景图只在边缘透出，
-       用更高不透明度的玻璃保证内容可读（普通 --glass-bg 在深色遮罩上会糊成一片） */
+       用更高不透明度的玻璃与 20px 重度模糊保证内容可读 */
     background: oklch(0.98 0.006 var(--hue) / 0.85);
-    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border-left: 1px solid var(--glass-border);
     box-shadow: var(--glass-highlight), var(--shadow-lg);
     padding: var(--space-6) var(--space-4);

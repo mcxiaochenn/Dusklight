@@ -42,11 +42,12 @@ const { posts } = Astro.props;
   checkCovers();
 </script>
 <style>
-  .browse-posts { list-style: none; padding: 0; margin: 0; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .browse-posts { list-style: none; padding: 0; margin: 0; background: var(--glass-bg); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm), var(--glass-highlight); transition: border-color var(--duration-fast) var(--ease-material), box-shadow var(--duration-fast) var(--ease-material); }
+  .browse-posts:hover { border-color: var(--accent); box-shadow: var(--glass-hover-shadow), var(--glass-highlight); }
   .browse-post { margin: 0; }
   .browse-post + .browse-post { border-top: 1px solid var(--border-subtle); }
   .browse-post__link { display: flex; align-items: center; gap: var(--space-6); padding: var(--space-5) var(--space-6); color: var(--foreground); text-decoration: none; transition: background var(--duration-fast); }
-  .browse-post__link:hover { background: var(--surface-2); }
+  .browse-post__link:hover { background: var(--accent-subtle); }
   .browse-post__link:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
   .browse-post__cover { flex: 0 0 160px; width: 160px; height: 90px; object-fit: cover; border-radius: var(--radius-md); background: var(--surface-2); }
   .browse-post__body { min-width: 0; flex: 1; }

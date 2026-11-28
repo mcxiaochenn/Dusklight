@@ -49,7 +49,7 @@ const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))]
   selectYear();
 </script>
 <style>
-  .archive-years { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-3); margin-bottom: var(--space-6); background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .archive-years { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-3); margin-bottom: var(--space-6); background: var(--glass-bg); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness)); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm), var(--glass-highlight); }
   .archive-years a { display: inline-flex; align-items: center; justify-content: center; min-width: 64px; min-height: 44px; padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); background: var(--surface-2); color: var(--foreground-secondary); text-decoration: none; font-weight: 600; }
   .archive-years a:hover { color: var(--accent); background: var(--accent-subtle); }
   .archive-years a[aria-current] { background: var(--accent); color: var(--surface-1); }

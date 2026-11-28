@@ -1,15 +1,12 @@
 /*
- * Dusklight Liquid Glass — Apple-inspired Material System
+ * Dusklight Liquid Glass — Vibrant Frosted Glass Material System
  * ─────────────────────────────────────────────────────────
- * Glass is reserved for interactive overlay surfaces only:
- * Nav, TOC, Search, BackToTop, Mobile menu.
- * Content surfaces (cards, articles) remain opaque.
- *
- * Apple principle: "Translucency conveys hierarchy.
- * Bigger surfaces read as thicker — stronger blur + deeper shadow."
+ * 统一服务于全站导航、浮层弹窗、文章主体、首页卡片与侧边栏。
+ * 核心配方：saturate(180%) + 分层模糊（基础 8px / 下拉 16px / 遮罩 20px），
+ * 深色模式下采用 #1e1e1e99 (60% 炭灰) + 1px #42444a 冷灰切边。
  */
 
-/* ── Base glass — standard overlay ── */
+/* ── Base glass — standard panel & card ── */
 .glass,
 .glass-panel {
   background: var(--glass-bg);
@@ -34,9 +31,9 @@
 
 /* ── Overlay glass — modal, dialog ── */
 .glass-overlay {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  background: var(--glass-dropdown-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg), var(--glass-highlight);
@@ -51,14 +48,15 @@
 }
 
 .glass-interactive:hover {
-  box-shadow: var(--shadow-lg), var(--glass-highlight);
+  border-color: var(--accent);
+  box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
 }
 
-/* ── Mobile — reduce blur for performance ── */
+/* ── Mobile — align blur radius with base token ── */
 @media (max-width: 768px) {
   .glass, .glass-nav, .glass-panel, .glass-overlay {
-    -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturation));
-    backdrop-filter: blur(16px) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   }
 }
 

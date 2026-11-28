@@ -133,6 +133,14 @@ const label = isCategories ? "分类" : "标签";
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     box-shadow: var(--shadow-sm), var(--glass-highlight);
     overflow: hidden;
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  .taxonomy-bar:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
   .taxonomy-bar__viewport {
@@ -202,7 +210,7 @@ const label = isCategories ? "分类" : "标签";
     flex-shrink: 0;
     padding: var(--space-2);
     border-left: 1px solid var(--glass-border);
-    background: color-mix(in oklab, var(--surface-1) 72%, transparent);
+    background: color-mix(in oklab, var(--glass-bg) 85%, transparent);
   }
 
   .taxonomy-bar__scroll {

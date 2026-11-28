@@ -138,8 +138,8 @@
   .search-trigger:hover, .search-dialog__close:hover { color: var(--foreground); background: var(--accent-subtle); }
   .search-trigger span { width: 17px; height: 17px; }
   .search-dialog { position: fixed; inset: 0; width: min(680px, calc(100vw - 2rem)); max-height: min(78dvh, 720px); margin: auto; padding: 0; border: 0; color: var(--foreground); background: transparent; overflow: visible; }
-  .search-dialog::backdrop { background: oklch(0 0 0 / .48); backdrop-filter: blur(8px); }
-  .search-dialog__panel { overflow: hidden; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: color-mix(in oklab, var(--surface-1) 88%, transparent); backdrop-filter: blur(calc(var(--glass-blur) * 1.4)); box-shadow: var(--shadow-xl), var(--glass-highlight); }
+  .search-dialog::backdrop { background: oklch(0 0 0 / .55); -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); }
+  .search-dialog__panel { overflow: hidden; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass-dropdown-bg); -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); box-shadow: var(--shadow-xl), var(--glass-highlight); }
   .search-dialog__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5) var(--space-2); }
   .search-dialog__header h2 { margin: 0; font-size: var(--text-md); }
   .search-dialog__field { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-3) var(--space-5); padding: 0 var(--space-4); min-height: 48px; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-bg); }
