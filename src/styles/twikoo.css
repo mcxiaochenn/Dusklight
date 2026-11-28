@@ -40,6 +40,7 @@
 /* ── 编辑器卡片 (.tk-submit) ── */
 #comments .tk-submit {
   position: relative;
+  z-index: 30;
   background: var(--comment-card-bg);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -145,6 +146,17 @@
   gap: var(--space-2);
 }
 
+/* 人机验证浮层（Cap / Turnstile / Geetest）：从发送按钮上方弹出，避免被下方评论容器遮挡或被容器裁切 */
+#comments .tk-turnstile-container,
+#comments .tk-geetest-container,
+#comments .tk-cap-container {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 120;
+  max-width: min(360px, calc(100vw - 2rem));
+}
+
 #comments .tk-submit-action-icon {
   color: var(--foreground-secondary);
   width: 1.25rem;
@@ -225,6 +237,8 @@
 
 /* ── 评论列表容器与标题栏 ── */
 #comments .tk-comments-container {
+  position: relative;
+  z-index: 1;
   padding: var(--space-5) var(--space-5) var(--space-3);
   background: var(--comment-card-bg);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -300,6 +314,16 @@
   word-break: break-word;
 }
 
+#comments .tk-comment:has(.tk-submit),
+#comments .tk-comment:focus-within {
+  position: relative;
+  z-index: 25;
+}
+
+#comments .tk-replies:has(.tk-submit) {
+  overflow: visible;
+}
+
 #comments .tk-comments-container > .tk-comment + .tk-comment {
   border-top: 1px solid var(--comment-rule);
 }
@@ -335,7 +359,7 @@
 }
 
 #comments .tk-tag {
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   padding: 1px 8px;
   font-size: 0.7rem;
   font-weight: 500;
@@ -511,11 +535,12 @@
 
 /* ── OwO 表情面板与管理遮罩 ── */
 #comments .OwO .OwO-body {
+  z-index: 110;
   background: var(--glass-dropdown-bg);
   -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
   border: 1px solid var(--comment-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   color: var(--foreground);
   box-shadow: var(--shadow-lg), var(--glass-highlight);
   overflow: hidden;

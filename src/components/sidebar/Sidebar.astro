@@ -31,30 +31,42 @@ const { stats } = Astro.props;
   <ProfileCard />
   <Announcement />
 
-  {/* 文章页在公告下方插入目录（或随滚动固定） */}
-  <slot name="after-announcement" />
+  <div class="sticky_layout">
+    {/* 文章页在公告下方插入目录，并与下方卡片作为一个整体随屏粘性滚动 */}
+    <slot name="after-announcement" />
 
-  <BoringBay />
-  <SiteStats
-    postCount={stats.postCount}
-    categoryCount={stats.categoryCount}
-    tagCount={stats.tagCount}
-    totalWords={stats.totalWords}
-    latestDay={stats.latestDay}
-  />
-  {commentConfig.enabled && commentConfig.recentComments.enabled && (
-    <RecentComments
-      client:visible
-      envId={commentConfig.twikoo.envId}
-      siteUrl={siteConfig.site}
-      limit={commentConfig.recentComments.limit}
-      includeReply={commentConfig.recentComments.includeReply}
+    <BoringBay />
+    <SiteStats
+      postCount={stats.postCount}
+      categoryCount={stats.categoryCount}
+      tagCount={stats.tagCount}
+      totalWords={stats.totalWords}
+      latestDay={stats.latestDay}
     />
-  )}
+    {commentConfig.enabled && commentConfig.recentComments.enabled && (
+      <RecentComments
+        client:visible
+        envId={commentConfig.twikoo.envId}
+        siteUrl={siteConfig.site}
+        limit={commentConfig.recentComments.limit}
+        includeReply={commentConfig.recentComments.includeReply}
+      />
+    )}
+  </div>
 </aside>
 
 <style>
   .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+    height: 100%;
+  }
+
+  .sticky_layout {
+    position: sticky;
+    top: calc(var(--header-height) + 20px);
     display: flex;
     flex-direction: column;
     gap: var(--space-5);

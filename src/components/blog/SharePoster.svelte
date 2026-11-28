@@ -14,7 +14,29 @@
   let dialog: HTMLDialogElement;
   let canvas: HTMLCanvasElement;
   let generating = $state(false);
+  let isOpen = $state(false);
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
   let message = $state("");
+
+  function openDialog() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = undefined;
+    }
+    if (!dialog.open) dialog.showModal();
+    requestAnimationFrame(() => { isOpen = true; });
+  }
+
+  function closeDialog() {
+    if (!dialog?.open) return;
+    isOpen = false;
+    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 200;
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      closeTimer = undefined;
+      if (dialog?.open) dialog.close();
+    }, delay);
+  }
 
   const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
@@ -67,7 +89,7 @@
   async function generate() {
     generating = true;
     message = "";
-    dialog.showModal();
+    openDialog();
     try {
       await document.fonts?.load('700 58px "寒蝉全圆体 Bold"');
       const context = canvas.getContext("2d");
@@ -170,12 +192,12 @@
   <span class="share-actions__status" aria-live="polite">{message}</span>
 </div>
 
-<dialog bind:this={dialog} class="poster-dialog" aria-label="分享海报预览">
+<dialog bind:this={dialog} class="poster-dialog" class:is-open={isOpen} aria-label="分享海报预览" oncancel={(event) => { event.preventDefault(); closeDialog(); }} onclick={(event) => { if (event.target === dialog) closeDialog(); }} onclose={() => { isOpen = false; }}>
   <div class="poster-dialog__panel">
     <canvas bind:this={canvas} aria-label="文章分享海报"></canvas>
     <div class="poster-dialog__actions">
       <button type="button" onclick={download} disabled={generating}>下载 PNG</button>
-      <button type="button" onclick={() => dialog.close()}>关闭</button>
+      <button type="button" onclick={closeDialog}>关闭</button>
     </div>
   </div>
 </dialog>
@@ -189,9 +211,11 @@
   .share-actions button:disabled, .poster-dialog button:disabled { opacity: .6; cursor: wait; }
   .share-actions button span { width: 14px; height: 14px; }
   .share-actions__status { flex-basis: 100%; min-height: 1em; color: var(--foreground-muted); font-size: var(--text-xs); text-align: right; }
-  .poster-dialog { position: fixed; inset: 0; width: min(520px, calc(100vw - 2rem)); max-height: 90dvh; margin: auto; padding: 0; border: 0; background: transparent; overflow: auto; }
-  .poster-dialog::backdrop { background: oklch(0 0 0 / .55); -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); }
-  .poster-dialog__panel { padding: var(--space-4); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass-dropdown-bg); -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); box-shadow: var(--shadow-xl), var(--glass-highlight); }
+  .poster-dialog { position: fixed; inset: 0; width: min(520px, calc(100vw - 2rem)); max-height: 90dvh; margin: auto; padding: 0; border: 0; background: transparent; overflow: visible; }
+  .poster-dialog::backdrop { background: oklch(0 0 0 / .55); -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); opacity: 0; transition: opacity var(--duration-normal) var(--ease-material); }
+  .poster-dialog.is-open::backdrop { opacity: 1; }
+  .poster-dialog__panel { padding: var(--space-4); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass-dropdown-bg); -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); box-shadow: var(--shadow-xl), var(--glass-highlight); opacity: 0; transform: translateY(10px) scale(0.96); transition: opacity var(--duration-normal) var(--ease-decelerate), transform var(--duration-normal) var(--ease-physical); }
+  .poster-dialog.is-open .poster-dialog__panel { opacity: 1; transform: translateY(0) scale(1); }
   canvas { display: block; width: 100%; height: auto; max-height: 72dvh; object-fit: contain; border-radius: var(--radius-lg); }
   .poster-dialog__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3); }
 

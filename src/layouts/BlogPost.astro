@@ -278,7 +278,7 @@ const hasToc = showToc && !isEncrypted && headings.some((h) => h.depth >= 2 && h
     align-items: center;
     gap: 6px;
     padding: 4px 12px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     border: 1px solid oklch(from var(--accent) l c h / 0.3);
     background: oklch(from var(--accent) l c h / 0.12);
     color: var(--accent);
@@ -375,7 +375,7 @@ const hasToc = showToc && !isEncrypted && headings.some((h) => h.depth >= 2 && h
     align-items: center;
     gap: 6px;
     padding: 4px 11px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     border: 1px solid var(--glass-border);
     background: oklch(0.96 0.008 var(--hue) / 0.45);
     color: var(--foreground-secondary);
@@ -493,7 +493,7 @@ const hasToc = showToc && !isEncrypted && headings.some((h) => h.depth >= 2 && h
     padding: var(--space-8);
   }
 
-  /* 右侧 300px 侧栏复用全站 Sidebar；撑满轨道高度以允许目录在公告后粘性定位 */
+  /* 右侧 300px 侧栏复用全站 Sidebar；撑满轨道高度以允许底部 .sticky_layout 整体粘性定位 */
   .article__sidebar {
     position: relative;
     min-width: 0;
@@ -505,10 +505,7 @@ const hasToc = showToc && !isEncrypted && headings.some((h) => h.depth >= 2 && h
   }
 
   .article__sidebar :global(.toc) {
-    position: sticky;
-    top: calc(var(--header-height) + 20px);
-    z-index: 10;
-    max-height: calc(100vh - var(--header-height) - 44px);
+    max-height: min(46vh, calc(100vh - var(--header-height) - 44px));
     background: color-mix(in oklab, var(--glass-dropdown-bg) 92%, var(--surface-1));
     -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
     backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
@@ -646,7 +643,7 @@ const hasToc = showToc && !isEncrypted && headings.some((h) => h.depth >= 2 && h
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--foreground-muted);
     transition: background var(--duration-fast) var(--ease-material);
   }

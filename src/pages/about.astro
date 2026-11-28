@@ -410,7 +410,10 @@ const marqueePairs = [...skillPairs, ...skillPairs];
     const donateModal = modal;
     donateModal.dataset.donateInit = "1";
 
-    function open() { donateModal.classList.add("open"); donateModal.classList.add("visible"); }
+    function open() {
+      donateModal.classList.add("open");
+      requestAnimationFrame(() => donateModal.classList.add("visible"));
+    }
     function closeModal() {
       donateModal.classList.remove("visible");
       setTimeout(() => donateModal.classList.remove("open"), 200);
@@ -617,7 +620,7 @@ const marqueePairs = [...skillPairs, ...skillPairs];
 
   .about-item {
     min-width: 0;
-    border-radius: 24px;
+    border-radius: var(--radius-xl);
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -791,7 +794,7 @@ const marqueePairs = [...skillPairs, ...skillPairs];
   .skills-marquee__icon {
     width: 104px;
     height: 104px;
-    border-radius: 28px;
+    border-radius: var(--radius-lg);
     background: var(--skill-bg, #3b82f6);
     color: #fff;
     display: flex;
@@ -1484,6 +1487,11 @@ const marqueePairs = [...skillPairs, ...skillPairs];
     background: rgba(0, 0, 0, 0.55);
     -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
     backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-material);
+  }
+  .donate-modal.visible .donate-modal__backdrop {
+    opacity: 1;
   }
   .donate-modal__card {
     position: relative;
@@ -1513,7 +1521,7 @@ const marqueePairs = [...skillPairs, ...skillPairs];
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     color: var(--foreground-muted);
     background: transparent;
     border: none;

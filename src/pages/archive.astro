@@ -55,6 +55,7 @@ const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))]
   .archive-years a[aria-current] { background: var(--accent); color: var(--surface-1); }
   .archive-years a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .archive-year { margin-bottom: var(--space-8); scroll-margin-top: calc(var(--header-height) + var(--space-4)); }
+  .archive-year:not([hidden]) { animation: fade-in-up var(--duration-normal) var(--ease-decelerate) both; }
   .archive-year[hidden] { display: none; }
   .archive-year h2 { display: flex; align-items: baseline; gap: var(--space-3); margin: 0 0 var(--space-4); font-size: var(--text-lg); }
   .archive-year h2 span { font-size: var(--text-sm); font-weight: 400; color: var(--foreground-muted); }

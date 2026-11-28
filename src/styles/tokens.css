@@ -83,6 +83,7 @@
      RADIUS — Apple-aligned large geometric rounding scale.
      全球超大苹果几何 R 角，弃用 corner-shape: squircle。
      ═══════════════════════════════════════════════════════ */
+  --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 22px;

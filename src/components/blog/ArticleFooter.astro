@@ -221,6 +221,7 @@ const avatarUrl = new URL(profileConfig.avatar, Astro.site).href;
 
   .license-card__history { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
   .license-card__history summary { width: fit-content; color: var(--foreground); cursor: pointer; font-size: var(--text-sm); font-weight: 600; }
+  .license-card__history[open] > :not(summary) { animation: fade-in-up var(--duration-normal) var(--ease-decelerate) both; }
   .license-card__history ol { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
   .license-card__history li { display: grid; grid-template-columns: 6.5rem 4.5rem minmax(0, 1fr); gap: var(--space-2); color: var(--foreground-secondary); font-size: var(--text-xs); }
   .license-card__history time { color: var(--foreground-muted); }

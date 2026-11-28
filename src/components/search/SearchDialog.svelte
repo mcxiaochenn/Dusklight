@@ -9,7 +9,9 @@
   let results = $state<Array<{ url: string; title: string; excerpt: string }>>([]);
   let status = $state<"idle" | "loading" | "ready" | "empty" | "error">("idle");
   let activeIndex = $state(0);
+  let isOpen = $state(false);
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
   let pagefind: any;
 
   function plainText(value: string): string {
@@ -56,12 +58,26 @@
   }
 
   function open() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = undefined;
+    }
     if (!dialog.open) dialog.showModal();
-    requestAnimationFrame(() => input?.focus());
+    requestAnimationFrame(() => {
+      isOpen = true;
+      input?.focus();
+    });
   }
 
   function close() {
-    dialog.close();
+    if (!dialog?.open) return;
+    isOpen = false;
+    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 200;
+    if (closeTimer) clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      closeTimer = undefined;
+      if (dialog?.open) dialog.close();
+    }, delay);
   }
 
   function handleKeys(event: KeyboardEvent) {
@@ -89,6 +105,7 @@
     return () => {
       document.removeEventListener("keydown", shortcut);
       if (timer) clearTimeout(timer);
+      if (closeTimer) clearTimeout(closeTimer);
     };
   });
 </script>
@@ -97,7 +114,7 @@
   <span class="icon-[fa7-solid--magnifying-glass]" aria-hidden="true"></span>
 </button>
 
-<dialog bind:this={dialog} class="search-dialog" aria-labelledby="search-title" onclose={() => { query = ""; results = []; status = "idle"; }}>
+<dialog bind:this={dialog} class="search-dialog" class:is-open={isOpen} aria-labelledby="search-title" oncancel={(event) => { event.preventDefault(); close(); }} onclick={(event) => { if (event.target === dialog) close(); }} onclose={() => { isOpen = false; query = ""; results = []; status = "idle"; }}>
   <div class="search-dialog__panel">
     <header class="search-dialog__header">
       <h2 id="search-title">全文搜索</h2>
@@ -131,15 +148,17 @@
   </div>
 </dialog>
 
-<svelte:window onkeydown={(event) => { if (event.key === "Escape" && dialog?.open) close(); }} />
+<svelte:window onkeydown={(event) => { if (event.key === "Escape" && dialog?.open) { event.preventDefault(); close(); } }} />
 
 <style>
   .search-trigger, .search-dialog__close { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-full); color: var(--foreground-secondary); cursor: pointer; }
   .search-trigger:hover, .search-dialog__close:hover { color: var(--foreground); background: var(--accent-subtle); }
   .search-trigger span { width: 17px; height: 17px; }
   .search-dialog { position: fixed; inset: 0; width: min(680px, calc(100vw - 2rem)); max-height: min(78dvh, 720px); margin: auto; padding: 0; border: 0; color: var(--foreground); background: transparent; overflow: visible; }
-  .search-dialog::backdrop { background: oklch(0 0 0 / .55); -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); }
-  .search-dialog__panel { overflow: hidden; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass-dropdown-bg); -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); box-shadow: var(--shadow-xl), var(--glass-highlight); }
+  .search-dialog::backdrop { background: oklch(0 0 0 / .55); -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg)); opacity: 0; transition: opacity var(--duration-normal) var(--ease-material); }
+  .search-dialog.is-open::backdrop { opacity: 1; }
+  .search-dialog__panel { overflow: hidden; border: 1px solid var(--glass-border); border-radius: var(--radius-xl); background: var(--glass-dropdown-bg); -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturation)); box-shadow: var(--shadow-xl), var(--glass-highlight); opacity: 0; transform: translateY(10px) scale(0.97); transition: opacity var(--duration-normal) var(--ease-decelerate), transform var(--duration-normal) var(--ease-physical); }
+  .search-dialog.is-open .search-dialog__panel { opacity: 1; transform: translateY(0) scale(1); }
   .search-dialog__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5) var(--space-2); }
   .search-dialog__header h2 { margin: 0; font-size: var(--text-md); }
   .search-dialog__field { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-3) var(--space-5); padding: 0 var(--space-4); min-height: 48px; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-bg); }

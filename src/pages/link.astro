@@ -639,7 +639,7 @@ function normalizeFriendLink(value: string): string {
     width: 28px;
     height: 28px;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--foreground-muted);
     cursor: pointer;
@@ -739,6 +739,9 @@ function normalizeFriendLink(value: string): string {
     font-size: var(--text-xs);
     color: var(--foreground-secondary);
     line-height: 1.8;
+  }
+  .disclaimer[open] .disclaimer__body {
+    animation: fade-in-up var(--duration-normal) var(--ease-decelerate) both;
   }
   .disclaimer__body p {
     margin: 0 0 var(--space-2);
@@ -961,7 +964,7 @@ function normalizeFriendLink(value: string): string {
     flex-shrink: 0;
     width: 48px;
     height: 48px;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid var(--glass-border);
     background: var(--surface-2);
@@ -1011,16 +1014,16 @@ function normalizeFriendLink(value: string): string {
   }
   .friend-card__status {
     position: absolute;
-    right: var(--space-1);
-    bottom: var(--space-1);
+    right: var(--space-2);
+    bottom: var(--space-2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 48px;
-    height: var(--space-4);
-    padding: 0 7px;
+    height: 22px;
+    padding: 0 9px;
     border: 1px solid currentColor;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
@@ -1177,7 +1180,7 @@ function normalizeFriendLink(value: string): string {
   .random-modal__avatar {
     width: 48px;
     height: 48px;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     object-fit: cover;
     border: 1px solid var(--glass-border);
     background: var(--surface-2);

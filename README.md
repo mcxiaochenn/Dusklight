@@ -6,7 +6,7 @@
 
 以高饱和磨砂玻璃质感、苹果几何大圆角、内容阅读体验与渐进增强为核心，在纯静态输出中组合 Svelte 交互岛、全文搜索、Twikoo 评论与丰富的 Markdown 能力。
 
-[在线演示](https://blog.mcxiaochen.top/) · [使用指南](#快速开始) · [待办事项](TODO.md) · [问题反馈](https://github.com/mcxiaochenn/Dusklight/issues)
+[在线演示](https://blog.mcxiaochen.top/) · [使用指南](#快速开始) · [问题反馈](https://github.com/mcxiaochenn/Dusklight/issues)
 
 [![Release](https://img.shields.io/github/v/release/mcxiaochenn/Dusklight?style=flat-square&color=14b8a6)](https://github.com/mcxiaochenn/Dusklight/releases/latest)
 [![Deploy](https://img.shields.io/github/actions/workflow/status/mcxiaochenn/Dusklight/deploy.yml?branch=main&style=flat-square&label=deploy)](https://github.com/mcxiaochenn/Dusklight/actions/workflows/deploy.yml)

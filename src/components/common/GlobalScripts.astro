@@ -169,7 +169,7 @@
     top: 76px;
     left: 12px;
     padding: 2px 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     background: oklch(0.2 0.04 165 / 0.85);
     color: #fff;
     font-family: var(--font-mono);
@@ -261,6 +261,12 @@
     background: rgba(0, 0, 0, 0.58);
     -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
     backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-material);
+  }
+
+  .dev-modal--open .dev-modal__backdrop {
+    opacity: 1;
   }
 
   .dev-modal__panel {
@@ -271,6 +277,16 @@
     overflow-y: auto;
     padding: var(--space-6);
     border-radius: var(--radius-xl);
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+    transition:
+      opacity var(--duration-normal) var(--ease-decelerate),
+      transform var(--duration-normal) var(--ease-physical);
+  }
+
+  .dev-modal--open .dev-modal__panel {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 
   .dev-modal__head {
@@ -298,7 +314,7 @@
   .dev-modal__close {
     width: 32px;
     height: 32px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     border: 1px solid var(--glass-border);
     background: var(--surface-2);
     color: var(--foreground);
@@ -621,16 +637,30 @@
     set("route", window.location.pathname);
   }
 
+  let devCloseTimer = 0;
+
   function openDevModal() {
     const modal = document.getElementById("dev-modal");
     if (!modal) return;
+    if (devCloseTimer) {
+      window.clearTimeout(devCloseTimer);
+      devCloseTimer = 0;
+    }
     refreshDevMetrics();
     modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add("dev-modal--open"));
   }
 
   function closeDevModal() {
     const modal = document.getElementById("dev-modal");
-    if (modal) modal.hidden = true;
+    if (!modal || modal.hidden) return;
+    modal.classList.remove("dev-modal--open");
+    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 220;
+    if (devCloseTimer) window.clearTimeout(devCloseTimer);
+    devCloseTimer = window.setTimeout(() => {
+      devCloseTimer = 0;
+      modal.hidden = true;
+    }, delay);
   }
 
   window.addEventListener("dusklight:open-devtools", openDevModal);
@@ -678,7 +708,13 @@
   }
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeDevModal();
+    if (e.key !== "Escape") return;
+    closeDevModal();
+    const lb = document.getElementById("lightbox");
+    if (lb && !lb.hidden) {
+      lb.classList.remove("lightbox--open");
+      window.setTimeout(() => { lb.hidden = true; }, 300);
+    }
   });
 
   function initAll() {

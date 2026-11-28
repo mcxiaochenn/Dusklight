@@ -482,6 +482,12 @@ const navIcons: Record<string, string> = {
     background: oklch(0 0 0 / 0.5);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-material);
+  }
+
+  .mobile-menu.is-open .mobile-menu__backdrop {
+    opacity: 1;
   }
 
   .mobile-menu__panel {
@@ -503,14 +509,14 @@ const navIcons: Record<string, string> = {
     gap: var(--space-1);
     overflow-y: auto;
     transform: translateX(100%);
-    transition: transform var(--duration-normal) var(--ease-material);
+    transition: transform var(--duration-normal) var(--ease-physical);
   }
 
   :root.dark .mobile-menu__panel {
     background: oklch(0.18 0.012 var(--hue) / 0.85);
   }
 
-  .mobile-menu[open] .mobile-menu__panel {
+  .mobile-menu.is-open .mobile-menu__panel {
     transform: translateX(0);
   }
 
@@ -683,16 +689,37 @@ const navIcons: Record<string, string> = {
     if (toggle && menu instanceof HTMLDialogElement) {
       const menuToggle = toggle;
       const mobileMenu = menu;
+      let closeTimer: number | undefined;
+
       function openMenu() {
-        mobileMenu.showModal();
-        closeBtn?.focus();
+        if (closeTimer !== undefined) {
+          window.clearTimeout(closeTimer);
+          closeTimer = undefined;
+        }
+        if (!mobileMenu.open) mobileMenu.showModal();
+        requestAnimationFrame(() => {
+          mobileMenu.classList.add("is-open");
+          closeBtn?.focus();
+        });
         menuToggle.setAttribute("aria-expanded", "true");
       }
       function closeMenu() {
-        mobileMenu.close();
+        if (!mobileMenu.open) return;
+        mobileMenu.classList.remove("is-open");
+        const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250;
+        if (closeTimer !== undefined) window.clearTimeout(closeTimer);
+        closeTimer = window.setTimeout(() => {
+          closeTimer = undefined;
+          if (mobileMenu.open) mobileMenu.close();
+        }, delay);
       }
 
+      mobileMenu.addEventListener("cancel", (event) => {
+        event.preventDefault();
+        closeMenu();
+      });
       mobileMenu.addEventListener("close", () => {
+        mobileMenu.classList.remove("is-open");
         menuToggle.setAttribute("aria-expanded", "false");
         menuToggle.focus();
       });

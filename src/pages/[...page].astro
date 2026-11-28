@@ -363,7 +363,7 @@ const marqueePairs = [...skillPairs, ...skillPairs];
   .home-top__skill-tile {
     width: 84px;
     height: 84px;
-    border-radius: 22px;
+    border-radius: var(--radius-lg);
     background: var(--tile-bg, #3b82f6);
     color: #fff;
     display: flex;
@@ -541,7 +541,7 @@ const marqueePairs = [...skillPairs, ...skillPairs];
     margin-bottom: var(--space-5);
   }
 
-  /* 双栏：文章流居左，侧栏固定宽度居右 */
+  /* 双栏：文章流居左，侧栏固定宽度居右（stretch 支撑 .sticky_layout 粘性伴随） */
   .home-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 300px;
@@ -549,7 +549,7 @@ const marqueePairs = [...skillPairs, ...skillPairs];
     max-width: var(--page-width);
     margin: 0 auto;
     padding: 0 var(--space-4);
-    align-items: start;
+    align-items: stretch;
   }
 
   /* flex-wrap 双列布局，配合 PostCard 的响应式断点 */
