@@ -9,3 +9,7 @@
 - [ ] **修复 Twikoo 评论区人机验证弹窗层级问题**
   - 目前点击发送评论时弹出的 Twikoo 人机验证控件（Cap / Captcha 浮层）会置于评论区或页面容器下方，导致无法正常点击完成验证。
   - 根因方向排查：`backdrop-filter`、`overflow: hidden` 以及 `.page-surface` / `.article` / `#comments` 等容器建立的独立层叠上下文（Stacking Context）会截断内部 `position: fixed` / 高 `z-index` 弹窗的层级；需检查 Twikoo 验证弹窗 DOM 挂载位置与 `z-index` / `overflow` / `isolation` 层级约束，确保验证弹窗始终置于全站最顶层。
+
+- [ ] **学习 [Mo 的记事簿 - MortalCat's blog](https://blog.xiowo.net/) 站点的侧边栏滚动时逻辑**
+  - 进一步对齐首页与文章阅读页滚动时侧边栏的粘性布局结构（`.sticky_layout` 包裹底部随屏滚动卡片、`top` 偏移与非粘性区隔离），解决目录或底部卡片在向下滚动过程中可能与后续卡片相互穿插遮挡的问题，同时保持文章结束时随侧栏自然滑离不压住页脚。
+
