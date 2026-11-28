@@ -31,6 +31,7 @@ function normalizeFriendLink(value: string): string {
       data-friend-links-root
       data-flink-status-url={siteConfig.flinkStatusUrl}
     >
+      <div class="page-surface">
 
       {/* ── 页面标题 ── */}
       <header class="links-header">
@@ -207,10 +208,10 @@ function normalizeFriendLink(value: string): string {
         );
       })}
 
-    </div>
-
-    <div class="link-comments">
-      <TwikooComments />
+        <div class="link-comments">
+          <TwikooComments />
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -490,11 +491,9 @@ function normalizeFriendLink(value: string): string {
 </script>
 
 <style>
-  /* ── 评论区：与友链卡墙同宽容器，但限宽 900px 保持评论列表可读 ── */
+  /* ── 评论区：与友链卡墙同宽容器 ── */
   .link-comments {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--space-4);
+    margin-top: var(--space-8);
   }
 
   /* ── 页面标题 ── */
@@ -561,7 +560,6 @@ function normalizeFriendLink(value: string): string {
     margin-bottom: var(--space-4);
   }
   .info-card__avatar {
-    --corner-shape: var(--corner-shape-round);
     width: 56px;
     height: 56px;
     border-radius: 50%;
@@ -813,7 +811,6 @@ function normalizeFriendLink(value: string): string {
     transform: translateY(-1px);
   }
   :global(.fcl-card__avatar) {
-    --corner-shape: var(--corner-shape-round);
     flex-shrink: 0;
     width: 40px;
     height: 40px;
@@ -1013,7 +1010,6 @@ function normalizeFriendLink(value: string): string {
     white-space: nowrap;
   }
   .friend-card__status {
-    --corner-shape: var(--corner-shape-continuous);
     position: absolute;
     right: var(--space-1);
     bottom: var(--space-1);

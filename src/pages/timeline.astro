@@ -53,6 +53,7 @@ function commitType(subject: string): string {
 <BaseLayout title="更新日志" description="博客开发日志">
   <section class="section">
     <div class="content-container">
+      <div class="page-surface">
       <header class="tl__header">
         <h1 class="tl__title">更新日志</h1>
         <p class="tl__subtitle">博客开发日志 · 共 {commits.length} 次提交</p>
@@ -89,6 +90,7 @@ function commitType(subject: string): string {
         </div>
       ))}
       <TwikooComments />
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -163,7 +165,6 @@ function commitType(subject: string): string {
   }
 
   .tl__dot {
-    --corner-shape: var(--corner-shape-round);
     position: absolute;
     left: calc(-1 * var(--space-4) - 5px);
     top: 14px;

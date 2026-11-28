@@ -1,9 +1,14 @@
 ---
 /**
- * 关于页面 — 借鉴 Heo About 的信息层级，保留 Dusklight 玻璃视觉。
- * 结构：头像标签 → 问候/关键词 → 技能 → 性格/追番 → 游戏/站点资料
- *       → 访问统计/selfInfo → 关于我 → 打赏 → 评论区
- * 数据全部来自 profileConfig。
+ * 关于页面 — 参照 Mo 的记事簿 (blog.xiowo.net/about) 布局 + Dusklight 鲜活毛玻璃体系
+ * 结构：
+ * 1. 头像 + 两侧漂浮标签
+ * 2. 问候卡 (59%) + 关键词遮罩轮播 (39%)
+ * 3. 动态滚动技能卡 (50%，双排无限滚动 + 悬停展开胶囊网格) + 生涯/站点历程卡 (49%)
+ * 4. 访问统计数据板 (39%，深邃暗角底板 + 文章隧道按钮) + 右侧上下分栏 (59%：上 60% 嘉兴地图卡 + 下 40% 小标题上置三列个人信息栏)
+ * 5. 性格 MBTI (59%) + 追番斜切封面墙 (39%)
+ * 6. 游戏斜切封面墙 (59%) + 站点资料 (39%)
+ * 7. 关于我 (全宽) + 赞赏名单 (全宽) + 评论区
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
@@ -19,6 +24,15 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   const nb = parseFloat(b.amount.replace(/[^0-9.]/g, "")) || 0;
   return nb - na;
 });
+
+// 将技能两两配对成双排图标列，并复制一份以实现 -50% 无缝循环滚动
+const skillPairs: Array<[typeof skillsData[number], typeof skillsData[number]]> = [];
+for (let i = 0; i < skillsData.length; i += 2) {
+  const first = skillsData[i];
+  const second = skillsData[(i + 1) % skillsData.length];
+  if (first && second) skillPairs.push([first, second]);
+}
+const marqueePairs = [...skillPairs, ...skillPairs];
 ---
 
 <BaseLayout title="关于" description={`关于 ${profileConfig.name}`}>
@@ -32,7 +46,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
             <span class="about-author-tag" style={`animation-delay: ${i * 0.6}s`}>{tag.left}</span>
           ))}
         </div>
-        <div class="about-author-img">
+        <div class="about-author-img" id="about-avatar-trigger" title="辰渊尘" role="button" tabindex="0" aria-label="关于页面作者头像（连点5次打开前端调试面板）">
           <img src={profileConfig.avatar} alt={profileConfig.name} loading="lazy" decoding="async" />
         </div>
         <div class="about-author-tag-right">
@@ -42,10 +56,10 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
         </div>
       </div>
 
-      {/* ── 问候卡(59%) + 关键词轮播(39%) ── */}
+      {/* ── Row 1：问候卡(59%) + 关键词轮播(39%) ── */}
       <div class="about-row">
         <div class="about-item about-item--hello">
-          <div class="about-card-tips">你好呀</div>
+          <div class="about-card-tips">{profileConfig.hello}</div>
           <h1 class="about-hello-title">
             我是 <span class="about-inline-word">{profileConfig.helloName}</span>
           </h1>
@@ -69,22 +83,136 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
         </div>
       </div>
 
-      {/* ── 技能墙（全宽） ── */}
-      <div class="about-row">
-        <div class="about-item about-item--single about-item--skills">
+      {/* ── Row 2：动态滚动技能卡(50%) + 生涯卡(50%)（Mo 的记事簿同款） ── */}
+      <div class="about-row about-row--equal">
+        <div class="about-item about-item--skills">
           <div class="about-card-tips">{profileConfig.skillsTips}</div>
           <span class="about-item-title">{profileConfig.skillsTitle}</span>
-          <div class="about-skill-wall">
-            {skillsData.map((s) => (
-              <a href="/skills/" class="about-skill-icon" title={s.name}>
-                <Icon name={s.icon} />
+
+          <div class="skills-style-group">
+            {/* 默认态：双排无限横向滚动大图标 */}
+            <div class="skills-marquee" aria-hidden="true">
+              <div class="skills-marquee__track">
+                {marqueePairs.map(([topSkill, bottomSkill]) => (
+                  <div class="skills-marquee__pair">
+                    <div class="skills-marquee__icon" style={`--skill-bg: ${topSkill.color || "#3b82f6"}`} title={topSkill.name}>
+                      <Icon name={topSkill.icon} />
+                    </div>
+                    <div class="skills-marquee__icon" style={`--skill-bg: ${bottomSkill.color || "#10b981"}`} title={bottomSkill.name}>
+                      <Icon name={bottomSkill.icon} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 悬停态：完整技能胶囊列表 */}
+            <div class="skills-hover-list">
+              {skillsData.map((s) => (
+                <a href="/skills/" class="skill-pill" title={s.description}>
+                  <span class="skill-pill__icon" style={`--skill-bg: ${s.color || "#3b82f6"}`}>
+                    <Icon name={s.icon} />
+                  </span>
+                  <span class="skill-pill__name">{s.name}</span>
+                </a>
+              ))}
+              <a href="/skills/" class="skill-pill skill-pill--more">
+                查看全部技能 →
               </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-item about-item--careers">
+          <div class="about-card-tips">生涯</div>
+          <span class="about-item-title">无限进步</span>
+          <div class="careers-group">
+            <div class="career-item">
+              <span class="career-item__dot" style="background: #43a6c6"></span>
+              <div class="career-item__body">
+                <span class="career-item__name">在读高中生 · 计算机与数码方向</span>
+                <span class="career-item__desc">保持好奇心，持续折腾 Linux、前端与搞机</span>
+              </div>
+            </div>
+            <div class="career-item">
+              <span class="career-item__dot" style="background: #c69043"></span>
+              <div class="career-item__body">
+                <span class="career-item__name">个人开发者 · 独立建站</span>
+                <span class="career-item__desc">从 Hexo / Fuwari 到自研 Astro Dusklight 主题</span>
+              </div>
+            </div>
+            <div class="career-item">
+              <span class="career-item__dot" style="background: #b04fe6"></span>
+              <div class="career-item__body">
+                <span class="career-item__name">安卓搞机 & 开源分享</span>
+                <span class="career-item__desc">记录玩机教程、内核提权与自动化实践笔记</span>
+              </div>
+            </div>
+          </div>
+          <div class="careers-timeline-bar">
+            <div class="careers-timeline-track">
+              <span style="width: 100%"></span>
+            </div>
+            <div class="careers-timeline-labels">
+              <span>2025.07 建站启航</span>
+              <span>持续进化中 ✨</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Row 3：访问统计数据板(39%) + 右侧上下砍半 [上地图(60%) + 下小标题上置个人信息(40%)] (59%) ── */}
+      <div class="about-row about-row--data">
+        <div class="about-item about-item--statistics" data-api={siteConfig.analytics.apiUrl}>
+          <div class="about-statistics__content">
+            <div class="about-card-tips">数据</div>
+            <span class="about-item-title">访问统计</span>
+            <dl class="about-statistics-grid" aria-label="站点访问统计">
+              <div><dt>今日人数</dt><dd data-visit-stat="today_uv">—</dd></div>
+              <div><dt>今日访问</dt><dd data-visit-stat="today_pv">—</dd></div>
+              <div><dt>昨日人数</dt><dd data-visit-stat="yesterday_uv">—</dd></div>
+              <div><dt>昨日访问</dt><dd data-visit-stat="yesterday_pv">—</dd></div>
+              <div><dt>本月访问</dt><dd data-visit-stat="last_month_pv">—</dd></div>
+              <div><dt>总访问量</dt><dd data-visit-stat="total_pv">—</dd></div>
+            </dl>
+            <p class="about-statistics-error" role="status" hidden>统计暂时无法加载</p>
+          </div>
+
+          <div class="about-statistics__footer">
+            <span class="about-statistics__tips">
+              统计信息来自 <a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami 统计</a>
+            </span>
+            <a href="/archive/" class="about-statistics__btn">
+              <Icon name="fa7-solid:arrow-up-right-from-square" />
+              <span>文章隧道</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="about-map-and-info">
+          {/* 上半部分 (60%)：Mo 记事簿同款地图卡片 */}
+          <div
+            class="about-item about-item--map"
+            style={`--map-bg: url('${profileConfig.mapInfo.lightBg}'); --map-bg-dark: url('${profileConfig.mapInfo.darkBg}');`}
+          >
+            <div class="about-map__title">
+              {profileConfig.mapInfo.prefix} <b>{profileConfig.mapInfo.location}</b>
+            </div>
+          </div>
+
+          {/* 下半部分 (40%)：小标题上置三列个人信息栏 */}
+          <div class="about-item about-item--selfinfo">
+            {profileConfig.selfInfo.map((item) => (
+              <div class="about-selfinfo-item">
+                <span class="about-selfinfo-label">{item.label}</span>
+                <span class="about-selfinfo-value" style={`color: ${item.accent}`}>{item.value}</span>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── 性格 + 喜欢的番 ── */}
+      {/* ── Row 4：性格 + 喜欢的番 ── */}
       <div class="about-row">
         <div class="about-item about-item--personality">
           <div class="about-card-tips">性格</div>
@@ -119,7 +247,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
         </div>
       </div>
 
-      {/* ── 喜欢的游戏 + 站点资料 ── */}
+      {/* ── Row 5：喜欢的游戏 + 站点资料 ── */}
       <div class="about-row">
         <div class="about-item about-item--comic about-item--game">
           <div class="about-card-tips about-comic-tips">喜欢的游戏</div>
@@ -164,34 +292,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
         </div>
       </div>
 
-      {/* ── 访问统计 + 横向个人信息 ── */}
-      <div class="about-row about-row--data">
-        <div class="about-item about-item--statistics" data-api={siteConfig.analytics.apiUrl}>
-          <div class="about-card-tips">数据</div>
-          <span class="about-item-title">访问统计</span>
-          <dl class="about-statistics-grid" aria-label="站点访问统计">
-            <div><dt>今日人数</dt><dd data-visit-stat="today_uv">—</dd></div>
-            <div><dt>今日访问</dt><dd data-visit-stat="today_pv">—</dd></div>
-            <div><dt>昨日人数</dt><dd data-visit-stat="yesterday_uv">—</dd></div>
-            <div><dt>昨日访问</dt><dd data-visit-stat="yesterday_pv">—</dd></div>
-            <div><dt>最近月访问</dt><dd data-visit-stat="last_month_pv">—</dd></div>
-            <div><dt>总访问</dt><dd data-visit-stat="total_pv">—</dd></div>
-          </dl>
-          <p class="about-statistics-error" role="status" hidden>统计暂时无法加载</p>
-        </div>
-
-        <div class="about-item about-item--selfinfo">
-          {profileConfig.selfInfo.map((item) => (
-            <div class="about-selfinfo-item" style={`--selfinfo-accent: ${item.accent}`}>
-              <span class="about-selfinfo-icon" aria-hidden="true"><Icon name={item.icon} /></span>
-              <span class="about-selfinfo-value">{item.value}</span>
-              <span class="about-selfinfo-label">{item.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── 关于我（全宽，打赏上方） ── */}
+      {/* ── Row 6：关于我（全宽，打赏上方） ── */}
       <div class="about-row">
         <div class="about-item about-item--single about-item--aboutme">
           <h2 class="about-card-block-title about-card-block-title--aboutme">
@@ -203,7 +304,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
         </div>
       </div>
 
-      {/* ── 致谢 reward 卡（全宽）+ 打赏 ── */}
+      {/* ── Row 7：致谢 reward 卡（全宽）+ 打赏 ── */}
       <div class="about-row">
         <div class="about-item about-item--single about-item--reward" id="about-reward">
           <div class="about-card-tips">感谢</div>
@@ -269,7 +370,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   let tipsTimer: number | undefined;
   let activeTipsMask: HTMLElement | null = null;
 
-  /* 关键词轮播动画（anheyu aboutsiteTips 遮罩） */
+  /* 关键词轮播动画（aboutsiteTips 遮罩） */
   function initTipsCarousel() {
     const mask = document.getElementById("about-tips-mask");
     if (mask === activeTipsMask && tipsTimer !== undefined) return;
@@ -338,7 +439,6 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       const response = await fetch(card.dataset.api ?? "");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      // 统计代理异常时会返回全 0（含累计 total_pv），此时展示 0 有误导性
       if (Number(data.total_pv) === 0) throw new Error("Statistics unavailable");
 
       keys.forEach((key) => {
@@ -355,7 +455,36 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     }
   }
 
-  // 模块脚本只绑定一次；每次触发时查询当前页面的弹层，避免换页后捕获旧 DOM。
+  /* 连续点击 5 下头像唤醒前端调试面板 */
+  function initAvatarDebugTrigger() {
+    const avatar = document.getElementById("about-avatar-trigger");
+    if (!avatar || avatar.dataset.devTriggerInit === "1") return;
+    avatar.dataset.devTriggerInit = "1";
+
+    let clicks = 0;
+    let resetTimer: number | undefined;
+
+    function triggerClick() {
+      clicks++;
+      if (resetTimer !== undefined) window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => { clicks = 0; }, 1800);
+
+      if (clicks >= 5) {
+        clicks = 0;
+        if (resetTimer !== undefined) window.clearTimeout(resetTimer);
+        window.dispatchEvent(new CustomEvent("dusklight:open-devtools"));
+      }
+    }
+
+    avatar.addEventListener("click", triggerClick);
+    avatar.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        triggerClick();
+      }
+    });
+  }
+
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     const modal = document.getElementById("donate-modal");
@@ -370,13 +499,15 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   document.addEventListener("astro:page-load", initDonateModal);
   document.addEventListener("DOMContentLoaded", initVisitStats);
   document.addEventListener("astro:page-load", initVisitStats);
+  document.addEventListener("DOMContentLoaded", initAvatarDebugTrigger);
+  document.addEventListener("astro:page-load", initAvatarDebugTrigger);
 </script>
 
 <style>
   /* ── 页面容器 ── */
   .about { padding-bottom: var(--space-16); }
 
-  /* ── author-box：头像 + 两侧漂浮标签（anheyu） ── */
+  /* ── author-box：头像 + 两侧漂浮标签 ── */
   .about-author-box {
     display: flex;
     align-items: center;
@@ -426,7 +557,6 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   }
 
   .about-author-img {
-    --corner-shape: var(--corner-shape-round);
     margin: 0 var(--space-5);
     border-radius: 50%;
     width: 150px;
@@ -434,10 +564,13 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     position: relative;
     background: var(--glass-bg);
     flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
     transition: transform var(--duration-normal) var(--ease-material);
   }
 
-  .about-author-img:hover { transform: scale(1.1); }
+  .about-author-img:hover { transform: scale(1.06); }
+  .about-author-img:active { transform: scale(0.95); }
 
   .about-author-img img {
     width: 100%;
@@ -465,7 +598,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     .about-author-tag-left, .about-author-tag-right { display: none; }
   }
 
-  /* ── 行容器（59/39 不等宽） ── */
+  /* ── 行容器（默认 59/39 不等宽，equal 为 50/50，data 为 39/59） ── */
   .about-row {
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
@@ -474,9 +607,17 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     margin-bottom: var(--space-4);
   }
 
+  .about-row--equal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .about-row--data {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+
   .about-item {
     min-width: 0;
-    border-radius: var(--radius-lg);
+    border-radius: 24px;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
@@ -486,20 +627,14 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     padding: var(--space-5) var(--space-6);
     overflow: hidden;
     min-height: 200px;
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
   }
 
-  .about-item--hello,
-  .about-item--skills,
-  .about-item--personality,
-  .about-item--game {
-    width: auto;
-  }
-
-  .about-item--tips,
-  .about-item--selfinfo,
-  .about-item--comic,
-  .about-item--cards {
-    width: auto;
+  .about-item:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
   .about-item--single { grid-column: 1 / -1; }
@@ -515,7 +650,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-item-title {
     font-size: 36px;
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.05;
     color: var(--foreground);
     display: block;
     margin-bottom: var(--space-3);
@@ -533,14 +668,15 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   }
 
   .about-hello-title {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
     line-height: 1.2;
     margin: var(--space-2) 0;
+    color: #fff;
   }
 
   .about-item--hello .about-card-tips {
-    color: oklch(1 0 0 / 0.84);
+    color: oklch(1 0 0 / 0.86);
     opacity: 1;
   }
 
@@ -567,13 +703,13 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     margin: 0;
     font-size: 30px;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.15;
     letter-spacing: -0.02em;
     color: var(--foreground);
   }
 
   .about-tips-mask {
-    height: 34px;
+    height: 36px;
     position: relative;
     overflow: hidden;
     margin-top: 4px;
@@ -582,7 +718,7 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-tips-word {
     display: block;
     position: absolute;
-    top: 34px;
+    top: 36px;
     background-size: 100% 100%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -607,41 +743,436 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
   .about-tips-word:nth-child(4) { background-image: linear-gradient(45deg, oklch(0.7 0.18 25) 50%, oklch(0.65 0.18 25)); }
   .about-tips-word:nth-child(5) { background-image: linear-gradient(45deg, oklch(0.7 0.15 170) 50%, oklch(0.6 0.15 170)); }
 
-  /* ── 技能墙 ── */
+  /* ── 动态滚动 Skills 卡（Mo 的记事簿同款） ── */
   .about-item--skills {
-    min-height: 180px;
+    min-height: 420px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
 
-  .about-skill-wall {
+  .skills-style-group {
+    position: relative;
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    align-items: center;
   }
 
-  .about-skill-icon {
+  .skills-marquee {
+    width: 100%;
+    overflow: hidden;
+    padding: var(--space-4) 0;
+    transition: opacity 0.35s var(--ease-material);
+  }
+
+  .skills-marquee__track {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    width: max-content;
+    animation: about-skills-rowup 50s linear infinite;
+  }
+
+  @keyframes about-skills-rowup {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .skills-marquee__pair {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .skills-marquee__pair:nth-child(even) {
+    transform: translateY(20px);
+  }
+
+  .skills-marquee__icon {
+    width: 104px;
+    height: 104px;
+    border-radius: 28px;
+    background: var(--skill-bg, #3b82f6);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-md);
-    background: oklch(1 0 0 / 0.35);
+    box-shadow: 0 8px 20px oklch(0 0 0 / 0.18);
+  }
+
+  .skills-marquee__icon :global(svg) {
+    width: 52px;
+    height: 52px;
+    filter: drop-shadow(0 2px 4px oklch(0 0 0 / 0.16));
+  }
+
+  /* 悬停展开完整技能胶囊列表 */
+  .skills-hover-list {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 10px;
+    padding-top: var(--space-2);
+    opacity: 0;
+    pointer-events: none;
+    overflow-y: auto;
+    transition: opacity 0.35s var(--ease-material);
+  }
+
+  .about-item--skills:hover .skills-marquee {
+    opacity: 0;
+  }
+
+  .about-item--skills:hover .skills-hover-list {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .skill-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px 5px 7px;
+    border-radius: var(--radius-full);
+    background: oklch(0.97 0.008 var(--hue) / 0.72);
     border: 1px solid var(--glass-border);
-    transition: transform var(--duration-fast) var(--ease-material),
-                border-color var(--duration-fast) var(--ease-material);
+    color: var(--foreground);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      transform var(--duration-fast) var(--ease-material),
+      border-color var(--duration-fast) var(--ease-material);
   }
 
-  :global(.dark) .about-skill-icon { background: oklch(1 0 0 / 0.06); }
+  :global(:root.dark) .skill-pill {
+    background: oklch(0.16 0.012 var(--hue) / 0.78);
+  }
 
-  .about-skill-icon:hover {
-    transform: translateY(-2px) scale(1.06);
+  .skill-pill:hover {
+    transform: translateY(-2px);
     border-color: var(--accent);
+    color: var(--accent);
   }
 
-  .about-skill-icon [data-icon] { width: 24px; height: 24px; }
+  .skill-pill__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--skill-bg, #3b82f6);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .skill-pill__icon :global(svg) {
+    width: 15px;
+    height: 15px;
+  }
+
+  .skill-pill--more {
+    padding: 6px 16px;
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border-color: oklch(from var(--accent) l c h / 0.3);
+  }
+
+  /* ── 生涯卡（.about-item--careers） ── */
+  .about-item--careers {
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .careers-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin: var(--space-3) 0;
+  }
+
+  .career-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .career-item__dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 4px oklch(1 0 0 / 0.08);
+  }
+
+  .career-item__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .career-item__name {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--foreground);
+  }
+
+  .career-item__desc {
+    font-size: var(--text-xs);
+    color: var(--foreground-secondary);
+    line-height: 1.5;
+  }
+
+  .careers-timeline-bar {
+    margin-top: auto;
+    padding-top: var(--space-4);
+  }
+
+  .careers-timeline-track {
+    height: 10px;
+    border-radius: var(--radius-full);
+    background: oklch(0.5 0.02 var(--hue) / 0.18);
+    overflow: hidden;
+  }
+
+  .careers-timeline-track span {
+    display: block;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, #43a6c6, #18e7ae, #b04fe6);
+  }
+
+  .careers-timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+    font-weight: 600;
+  }
+
+  /* ── 访问统计数据板 + 右侧上下砍半（地图 + 小标题上置个人信息） ── */
+  .about-item--statistics {
+    min-height: 380px;
+    color: #fff;
+    background-image:
+      linear-gradient(180deg, rgba(12, 28, 44, 0.32) 0%, rgba(12, 28, 44, 0.68) 100%),
+      url("/images/bg/xiowo-bg-dark.webp");
+    background-size: cover;
+    background-position: center top;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* 将底部暗角放入独立伪元素，防止 .about-item:hover 覆盖 box-shadow 时引起闪烁 */
+  .about-item--statistics::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 22%, rgba(12, 28, 44, 0.86) 100%);
+    box-shadow: inset 0 -130px 150px -20px #0c1c2c;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .about-statistics__content,
+  .about-statistics__footer {
+    position: relative;
+    z-index: 2;
+  }
+
+  .about-item--statistics .about-card-tips,
+  .about-item--statistics .about-item-title {
+    color: #fff;
+  }
+
+  .about-statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-5);
+    margin: var(--space-4) 0 0;
+  }
+
+  .about-statistics-grid div { min-width: 0; }
+  .about-statistics-grid dt {
+    font-size: 13px;
+    color: oklch(1 0 0 / 0.78);
+  }
+  .about-statistics-grid dd {
+    margin: 4px 0 0;
+    font-size: 32px;
+    line-height: 1.05;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+
+  .about-statistics-error {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-xs);
+    color: oklch(0.88 0.07 35);
+  }
+
+  .about-statistics__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+    position: relative;
+    z-index: 2;
+  }
+
+  .about-statistics__tips {
+    font-size: 12px;
+    color: oklch(1 0 0 / 0.72);
+  }
+
+  .about-statistics__tips a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .about-statistics__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    background: oklch(1 0 0 / 0.16);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(12px);
+    border: 1px solid oklch(1 0 0 / 0.24);
+    color: #fff;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background var(--duration-fast) var(--ease-material),
+      transform var(--duration-fast) var(--ease-material);
+  }
+
+  .about-statistics__btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .about-statistics__btn :global(svg) {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* 右侧上下砍半容器 (.about-map-and-info) */
+  .about-map-and-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 380px;
+    min-width: 0;
+  }
+
+  /* 上半部分 (60%)：嘉兴地图卡 */
+  .about-item--map {
+    flex: 6;
+    min-height: 215px;
+    padding: 0;
+    background-image: var(--map-bg);
+    background-position: 50% 50%;
+    background-size: 105%;
+    background-repeat: no-repeat;
+    transition:
+      background-position 1.2s ease-in-out,
+      background-size 1.2s ease-in-out,
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  :global(:root.dark) .about-item--map {
+    background-image: var(--map-bg-dark);
+  }
+
+  .about-map__title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px 28px;
+    background: oklch(0.98 0.006 var(--hue) / 0.72);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--glass-border);
+    font-size: 19px;
+    color: var(--foreground);
+    transition: bottom 0.8s ease-in-out;
+  }
+
+  :global(:root.dark) .about-map__title {
+    background: rgba(18, 18, 18, 0.72);
+  }
+
+  .about-map__title b {
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .about-item--map:hover {
+    background-position: 0% 36%;
+    background-size: 122%;
+    transition:
+      background-position 3.5s ease-in-out,
+      background-size 3.5s ease-in-out;
+  }
+
+  .about-item--map:hover .about-map__title {
+    bottom: -100%;
+  }
+
+  /* 下半部分 (40%)：小标题上置三列个人信息栏 */
+  .about-item--selfinfo {
+    flex: 4;
+    min-height: 145px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .about-selfinfo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .about-selfinfo-label {
+    font-size: 12px;
+    color: var(--foreground-muted);
+    opacity: 0.85;
+    font-weight: 500;
+  }
+
+  .about-selfinfo-value {
+    font-size: clamp(1.35rem, 1.8vw, 1.95rem);
+    line-height: 1.15;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
 
   /* ── 性格卡 ── */
   .about-item--personality {
@@ -839,93 +1370,6 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     line-height: 1.85;
   }
 
-  /* ── 访问统计 + selfInfo ── */
-  .about-row--data {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-  }
-
-  .about-item--statistics {
-    min-height: 280px;
-    color: #fff;
-    background-image: linear-gradient(oklch(0.12 0.02 230 / 0.72), oklch(0.12 0.02 230 / 0.88)),
-      url("/images/bg/xiowo-bg-dark.webp");
-    background-size: cover;
-    background-position: center;
-  }
-
-  .about-item--statistics .about-card-tips,
-  .about-item--statistics .about-item-title { color: #fff; }
-
-  .about-statistics-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-4) var(--space-5);
-    margin: var(--space-5) 0 0;
-  }
-
-  .about-statistics-grid div { min-width: 0; }
-  .about-statistics-grid dt {
-    font-size: var(--text-xs);
-    color: oklch(1 0 0 / 0.7);
-  }
-  .about-statistics-grid dd {
-    margin: var(--space-1) 0 0;
-    font-size: 24px;
-    line-height: 1;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #fff;
-  }
-
-  .about-statistics-error {
-    margin: var(--space-4) 0 0;
-    font-size: var(--text-sm);
-    color: oklch(0.88 0.07 35);
-  }
-
-  .about-item--selfinfo {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: center;
-    gap: var(--space-3);
-    min-height: 280px;
-  }
-
-  .about-selfinfo-item {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .about-selfinfo-icon {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    margin-bottom: var(--space-3);
-    border-radius: 50%;
-    color: var(--selfinfo-accent);
-    background: color-mix(in oklch, var(--selfinfo-accent) 14%, transparent);
-  }
-
-  .about-selfinfo-icon svg { width: 22px; height: 22px; }
-  .about-selfinfo-value {
-    max-width: 100%;
-    font-size: 26px;
-    line-height: 1.15;
-    font-weight: 700;
-    color: var(--selfinfo-accent);
-    overflow-wrap: anywhere;
-  }
-  .about-selfinfo-label {
-    margin-top: var(--space-2);
-    font-size: var(--text-xs);
-    color: var(--foreground-muted);
-  }
-
   /* ── 致谢 reward 卡 ── */
   .about-item--reward { padding-bottom: var(--space-6); }
 
@@ -1017,7 +1461,6 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   /* ── 评论区 ── */
   .about-comments {
-    max-width: var(--content-width);
     margin: var(--space-8) auto 0;
   }
 
@@ -1108,7 +1551,9 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
-    .about-row {
+    .about-row,
+    .about-row--equal,
+    .about-row--data {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--space-3);
       margin-bottom: var(--space-3);
@@ -1117,8 +1562,11 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       width: auto !important;
       margin-top: 0;
       min-height: 0;
+      border-radius: var(--radius-lg);
     }
     .about-item--single { grid-column: auto; }
+    .about-item--skills,
+    .about-item--careers { min-height: 320px; }
     .about-item--comic { min-height: 220px; }
     .about-hello-title { font-size: 24px; }
     .about-item-title { font-size: 26px; }
@@ -1131,12 +1579,14 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
       bottom: -72px;
     }
     .about-personality-link { left: var(--space-6); }
-    .about-item--statistics { min-height: 280px; }
+    .about-item--statistics { min-height: 320px; }
+    .about-map-and-info { min-height: 0; }
+    .about-item--map { min-height: 180px; }
     .about-item--selfinfo {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       min-height: 0;
-      padding-block: var(--space-6);
-      row-gap: var(--space-6);
+      padding-block: var(--space-5);
+      row-gap: var(--space-4);
     }
     .about-reward-list { grid-template-columns: 1fr; }
   }
@@ -1145,8 +1595,8 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
     .about-item { padding-inline: var(--space-4); }
     .about-personality-link { left: var(--space-4); }
     .about-statistics-grid { column-gap: var(--space-3); }
-    .about-statistics-grid dd { font-size: 21px; }
-    .about-selfinfo-value { font-size: 22px; }
+    .about-statistics-grid dd { font-size: 22px; }
+    .about-selfinfo-value { font-size: 20px; }
     .donate-modal { padding: var(--space-4); }
     .donate-modal__card { width: 100%; min-width: 0; }
     .donate-modal__qrs { gap: var(--space-3); }
@@ -1155,10 +1605,13 @@ const sortedSponsors = [...sponsors].sort((a, b) => {
 
   @media (prefers-reduced-motion: reduce) {
     .about-author-tag,
-    .about-item--hello { animation: none; }
+    .about-item--hello,
+    .skills-marquee__track { animation: none; }
     .about-personality-img,
     .about-comic-item,
-    .about-comic-cover img { transition: none; }
+    .about-comic-cover img,
+    .about-item--map,
+    .about-map__title { transition: none; }
     .about-item--personality:hover .about-personality-img { transform: none; }
   }
 </style>

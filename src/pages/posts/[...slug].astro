@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
+import type { SidebarStats } from "../../components/sidebar/Sidebar.astro";
 import { getPostSlug } from "@/utils/abbrlink";
 
 export async function getStaticPaths() {
@@ -8,23 +9,66 @@ export async function getStaticPaths() {
   // 唯独这里不过滤的话，草稿正文仍会产出 dist/posts/<slug>/index.html
   // 并被 sitemap 收录（sitemap() 无 filter，默认收录全部构建产物页面）
   const posts = (await getCollection("blog")).filter((p) => !p.data.draft);
+
+  // 构建期一并汇总全站字数与统计，供文章页侧栏 SiteStats 使用
+  let totalWords = 0;
+  const wordMap = new Map<string, { words: number; minutes: number }>();
+  await Promise.all(
+    posts.map(async (post) => {
+      const { remarkPluginFrontmatter } = await render(post);
+      const words = remarkPluginFrontmatter?.words ?? post.body?.length ?? 0;
+      const minutes = remarkPluginFrontmatter?.minutes ?? Math.max(1, Math.ceil((post.body?.length || 0) / 400));
+      totalWords += words;
+      wordMap.set(post.id, { words, minutes });
+    })
+  );
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const utcDay = (d: Date) =>
+    `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  const latest = posts.reduce((m, p) => (p.data.date > m ? p.data.date : m), new Date(0));
+
+  const stats: SidebarStats = {
+    postCount: posts.length,
+    categoryCount: new Set(posts.map((p) => p.data.category).filter(Boolean)).size,
+    tagCount: new Set(posts.flatMap((p) => p.data.tags)).size,
+    totalWords,
+    latestDay: utcDay(latest),
+  };
+
   return posts.map((post) => ({
     // 有 abbrlink 用 abbrlink，没有回退文件路径 —— 与线上老博客规则一致
     params: { slug: getPostSlug(post) },
-    props: post,
+    props: {
+      post,
+      stats,
+      precomputed: wordMap.get(post.id),
+    },
   }));
 }
 
-type Props = CollectionEntry<"blog">;
+interface Props {
+  post: CollectionEntry<"blog">;
+  stats: SidebarStats;
+  precomputed?: { words: number; minutes: number };
+}
 
-const post = Astro.props;
+const { post, stats, precomputed } = Astro.props;
 const { Content, headings, remarkPluginFrontmatter } = await render(post);
 
 // remark-content 插件注入的字数和阅读时间（公开 API，不要走 rendered.metadata 内部路径）
-const readingTime = remarkPluginFrontmatter.minutes ?? Math.max(1, Math.ceil((post.body?.length || 0) / 400));
-const wordCount = remarkPluginFrontmatter.words ?? post.body?.length ?? 0;
+const readingTime = precomputed?.minutes ?? remarkPluginFrontmatter.minutes ?? Math.max(1, Math.ceil((post.body?.length || 0) / 400));
+const wordCount = precomputed?.words ?? remarkPluginFrontmatter.words ?? post.body?.length ?? 0;
 ---
 
-<BlogPost {...post.data} headings={headings} readingTime={readingTime} wordCount={wordCount} slug={post.id} contentPath={post.filePath}>
+<BlogPost
+  {...post.data}
+  headings={headings}
+  readingTime={readingTime}
+  wordCount={wordCount}
+  slug={post.id}
+  contentPath={post.filePath}
+  stats={stats}
+>
   <Content />
 </BlogPost>

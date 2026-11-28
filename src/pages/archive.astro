@@ -9,7 +9,7 @@ const posts = (await getCollection("blog")).filter((post) => !post.data.draft).s
 const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))];
 ---
 <BaseLayout title="全部文章" description="所有文章归档">
-  <section class="section"><div class="content-container" data-archive>
+  <section class="section"><div class="content-container" data-archive><div class="page-surface">
     <header class="browse-header"><h1>全部文章</h1><p>共 {posts.length} 篇文章，按时间慢慢翻阅。</p></header>
     <BrowseNav current="archive" posts={posts.length} tags={groupTopics(posts, "tags").length} categories={groupTopics(posts, "categories").length} />
     <nav class="archive-years" aria-label="按年份浏览">
@@ -27,7 +27,7 @@ const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))]
       })}
       {!posts.length && <p class="browse-empty">还没有公开文章。</p>}
     </div>
-  </div></section>
+  </div></div></section>
 </BaseLayout>
 <script>
   // 交由 ClientRouter 导航保存历史及滚动状态，不自行 pushState。

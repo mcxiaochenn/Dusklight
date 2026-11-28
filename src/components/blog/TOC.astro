@@ -1,7 +1,7 @@
 ---
 /**
  * 目录组件
- * 玻璃面板，粘性定位，滚动高亮。
+ * 玻璃面板，粘性定位由父容器统一管理，支持滚动高亮与折叠。
  */
 import { Icon } from "astro-icon/components";
 
@@ -19,7 +19,10 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
 {toc.length > 0 && (
   <nav class="toc glass-panel" aria-label="文章目录">
     <div class="toc__header">
-      <h2 class="toc__title">{title}</h2>
+      <div class="toc__header-left">
+        <Icon name="fa7-solid:list-ul" class="toc__icon" />
+        <h2 class="toc__title">{title}</h2>
+      </div>
       <button class="toc__toggle" aria-label="折叠目录" aria-expanded="true">
         <Icon name="fa7-solid:caret-down" />
       </button>
@@ -36,11 +39,18 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
 
 <style>
   .toc {
-    position: sticky;
-    top: calc(var(--header-height) + var(--space-4));
-    max-height: calc(100vh - var(--header-height) - var(--space-8));
+    max-height: 46vh;
     overflow-y: auto;
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-lg);
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  .toc:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
   .toc__header {
@@ -50,10 +60,22 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
     margin-bottom: var(--space-3);
   }
 
+  .toc__header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .toc__icon {
+    width: 15px;
+    height: 15px;
+    color: var(--accent);
+  }
+
   .toc__title {
     margin: 0;
     font-size: var(--text-sm);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--foreground);
   }
 
@@ -113,6 +135,7 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
     background: var(--accent-subtle);
     border-left: 2px solid var(--accent);
     padding-left: calc(var(--space-2) - 2px);
+    font-weight: 600;
   }
 
   .toc__item--h3 { padding-left: var(--space-4); }
@@ -162,8 +185,14 @@ const toc = cleanHeadings.filter((h) => h.depth >= 2 && h.depth <= 4);
     links.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        const target = document.getElementById(link.getAttribute("href")?.slice(1) || "");
-        target?.scrollIntoView({ behavior: "smooth", block: "start" });
+        const id = link.getAttribute("href")?.slice(1) || "";
+        const target = document.getElementById(id);
+        if (!target) return;
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        target.classList.remove("anchor-spotlight");
+        void target.offsetWidth;
+        target.classList.add("anchor-spotlight");
+        window.setTimeout(() => target.classList.remove("anchor-spotlight"), 1400);
       });
     });
   }

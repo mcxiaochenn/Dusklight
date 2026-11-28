@@ -1,13 +1,95 @@
 ---
 /**
  * 全局脚本
- * 图片灯箱 + 全局 Shell 滚动状态
- * 代码块复制已迁移到 expressive-code 的 custom-copy-button 插件
+ * - 图片灯箱
+ * - 全局 Shell 滚动状态
+ * - 全站同页/跨页平滑跳转提示与锚点高光
+ * - 前端调试系统（由 About 页连续点击 5 下头像唤醒，跨页保留 FPS HUD 与调试覆盖层）
  */
 ---
 
 <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="图片预览" hidden>
   <img id="lightbox-img" class="lightbox__img" alt="" />
+</div>
+
+{/* ── 1280px 版心参考线（调试开关开启时显示） ── */}
+<div id="dev-grid-overlay" class="dev-grid-overlay" aria-hidden="true" hidden>
+  <div class="dev-grid-overlay__bounds">
+    <span class="dev-grid-overlay__badge">版心 1280px</span>
+  </div>
+</div>
+
+{/* ── 实时 FPS 帧率 HUD 浮窗 ── */}
+<div id="dev-fps-hud" class="dev-fps-hud" hidden title="点击打开前端调试面板">
+  <div class="dev-fps-hud__main">
+    <span class="dev-fps-hud__dot"></span>
+    <span class="dev-fps-hud__value" id="dev-fps-value">--</span>
+    <span class="dev-fps-hud__unit">FPS</span>
+    <span class="dev-fps-hud__ms" id="dev-fps-ms">-- ms</span>
+  </div>
+  <canvas id="dev-fps-canvas" class="dev-fps-hud__spark" width="96" height="22" aria-hidden="true"></canvas>
+</div>
+
+{/* ── 前端调试控制台弹窗 ── */}
+<div id="dev-modal" class="dev-modal" role="dialog" aria-modal="true" aria-labelledby="dev-modal-title" hidden>
+  <div class="dev-modal__backdrop" data-dev-close></div>
+  <div class="dev-modal__panel glass-panel">
+    <div class="dev-modal__head">
+      <div>
+        <span class="dev-modal__eyebrow">DUSKLIGHT DEVTOOLS</span>
+        <h2 id="dev-modal-title" class="dev-modal__title">前端调试面板</h2>
+      </div>
+      <button type="button" class="dev-modal__close" data-dev-close aria-label="关闭调试面板">✕</button>
+    </div>
+
+    <div class="dev-modal__body">
+      {/* 开关区 */}
+      <div class="dev-section">
+        <div class="dev-section__title">可视化开关</div>
+        <label class="dev-switch-row">
+          <div>
+            <strong>实时帧率显示 (FPS HUD)</strong>
+            <span>在屏幕角落显示实时 FPS、帧耗时与 60 帧折线图</span>
+          </div>
+          <input type="checkbox" id="dev-toggle-fps" />
+        </label>
+        <label class="dev-switch-row">
+          <div>
+            <strong>毛玻璃材质透视描边</strong>
+            <span>高亮全站 Glass Panel 与 Backdrop Filter 边界</span>
+          </div>
+          <input type="checkbox" id="dev-toggle-glass" />
+        </label>
+        <label class="dev-switch-row">
+          <div>
+            <strong>1280px 版心参考线</strong>
+            <span>显示全站容器对齐标尺与中轴线</span>
+          </div>
+          <input type="checkbox" id="dev-toggle-grid" />
+        </label>
+      </div>
+
+      {/* 遥测指标 */}
+      <div class="dev-section">
+        <div class="dev-section__title">当前页面性能遥测</div>
+        <dl class="dev-metrics" id="dev-metrics">
+          <div><dt>视口 / DPR</dt><dd data-metric="viewport">—</dd></div>
+          <div><dt>DOM 节点数</dt><dd data-metric="dom">—</dd></div>
+          <div><dt>JS 堆内存</dt><dd data-metric="memory">—</dd></div>
+          <div><dt>文档加载耗时</dt><dd data-metric="load">—</dd></div>
+          <div><dt>当前主题</dt><dd data-metric="theme">—</dd></div>
+          <div><dt>当前路由</dt><dd data-metric="route">—</dd></div>
+        </dl>
+      </div>
+
+      {/* 快捷操作 */}
+      <div class="dev-actions">
+        <button type="button" class="dev-btn" id="dev-refresh-metrics">刷新遥测</button>
+        <button type="button" class="dev-btn dev-btn--warn" id="dev-clear-cache">清理站点缓存</button>
+      </div>
+      <p class="dev-toast" id="dev-toast" role="status" hidden></p>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -39,6 +121,294 @@
   }
 
   .lightbox--open .lightbox__img { transform: scale(1); }
+
+  /* ── 调试模式：毛玻璃高亮与版心尺规 ── */
+  :global(html.dev-glass-debug .glass-panel),
+  :global(html.dev-glass-debug .page-surface),
+  :global(html.dev-glass-debug .post-card),
+  :global(html.dev-glass-debug .announcement),
+  :global(html.dev-glass-debug .site-stats),
+  :global(html.dev-glass-debug .profile-card),
+  :global(html.dev-glass-debug .boring-bay),
+  :global(html.dev-glass-debug .about-item) {
+    outline: 1.5px dashed oklch(0.75 0.18 160 / 0.85) !important;
+    outline-offset: -1.5px;
+  }
+
+  .dev-grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+  }
+
+  .dev-grid-overlay[hidden] { display: none; }
+
+  .dev-grid-overlay__bounds {
+    position: relative;
+    width: 100%;
+    max-width: var(--page-width);
+    height: 100%;
+    border-left: 1px dashed oklch(0.72 0.18 165 / 0.75);
+    border-right: 1px dashed oklch(0.72 0.18 165 / 0.75);
+  }
+
+  .dev-grid-overlay__bounds::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    border-left: 1px dotted oklch(0.72 0.18 165 / 0.4);
+  }
+
+  .dev-grid-overlay__badge {
+    position: absolute;
+    top: 76px;
+    left: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: oklch(0.2 0.04 165 / 0.85);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  /* ── 实时 FPS HUD ── */
+  .dev-fps-hud {
+    position: fixed;
+    top: 76px;
+    right: 16px;
+    z-index: 210;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: rgba(18, 22, 26, 0.84);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+    box-shadow: var(--shadow-lg);
+    color: #f4f7f6;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .dev-fps-hud[hidden] { display: none; }
+
+  .dev-fps-hud__main {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .dev-fps-hud__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    align-self: center;
+  }
+
+  .dev-fps-hud[data-perf="warn"] .dev-fps-hud__dot { background: #fbbf24; }
+  .dev-fps-hud[data-perf="low"] .dev-fps-hud__dot { background: #f87171; }
+
+  .dev-fps-hud__value {
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dev-fps-hud__unit {
+    font-size: 11px;
+    opacity: 0.72;
+  }
+
+  .dev-fps-hud__ms {
+    margin-left: auto;
+    font-size: 11px;
+    opacity: 0.8;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dev-fps-hud__spark {
+    display: block;
+    width: 110px;
+    height: 22px;
+  }
+
+  /* ── 调试弹窗 ── */
+  .dev-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+  }
+
+  .dev-modal[hidden] { display: none; }
+
+  .dev-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.58);
+    -webkit-backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+    backdrop-filter: saturate(var(--glass-saturation)) blur(var(--glass-blur-lg));
+  }
+
+  .dev-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: min(500px, 100%);
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+  }
+
+  .dev-modal__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+
+  .dev-modal__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .dev-modal__title {
+    margin: 2px 0 0;
+    font-size: 20px;
+    color: var(--foreground);
+  }
+
+  .dev-modal__close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border);
+    background: var(--surface-2);
+    color: var(--foreground);
+    cursor: pointer;
+  }
+
+  .dev-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .dev-section__title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--foreground-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .dev-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: oklch(0.5 0.01 var(--hue) / 0.08);
+    cursor: pointer;
+  }
+
+  .dev-switch-row strong {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--foreground);
+  }
+
+  .dev-switch-row span {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--foreground-muted);
+  }
+
+  .dev-switch-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .dev-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .dev-metrics div {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border);
+    background: oklch(0.5 0.01 var(--hue) / 0.06);
+  }
+
+  .dev-metrics dt {
+    font-size: 11px;
+    color: var(--foreground-muted);
+  }
+
+  .dev-metrics dd {
+    margin: 2px 0 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--foreground);
+    overflow-wrap: anywhere;
+  }
+
+  .dev-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .dev-btn {
+    flex: 1;
+    min-height: 38px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: var(--surface-2);
+    color: var(--foreground);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .dev-btn--warn {
+    background: oklch(0.6 0.18 25 / 0.16);
+    border-color: oklch(0.6 0.18 25 / 0.35);
+    color: var(--danger);
+  }
+
+  .dev-toast {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--accent);
+    text-align: center;
+  }
 </style>
 
 <script>
@@ -65,12 +435,30 @@
     });
   }
 
-  /* ── 全局 Shell 滚动状态 ──
-     Header、返回顶部和进度条共享单个被动监听器；所有读写合并到下一帧，
-     避免滚动期间多次同步布局。事件内始终查询当前页面节点，兼容 ClientRouter。 */
+  /* ── 页内锚点跳转平滑定位与呼吸高光 ── */
+  document.addEventListener("click", (e) => {
+    if (!(e.target instanceof Element)) return;
+    if (e.target.closest("#back-to-top")) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const anchor = e.target.closest<HTMLAnchorElement>('a[href^="#"]');
+    if (!anchor) return;
+    const id = anchor.getAttribute("href")?.slice(1);
+    if (!id) return;
+    const target = document.getElementById(decodeURIComponent(id));
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    target.classList.remove("anchor-spotlight");
+    void target.offsetWidth;
+    target.classList.add("anchor-spotlight");
+    window.setTimeout(() => target.classList.remove("anchor-spotlight"), 1400);
+  });
+
+  /* ── 全局 Shell 滚动状态（单个 passive + rAF 调度器） ── */
   let scrollFrame = 0;
   let lastScrollY = 0;
-  // 移动端悬浮按钮紧贴正文右缘：向下阅读时收起，向上滚动或接近底部时再出现。
   const mobileFabMedia = window.matchMedia("(max-width: 768px)");
   function updateShellScrollState() {
     scrollFrame = 0;
@@ -106,20 +494,201 @@
   }
 
   window.addEventListener("scroll", scheduleShellScrollState, { passive: true });
-  document.addEventListener("click", (e) => {
-    if (e.target instanceof Element && e.target.closest("#back-to-top")) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+  /* ── 前端调试面板与 FPS 监控 HUD（支持 ClientRouter 跨页持久） ── */
+  const DEV_STORAGE_KEY = "dusklight:devtools:v1";
+  interface DevState {
+    fpsHud: boolean;
+    glassHighlight: boolean;
+    gridRuler: boolean;
+  }
+
+  function readDevState(): DevState {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(DEV_STORAGE_KEY) || "{}");
+      return {
+        fpsHud: Boolean(parsed.fpsHud),
+        glassHighlight: Boolean(parsed.glassHighlight),
+        gridRuler: Boolean(parsed.gridRuler),
+      };
+    } catch {
+      return { fpsHud: false, glassHighlight: false, gridRuler: false };
     }
+  }
+
+  function saveDevState(state: DevState) {
+    try {
+      localStorage.setItem(DEV_STORAGE_KEY, JSON.stringify(state));
+    } catch {}
+  }
+
+  let fpsRaf = 0;
+  let fpsHistory: number[] = [];
+
+  function stopFpsLoop() {
+    if (fpsRaf) {
+      cancelAnimationFrame(fpsRaf);
+      fpsRaf = 0;
+    }
+  }
+
+  function startFpsLoop() {
+    stopFpsLoop();
+    const hud = document.getElementById("dev-fps-hud");
+    const valEl = document.getElementById("dev-fps-value");
+    const msEl = document.getElementById("dev-fps-ms");
+    const canvas = document.getElementById("dev-fps-canvas") as HTMLCanvasElement | null;
+    if (!hud || hud.hidden || !valEl || !msEl || !canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    let lastFrame = performance.now();
+    let frameCount = 0;
+    let accumStart = lastFrame;
+
+    function tick(now: number) {
+      const dt = now - lastFrame;
+      lastFrame = now;
+      frameCount++;
+
+      if (now - accumStart >= 300) {
+        const fps = Math.round((frameCount * 1000) / (now - accumStart));
+        const frameMs = dt > 0 ? dt.toFixed(1) : "—";
+        valEl!.textContent = String(fps);
+        msEl!.textContent = `${frameMs} ms`;
+        hud!.dataset.perf = fps >= 50 ? "ok" : fps >= 30 ? "warn" : "low";
+
+        fpsHistory.push(Math.min(fps, 144));
+        if (fpsHistory.length > 48) fpsHistory.shift();
+
+        if (ctx) {
+          const w = canvas!.width;
+          const h = canvas!.height;
+          ctx.clearRect(0, 0, w, h);
+          const maxFps = Math.max(60, ...fpsHistory);
+          const barW = w / 48;
+          fpsHistory.forEach((v, idx) => {
+            const bh = Math.max(2, (v / maxFps) * (h - 2));
+            ctx.fillStyle = v >= 50 ? "#34d399" : v >= 30 ? "#fbbf24" : "#f87171";
+            ctx.fillRect(idx * barW, h - bh, Math.max(1, barW - 0.8), bh);
+          });
+        }
+
+        frameCount = 0;
+        accumStart = now;
+      }
+
+      fpsRaf = requestAnimationFrame(tick);
+    }
+
+    fpsRaf = requestAnimationFrame(tick);
+  }
+
+  function applyDevState() {
+    const state = readDevState();
+    document.documentElement.classList.toggle("dev-glass-debug", state.glassHighlight);
+    const grid = document.getElementById("dev-grid-overlay");
+    if (grid) grid.hidden = !state.gridRuler;
+    const hud = document.getElementById("dev-fps-hud");
+    if (hud) {
+      hud.hidden = !state.fpsHud;
+      if (state.fpsHud) startFpsLoop();
+      else stopFpsLoop();
+    }
+
+    const fpsToggle = document.getElementById("dev-toggle-fps") as HTMLInputElement | null;
+    const glassToggle = document.getElementById("dev-toggle-glass") as HTMLInputElement | null;
+    const gridToggle = document.getElementById("dev-toggle-grid") as HTMLInputElement | null;
+    if (fpsToggle) fpsToggle.checked = state.fpsHud;
+    if (glassToggle) glassToggle.checked = state.glassHighlight;
+    if (gridToggle) gridToggle.checked = state.gridRuler;
+  }
+
+  function refreshDevMetrics() {
+    const root = document.getElementById("dev-metrics");
+    if (!root) return;
+    const set = (k: string, v: string) => {
+      const el = root.querySelector(`[data-metric="${k}"]`);
+      if (el) el.textContent = v;
+    };
+
+    set("viewport", `${window.innerWidth}×${window.innerHeight} @${window.devicePixelRatio.toFixed(1)}x`);
+    set("dom", String(document.querySelectorAll("*").length));
+    const mem = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
+    set("memory", mem ? `${(mem.usedJSHeapSize / 1048576).toFixed(1)} MB` : "不可用");
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    set("load", nav ? `${Math.round(nav.domContentLoadedEventEnd)} ms` : "—");
+    set("theme", document.documentElement.classList.contains("dark") ? "深色 (dark)" : "浅色 (light)");
+    set("route", window.location.pathname);
+  }
+
+  function openDevModal() {
+    const modal = document.getElementById("dev-modal");
+    if (!modal) return;
+    refreshDevMetrics();
+    modal.hidden = false;
+  }
+
+  function closeDevModal() {
+    const modal = document.getElementById("dev-modal");
+    if (modal) modal.hidden = true;
+  }
+
+  window.addEventListener("dusklight:open-devtools", openDevModal);
+
+  function initDevtools() {
+    applyDevState();
+    const modal = document.getElementById("dev-modal");
+    if (!modal || modal.dataset.devInit === "1") return;
+    modal.dataset.devInit = "1";
+
+    modal.querySelectorAll("[data-dev-close]").forEach((el) => {
+      el.addEventListener("click", closeDevModal);
+    });
+
+    document.getElementById("dev-fps-hud")?.addEventListener("click", openDevModal);
+
+    const bindSwitch = (id: string, key: keyof DevState) => {
+      const input = document.getElementById(id) as HTMLInputElement | null;
+      input?.addEventListener("change", () => {
+        const next = readDevState();
+        next[key] = input.checked;
+        saveDevState(next);
+        applyDevState();
+      });
+    };
+
+    bindSwitch("dev-toggle-fps", "fpsHud");
+    bindSwitch("dev-toggle-glass", "glassHighlight");
+    bindSwitch("dev-toggle-grid", "gridRuler");
+
+    document.getElementById("dev-refresh-metrics")?.addEventListener("click", refreshDevMetrics);
+    document.getElementById("dev-clear-cache")?.addEventListener("click", () => {
+      try {
+        sessionStorage.removeItem("dusklight:visitor-geo:v1");
+        sessionStorage.removeItem("dusklight:site-stats");
+        localStorage.removeItem("dusklight:flink-status:v1");
+      } catch {}
+      const toast = document.getElementById("dev-toast");
+      if (toast) {
+        toast.textContent = "已清理访客定位、站点统计与友链缓存。";
+        toast.hidden = false;
+        window.setTimeout(() => { toast.hidden = true; }, 2500);
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDevModal();
   });
 
   function initAll() {
     initLightbox();
+    initDevtools();
     scheduleShellScrollState();
   }
   document.addEventListener("DOMContentLoaded", initAll);
   document.addEventListener("astro:page-load", initAll);
 
-  // Vite HMR: re-init scripts when component modules update
   if (import.meta.hot) {
     import.meta.hot.on("vite:afterUpdate", () => initAll());
   }

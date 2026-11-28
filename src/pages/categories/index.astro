@@ -11,11 +11,11 @@ const tags = groupTopics(posts, "tags");
 const categories = groupTopics(posts, "categories");
 ---
 <BaseLayout title="分类" description="所有文章分类">
-  <section class="section"><div class="content-container">
+  <section class="section"><div class="content-container"><div class="page-surface">
     <header class="browse-header"><h1>文章分类</h1><p>共 {categories.length} 个分类，从感兴趣的话题开始。</p></header>
     <BrowseNav current="categories" posts={posts.length} tags={tags.length} categories={categories.length} />
     <TopicGrid kind="categories" topics={categories} />
     {!categories.length && <p class="browse-empty">还没有公开分类。</p>}
     <TwikooComments />
-  </div></section>
+  </div></div></section>
 </BaseLayout>

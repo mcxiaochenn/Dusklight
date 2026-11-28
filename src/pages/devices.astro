@@ -12,6 +12,7 @@ const groups = Object.entries(devicesData).filter(([, list]) => list && list.len
 <BaseLayout title="设备" description="我的设备清单">
   <section class="section">
     <div class="page-container">
+      <div class="page-surface">
       <header class="devices__header">
         <h1 class="devices__title">我的设备</h1>
         <p class="devices__subtitle">日常使用的硬件清单</p>
@@ -48,6 +49,7 @@ const groups = Object.entries(devicesData).filter(([, list]) => list && list.len
         </div>
       ))}
       <TwikooComments />
+      </div>
     </div>
   </section>
 </BaseLayout>

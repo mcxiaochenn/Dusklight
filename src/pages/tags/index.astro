@@ -11,10 +11,10 @@ const tags = groupTopics(posts, "tags");
 const categories = groupTopics(posts, "categories");
 ---
 <BaseLayout title="标签" description="所有文章标签">
-  <section class="section"><div class="content-container">
+  <section class="section"><div class="content-container"><div class="page-surface">
     <header class="browse-header"><h1>文章标签</h1><p>共 {tags.length} 个标签，从感兴趣的话题开始。</p></header>
     <BrowseNav current="tags" posts={posts.length} tags={tags.length} categories={categories.length} />
     <TopicGrid kind="tags" topics={tags} />
     {!tags.length && <p class="browse-empty">还没有公开标签。</p>}
-  </div></section>
+  </div></div></section>
 </BaseLayout>

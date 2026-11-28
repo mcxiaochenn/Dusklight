@@ -104,16 +104,15 @@ import { siteConfig } from "../config/site";
       <div class="cc__card">
         <h2 class="cc__card-title"><Icon name="fa7-solid:font" /> 嵌入字体</h2>
         <p class="cc__text">
-          本站界面与正文使用 <strong>MiSans</strong>，代码使用
-          <strong>Maple Mono Normal V7.9</strong>。Maple Mono 依 SIL Open Font License 1.1 提供；
-          数学公式使用 KaTeX 专用字体。
+          本站界面与中文正文使用中文网字计划提供的 <strong>寒蝉全圆体</strong>（基于 SIL OFL 1.1 开源），代码等非中文场景使用
+          <strong>Maple Mono CN</strong>（SIL OFL 1.1），数学公式使用 KaTeX 专用字体。
         </p>
         <div class="cc__links">
-          <a href="https://hyperos.mi.com/font/zh/faq/" target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="fa7-solid:book-open" /> MiSans 许可说明
+          <a href="https://chinese-font.netlify.app/zh-cn/" target="_blank" rel="noopener noreferrer" class="cc__link">
+            <Icon name="fa7-solid:book-open" /> 中文网字计划（寒蝉全圆体 / Maple Mono CN）
           </a>
-          <a href="https://github.com/subframe7536/maple-font/releases/tag/v7.9" target="_blank" rel="noopener noreferrer" class="cc__link">
-            <Icon name="fa7-brands:github" /> Maple Mono V7.9
+          <a href="https://github.com/subframe7536/maple-font" target="_blank" rel="noopener noreferrer" class="cc__link">
+            <Icon name="fa7-brands:github" /> Maple Mono 仓库
           </a>
         </div>
       </div>
@@ -158,7 +157,7 @@ import { siteConfig } from "../config/site";
   }
 
   .cc__card {
-    max-width: 720px;
+    max-width: 100%;
     margin: 0 auto var(--space-6);
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));

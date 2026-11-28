@@ -1,16 +1,18 @@
 ---
 /**
- * 文章布局
- * BaseLayout + .prose + TOC + ArticleMeta + Tag + 加密支持
+ * 文章布局 — LiuShen's Blog (清羽飞扬) 美学风格 + 1400px 全站等宽
+ * 顶部独立全宽毛玻璃英雄头卡（.post-hero：氛围光晕 + 分类角标 + 渐变大标题 + 标签 + 元信息胶囊）
+ * 下方双栏（左：顶部渐隐封面 + 正文 + 底栏 + 评论；右 300px：公告置顶 + 粘性[目录 TOC + 站点统计]）
  */
 import BaseLayout from "./BaseLayout.astro";
 import TOC from "../components/blog/TOC.astro";
-import ArticleMeta from "../components/blog/ArticleMeta.astro";
-import Tag from "../components/ui/Tag.astro";
+import FormattedDate from "../components/FormattedDate.astro";
 import TwikooComments from "../components/blog/TwikooComments.astro";
 import JsonLd from "../components/seo/JsonLd.astro";
 import Encryptor from "../components/blog/Encryptor.astro";
 import ArticleFooter from "../components/blog/ArticleFooter.astro";
+import Sidebar from "../components/sidebar/Sidebar.astro";
+import type { SidebarStats } from "../components/sidebar/Sidebar.astro";
 import { Icon } from "astro-icon/components";
 import { commentConfig } from "../config/comment";
 
@@ -41,75 +43,165 @@ interface Props {
   contentPath?: string;
   share?: boolean;
   license?: false | { name: string; url: string };
+  stats?: SidebarStats;
 }
 
-const { title, date, updated, description, tags, category, cover, author, toc: showToc = true, comment: showComment = true, readingTime, wordCount, headings = [], password, hint, slug, contentPath, share = true, license } = Astro.props;
+const {
+  title,
+  date,
+  updated,
+  description,
+  tags,
+  category,
+  cover,
+  author,
+  toc: showToc = true,
+  comment: showComment = true,
+  readingTime,
+  wordCount,
+  headings = [],
+  password,
+  hint,
+  slug,
+  contentPath,
+  share = true,
+  license,
+  stats,
+} = Astro.props;
+
 const displayUpdated = updated || date;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isEncrypted = !!password;
 const commentsEnabled = showComment && commentConfig.enabled;
+const hasToc = showToc && !isEncrypted && headings.some((h) => h.depth >= 2 && h.depth <= 4);
 ---
 
 <BaseLayout title={title} description={description} image={cover}>
-  <JsonLd type="article" title={title} description={description} url={canonicalURL.href} image={cover} datePublished={date.toISOString()} dateModified={displayUpdated.toISOString()} author={author} />
+  <JsonLd
+    type="article"
+    title={title}
+    description={description}
+    url={canonicalURL.href}
+    image={cover}
+    datePublished={date.toISOString()}
+    dateModified={displayUpdated.toISOString()}
+    author={author}
+  />
 
-  <div class="article-layout">
-    <article class="article glass-panel" data-pagefind-body={!isEncrypted ? true : undefined}>
-      {cover && (
-        <div class="article__cover">
-          <img src={cover} alt={title} loading="eager" decoding="async" />
-        </div>
-      )}
-
-      <header class="article__header">
-        {tags && tags.length > 0 && (
-          <div class="article__tags">
-            {tags.map((t) => <Tag>{t}</Tag>)}
-          </div>
+  <div class="article-page" data-pagefind-body={!isEncrypted ? true : undefined}>
+    {/* ── 顶部独立全宽英雄头卡（LiuShen 风格） ── */}
+    <header class="post-hero">
+      <div class="post-hero__glow" aria-hidden="true"></div>
+      <div class="post-hero__card glass-panel">
+        {category && (
+          <a href={`/categories/${encodeURIComponent(category.trim())}/`} class="post-hero__category">
+            <Icon name="fa7-solid:folder-open" />
+            <span>{category.trim()}</span>
+          </a>
         )}
-        <h1 class="article__title" data-pagefind-meta="title">{title}</h1>
+
+        <h1 class="post-hero__title" data-pagefind-meta="title">{title}</h1>
+
         {category && <span hidden data-pagefind-filter={`category:${category.trim()}`}>{category.trim()}</span>}
         {(tags ?? []).map((tag) => <span hidden data-pagefind-filter={`tag:${tag}`}>{tag}</span>)}
-        {/* 传 frontmatter 原值而非 displayUpdated —— 后者以 date 兜底，
-            会让每篇没写 updated 的文章都并排显示「更新于 <同一天>」。
-            兜底语义只对上方 JSON-LD 的 dateModified 有意义。 */}
-        <ArticleMeta date={date} updated={updated} category={category} readingTime={readingTime} wordCount={wordCount} />
-      </header>
 
-      {isEncrypted ? (
-        <Encryptor password={password} slug={slug || ""} hint={hint}>
-          <slot />
-        </Encryptor>
-      ) : (
-        <div class="article__content prose custom-md">
-          <slot />
+        {tags && tags.length > 0 && (
+          <div class="post-hero__tags">
+            {tags.map((t) => (
+              <a href={`/tags/${encodeURIComponent(t)}/`} class="post-hero__tag">
+                <span class="post-hero__tag-hash">#</span>
+                {t}
+              </a>
+            ))}
+          </div>
+        )}
+
+        <div class="post-hero__meta">
+          <div class="post-hero__meta-row">
+            <span class="post-hero__badge">
+              <Icon name="fa7-solid:calendar-days" class="post-hero__badge-icon" />
+              发布于 <time datetime={date.toISOString()}><FormattedDate date={date} /></time>
+            </span>
+            {updated && (
+              <span class="post-hero__badge">
+                <Icon name="fa7-solid:pencil" class="post-hero__badge-icon" />
+                更新于 <time datetime={updated.toISOString()}><FormattedDate date={updated} /></time>
+              </span>
+            )}
+            {wordCount && (
+              <span class="post-hero__badge">
+                <Icon name="fa7-solid:font" class="post-hero__badge-icon" />
+                {wordCount.toLocaleString("zh-CN")} 字
+              </span>
+            )}
+            {readingTime && (
+              <span class="post-hero__badge">
+                <Icon name="fa7-regular:clock" class="post-hero__badge-icon" />
+                {readingTime} 分钟
+              </span>
+            )}
+          </div>
         </div>
-      )}
 
-      <ArticleFooter
-        title={title}
-        description={description}
-        date={date}
-        updated={updated}
-        cover={cover}
-        author={author}
-        slug={slug || ""}
-        contentPath={contentPath}
-        share={share}
-        license={license}
-      />
+        {description && (
+          <div class="post-hero__summary">
+            <div class="post-hero__summary-head">
+              <div class="post-hero__summary-dots" aria-hidden="true">
+                <span class="dot dot--red"></span>
+                <span class="dot dot--yellow"></span>
+                <span class="dot dot--green"></span>
+              </div>
+              <span class="post-hero__summary-label">文章导读</span>
+            </div>
+            <p class="post-hero__summary-text">{description}</p>
+          </div>
+        )}
+      </div>
+    </header>
 
-      {commentsEnabled && <TwikooComments />}
-    </article>
+    {/* ── 下方双栏：左正文 + 右 300px 侧栏（与首页 .home-grid 等宽对齐） ── */}
+    <div class="article-layout">
+      <article class="article glass-panel">
+        {cover && (
+          <div class="article__cover">
+            <img src={cover} alt={title} loading="eager" decoding="async" />
+          </div>
+        )}
 
-    {/* 加密文章不渲染目录：headings 来自 render(post) 的明文结果，
-        Encryptor 只加密 slot 正文，目录会把全部小标题以静态 HTML
-        暴露给未解锁的访客（搜索引擎同样能索引到）。 */}
-    {showToc && !isEncrypted && headings.length > 0 && (
-      <aside class="article__sidebar">
-        <TOC headings={headings} />
-      </aside>
-    )}
+        <div class="article__body">
+          {isEncrypted ? (
+            <Encryptor password={password} slug={slug || ""} hint={hint}>
+              <slot />
+            </Encryptor>
+          ) : (
+            <div class="article__content prose custom-md">
+              <slot />
+            </div>
+          )}
+
+          <ArticleFooter
+            title={title}
+            description={description}
+            date={date}
+            updated={updated}
+            cover={cover}
+            author={author}
+            slug={slug || ""}
+            contentPath={contentPath}
+            share={share}
+            license={license}
+          />
+
+          {commentsEnabled && <TwikooComments />}
+        </div>
+      </article>
+
+      <div class="article__sidebar">
+        <Sidebar stats={stats ?? { postCount: 0, categoryCount: 0, tagCount: 0, totalWords: 0, latestDay: "2026-01-01" }}>
+          {hasToc && <TOC slot="after-announcement" headings={headings} />}
+        </Sidebar>
+      </div>
+    </div>
   </div>
 
   {/* 浮动操作按钮组 — TOC / 评论 / 回顶部 */}
@@ -118,7 +210,7 @@ const commentsEnabled = showComment && commentConfig.enabled;
       <Icon name="fa7-solid:comment-dots" />
     </button>
   )}
-  {showToc && !isEncrypted && headings.length > 0 && (
+  {hasToc && (
     <button class="fab fab--toc" id="fab-toc" aria-label="文章目录">
       <Icon name="fa7-solid:list" />
     </button>
@@ -144,69 +236,307 @@ const commentsEnabled = showComment && commentConfig.enabled;
 </BaseLayout>
 
 <style>
-  .article-layout {
-    display: grid;
-    grid-template-columns: minmax(0, var(--post-content-width)) 250px;
-    gap: var(--space-8);
-    max-width: calc(var(--post-content-width) + 250px + var(--space-8) + var(--space-8));
+  /* ── 全站统一 1400px 外框容器 ── */
+  .article-page {
+    max-width: var(--page-width);
     margin: 0 auto;
-    padding: var(--space-6) var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-12);
   }
 
-  .article {
-    --prose-width: var(--post-content-width);
-    width: 100%;
-    max-width: var(--post-content-width);
-    min-width: 0;
-    padding: var(--space-6);
-  }
-
-  .article__cover {
+  /* ── 顶部独立全宽英雄头卡（LiuShen 风格） ── */
+  .post-hero {
+    position: relative;
     margin-bottom: var(--space-6);
-    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+
+  .post-hero__glow {
+    position: absolute;
+    inset: -2px;
+    border-radius: calc(var(--radius-xl) + 4px);
+    background:
+      radial-gradient(circle at 18% 20%, oklch(from var(--accent) l c h / 0.16), transparent 55%),
+      radial-gradient(circle at 82% 80%, oklch(from var(--accent) l c h / 0.12), transparent 55%);
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .post-hero__card {
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius-xl);
+    padding: var(--space-10) var(--space-8) var(--space-6);
     overflow: hidden;
   }
 
-  .article__cover img { width: 100%; height: auto; display: block; border-radius: 0; }
+  .post-hero__category {
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-5);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid oklch(from var(--accent) l c h / 0.3);
+    background: oklch(from var(--accent) l c h / 0.12);
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background var(--duration-fast) var(--ease-material),
+      transform var(--duration-fast) var(--ease-material);
+  }
 
-  .article__header {
-    margin-bottom: var(--space-6);
-    padding-bottom: var(--space-6);
+  .post-hero__category:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .post-hero__category :global(svg) {
+    width: 13px;
+    height: 13px;
+  }
+
+  .post-hero__title {
+    max-width: 52rem;
+    margin: var(--space-2) auto 0;
+    font-size: clamp(1.75rem, 1.35rem + 1.8vw, 2.65rem);
+    font-weight: 800;
+    line-height: 1.22;
+    letter-spacing: -0.025em;
+    background: linear-gradient(
+      135deg,
+      var(--accent) 0%,
+      color-mix(in oklab, var(--accent) 55%, var(--foreground)) 28%,
+      var(--foreground) 55%,
+      var(--foreground) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-wrap: balance;
+  }
+
+  .post-hero__tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .post-hero__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 11px;
+    border-radius: var(--radius-full);
+    border: 1px solid oklch(from var(--accent) l c h / 0.24);
+    background: oklch(from var(--accent) l c h / 0.08);
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background var(--duration-fast) var(--ease-material),
+      border-color var(--duration-fast) var(--ease-material);
+  }
+
+  .post-hero__tag:hover {
+    background: oklch(from var(--accent) l c h / 0.18);
+    border-color: var(--accent);
+  }
+
+  .post-hero__tag-hash {
+    opacity: 0.7;
+  }
+
+  .post-hero__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .post-hero__meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  .post-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: oklch(0.96 0.008 var(--hue) / 0.45);
+    color: var(--foreground-secondary);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  :global(:root.dark) .post-hero__badge {
+    background: oklch(0.14 0.01 var(--hue) / 0.55);
+  }
+
+  .post-hero__badge-icon {
+    width: 13px;
+    height: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ── 仿 macOS 窗口式文章导读卡（LiuShen ai-summary 风格） ── */
+  .post-hero__summary {
+    max-width: 56rem;
+    margin: var(--space-6) auto 0;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid oklch(from var(--accent) l c h / 0.22);
+    background: linear-gradient(
+      145deg,
+      oklch(from var(--accent) l c h / 0.08),
+      oklch(0 0 0 / 0.08)
+    );
+    text-align: left;
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.1);
+  }
+
+  .post-hero__summary-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-2);
     border-bottom: 1px solid var(--border-subtle);
   }
 
-  .article__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-3); }
-
-  .article__title {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.025em;
-    color: var(--foreground);
+  .post-hero__summary-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  .article__sidebar { position: relative; }
+  .post-hero__summary-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .post-hero__summary-dots .dot--red { background: #fc625d; }
+  .post-hero__summary-dots .dot--yellow { background: #fdbc40; }
+  .post-hero__summary-dots .dot--green { background: #35cd4b; }
+
+  .post-hero__summary-label {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  .post-hero__summary-text {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.72;
+    color: var(--foreground-secondary);
+  }
+
+  /* ── 下方双栏：与首页 .home-grid 列宽 100% 一致；align-items: stretch 使侧栏同高拉伸以支撑目录粘性固定并在文末释放 ── */
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--space-8);
+    align-items: stretch;
+  }
+
+  .article {
+    --prose-width: 100%;
+    width: 100%;
+    min-width: 0;
+    align-self: start;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  /* 顶部封面图：LiuShen 风格底部渐隐遮罩融入正文 */
+  .article__cover {
+    position: relative;
+    width: 100%;
+    height: clamp(190px, 24vw, 280px);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(#000 0% 48%, transparent 100%);
+    mask-image: linear-gradient(#000 0% 48%, transparent 100%);
+    margin-bottom: calc(var(--space-4) * -1);
+  }
+
+  .article__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+  }
+
+  :global(:root.dark) .article__cover img {
+    filter: brightness(0.84);
+  }
+
+  .article__body {
+    padding: var(--space-8);
+  }
+
+  /* 右侧 300px 侧栏复用全站 Sidebar；撑满轨道高度以允许目录在公告后粘性定位 */
+  .article__sidebar {
+    position: relative;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .article__sidebar :global(.sidebar) {
+    height: 100%;
+  }
+
+  .article__sidebar :global(.toc) {
+    position: sticky;
+    top: calc(var(--header-height) + 20px);
+    z-index: 10;
+    max-height: calc(100vh - var(--header-height) - 44px);
+    background: color-mix(in oklab, var(--glass-dropdown-bg) 92%, var(--surface-1));
+    -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
+  }
 
   @media (max-width: 1024px) {
     .article-layout {
       grid-template-columns: minmax(0, 1fr);
-      max-width: calc(var(--post-content-width) + var(--space-8));
     }
-    .article__sidebar { display: none; }
+    .article__sidebar {
+      display: none;
+    }
   }
 
   @media (max-width: 768px) {
-    .article { padding: var(--space-4); }
-    .article__title { font-size: var(--text-xl); }
+    .post-hero__card {
+      padding: var(--space-10) var(--space-4) var(--space-5);
+      border-radius: var(--radius-lg);
+    }
+    .article {
+      border-radius: var(--radius-lg);
+    }
+    .article__body {
+      padding: var(--space-5) var(--space-4);
+    }
   }
 
-  /* ── 浮动操作按钮组（TOC / 跳评论 / 回顶部） ──
-     动画：入场时从右边缘逐个弹入（自下而上），出场反向。
-     Bottom 偏移（自底向上堆叠）：
-     - 回顶部 (BackToTop)：--space-10 + 20px
-     - 评论：+ 44px + --space-2
-     - TOC：+ 88px + --space-4 */
+  /* ── 浮动操作按钮组（TOC / 跳评论 / 回顶部） ── */
   .fab {
     position: fixed;
     right: var(--space-4);
@@ -245,14 +575,12 @@ const commentsEnabled = showComment && commentConfig.enabled;
     height: 18px;
   }
 
-  /* 可见态 —— 从边缘弹入 */
   .fab--visible {
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
   }
 
-  /* 退场态 —— 缩回边缘 */
   .fab--hiding {
     opacity: 0;
     transform: translateX(calc(100% + 20px));
@@ -261,7 +589,6 @@ const commentsEnabled = showComment && commentConfig.enabled;
       transform 0.18s var(--ease-accelerate);
   }
 
-  /* 出场交错延迟（自上而下消失） */
   .fab--hiding.fab--top { transition-delay: 0s; }
   .fab--hiding.fab--comments { transition-delay: 0.06s; }
   .fab--hiding.fab--toc { transition-delay: 0.12s; }
@@ -365,7 +692,6 @@ const commentsEnabled = showComment && commentConfig.enabled;
   .toc-overlay__panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-sm); }
 
   @media (max-width: 768px) {
-    /* 与 BackToTop 的移动端 right 对齐，三个按钮保持同一竖线 */
     .fab { right: var(--space-3); width: 40px; height: 40px; }
     .fab svg { width: 16px; height: 16px; }
     .fab--top { bottom: calc(var(--space-8) + 16px); }
@@ -375,17 +701,10 @@ const commentsEnabled = showComment && commentConfig.enabled;
 </style>
 
 <script>
-  /*
-   * 浮动操作按钮组管理
-   * ─────────────────────────────────────────────────────────
-   * 三个 FAB（自下而上）：BackToTop → 跳评论 → TOC
-   * 入场：从右边缘逐个弹入，自下而上（BackToTop 最先出现）
-   * 出场：缩回右边缘，自上而下（TOC 最先消失）
-   */
   let fabMO: MutationObserver | null = null;
   let fabTimer: ReturnType<typeof setTimeout> | null = null;
-  const FAB_ENTRANCE_STAGGER = 60; // 每层入场间隔 ms
-  const FAB_EXIT_STAGGER = 50;     // 每层出场间隔 ms
+  const FAB_ENTRANCE_STAGGER = 60;
+  const FAB_EXIT_STAGGER = 50;
 
   function initFabs() {
     const backToTop = document.getElementById("back-to-top");
@@ -397,9 +716,7 @@ const commentsEnabled = showComment && commentConfig.enabled;
     if (!backToTop || (backToTop as HTMLElement).dataset.fabInit) return;
     (backToTop as HTMLElement).dataset.fabInit = "1";
 
-    // 按距离底部的顺序排列（最近的先出现）
     const fabs = [backToTop, fabComments, fabToc].filter(Boolean) as HTMLElement[];
-
     let visible = false;
 
     function showFabs() {
@@ -418,20 +735,16 @@ const commentsEnabled = showComment && commentConfig.enabled;
       if (!visible) return;
       visible = false;
       if (fabTimer) clearTimeout(fabTimer);
-      // 关闭 TOC 面板（如果打开着）
       if (tocOverlay) tocOverlay.classList.remove("toc-overlay--open");
-      // 自上而下消失（index 反转）
       fabs.forEach((fab, i) => {
         setTimeout(() => {
           fab.classList.remove("fab--visible");
           fab.classList.add("fab--hiding");
-          // 动画完成后清除 hiding 类，避免下次入场冲突
           setTimeout(() => fab.classList.remove("fab--hiding"), 200);
         }, (fabs.length - 1 - i) * FAB_EXIT_STAGGER);
       });
     }
 
-    // 监听 BackToTop 的可见性变化（由 GlobalScripts 控制）
     fabMO?.disconnect();
     fabMO = new MutationObserver(() => {
       if (backToTop.classList.contains("fab--visible")) {
@@ -442,12 +755,10 @@ const commentsEnabled = showComment && commentConfig.enabled;
     });
     fabMO.observe(backToTop, { attributes: true, attributeFilter: ["class"] });
 
-    // 初始同步
     if (backToTop.classList.contains("fab--visible")) {
       showFabs();
     }
 
-    // TOC 面板 开/关
     if (fabToc && tocOverlay) {
       fabToc.addEventListener("click", () => {
         tocOverlay.classList.toggle("toc-overlay--open");
@@ -457,14 +768,12 @@ const commentsEnabled = showComment && commentConfig.enabled;
         tocOverlay.classList.remove("toc-overlay--open");
       });
 
-      // 点击遮罩层关闭
       tocOverlay.addEventListener("click", (e) => {
         if (e.target === tocOverlay) {
           tocOverlay.classList.remove("toc-overlay--open");
         }
       });
 
-      // 点击 TOC 链接 → 关闭面板 + 平滑滚动
       tocOverlay.querySelectorAll(".toc-overlay__link").forEach((link) => {
         link.addEventListener("click", (e) => {
           e.preventDefault();
@@ -474,7 +783,6 @@ const commentsEnabled = showComment && commentConfig.enabled;
           target?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       });
-
     }
 
     fabComments?.addEventListener("click", () => {
@@ -482,7 +790,6 @@ const commentsEnabled = showComment && commentConfig.enabled;
     });
   }
 
-  // 模块脚本只会执行一次；每次按键都查询当前页面的面板，避免换页后保留旧 DOM 闭包。
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       document.getElementById("toc-overlay")?.classList.remove("toc-overlay--open");

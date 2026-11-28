@@ -18,10 +18,10 @@ export const getStaticPaths = (async () => {
 const { topic, items } = Astro.props;
 ---
 <BaseLayout title={`分类: ${topic.name}`} description={`分类 ${topic.name} 下的 ${topic.count} 篇文章`}>
-  <section class="section"><div class="content-container">
+  <section class="section"><div class="content-container"><div class="page-surface">
     <a class="browse-back" href="/categories/">‹ 返回全部分类</a>
     <header class="browse-header"><h1>{topic.name}</h1><p>分类 / 共 {topic.count} 篇文章</p></header>
     <div class="browse-topics"><TaxonomyBar kind="categories" items={items} current={topic.name} /></div>
     <BrowsePostList posts={topic.posts} />
-  </div></section>
+  </div></div></section>
 </BaseLayout>

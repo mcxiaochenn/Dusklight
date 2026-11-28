@@ -79,16 +79,23 @@ export const profileConfig = {
     words: ["折腾", "热爱", "坚持", "分享", "前行"],
   },
 
-  // ─── 自我信息行（anheyu selfInfo） ───
+  // ─── 地图与自我信息行（Mo 的记事簿 mapAndInfo 上下分栏） ───
+  mapInfo: {
+    prefix: "我现在住在",
+    location: "中国，浙江省嘉兴市",
+    lightBg: "/images/about/map-jiaxing-light.svg",
+    darkBg: "/images/about/map-jiaxing-dark.svg",
+  },
+
   selfInfo: [
-    { label: "出生年份", value: "2009", icon: "fa7-solid:cake-candles", accent: "oklch(0.68 0.15 220)" },
-    { label: "现居", value: "浙江·嘉兴", icon: "fa7-solid:location-dot", accent: "oklch(0.68 0.15 75)" },
-    { label: "身份", value: "高中生", icon: "fa7-solid:id-card", accent: "oklch(0.62 0.2 300)" },
+    { label: "生于", value: "2009", accent: "#43a6c6" },
+    { label: "现在身份", value: "高中生", accent: "#c69043" },
+    { label: "兴趣/方向", value: "数码搞机 & 个人开发", accent: "#b04fe6" },
   ],
 
-  // ─── 技能卡标题（anheyu skills 区） ───
-  skillsTitle: "我的技能",
-  skillsTips: "技多不压身",
+  // ─── 技能卡标题（Mo 的记事簿 skills 区） ───
+  skillsTitle: "开启创造力",
+  skillsTips: "技能",
 
   // ─── 详细介绍（About 页全宽正文卡） ───
   aboutMe: {

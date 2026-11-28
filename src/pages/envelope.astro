@@ -14,12 +14,14 @@ const { Content } = entry ? await render(entry) : { Content: null };
 <BaseLayout title="留言板" description="有什么想说的，都可以在这里留言">
   <section class="section">
     <div class="content-container">
-      {Content && (
-        <div class="prose envelope__intro">
-          <Content />
-        </div>
-      )}
-      <TwikooComments />
+      <div class="page-surface">
+        {Content && (
+          <div class="prose envelope__intro">
+            <Content />
+          </div>
+        )}
+        <TwikooComments />
+      </div>
     </div>
   </section>
 </BaseLayout>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8f0ec"/>
+      <stop offset="50%" stop-color="#f1f6f3"/>
+      <stop offset="100%" stop-color="#e3ece8"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a8d8ea" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#7ec4df" stop-opacity="0.82"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cfded7" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+
+  <rect width="800" height="320" fill="url(#bg)"/>
+  <rect width="800" height="320" fill="url(#grid)"/>
+
+  <!-- 绿地公园 -->
+  <path d="M90,45 Q170,25 220,75 T195,155 Q125,165 85,120 Z" fill="#cce6d4" opacity="0.65"/>
+  <path d="M560,180 Q650,155 710,210 T675,290 Q585,300 545,245 Z" fill="#cce6d4" opacity="0.65"/>
+  <path d="M350,25 Q430,15 470,65 T420,120 Q360,115 350,25 Z" fill="#d5ebd9" opacity="0.6"/>
+
+  <!-- 京杭大运河 / 南湖水系 -->
+  <path d="M-20,210 C120,195 220,130 355,140 C475,148 560,95 820,70" fill="none" stroke="url(#water)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M240,-10 C275,85 330,145 390,205 C445,260 510,295 570,335" fill="none" stroke="url(#water)" stroke-width="11" stroke-linecap="round"/>
+  <!-- 南湖核心水域 -->
+  <path d="M405,120 C445,110 485,132 488,165 C490,198 452,222 412,216 C375,210 362,182 368,152 C374,128 388,124 405,120 Z" fill="url(#water)"/>
+  <!-- 湖心岛 -->
+  <circle cx="428" cy="168" r="10" fill="#d8ecd8" stroke="#ffffff" stroke-width="1.5"/>
+
+  <!-- 城市主干路网 -->
+  <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.92">
+    <path d="M-10,95 Q210,105 415,112 T810,130"/>
+    <path d="M-10,255 Q260,230 485,220 T810,215"/>
+    <path d="M165,-10 Q180,150 195,330"/>
+    <path d="M425,-10 Q418,160 412,330"/>
+    <path d="M645,-10 Q630,160 620,330"/>
+  </g>
+
+  <!-- 高速/环线 -->
+  <g fill="none" stroke="#f6c177" stroke-width="4" stroke-linecap="round" opacity="0.88">
+    <path d="M45,-10 C155,95 280,165 428,168 C575,171 690,225 815,285"/>
+    <circle cx="420" cy="165" r="96" stroke-dasharray="10 6" stroke-width="3"/>
+  </g>
+
+  <!-- 地标文字 -->
+  <g font-family="MiSans, PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" fill="#526a61" font-size="12" opacity="0.85">
+    <text x="198" y="84">秀洲区</text>
+    <text x="498" y="152">南湖景区</text>
+    <text x="450" y="92">南湖区</text>
+    <text x="595" y="255">平湖 / 嘉兴南</text>
+    <text x="108" y="232">桐乡方向</text>
+  </g>
+
+  <!-- 定位脉冲标记（浙江·嘉兴） -->
+  <g transform="translate(428, 168)">
+    <circle r="34" fill="#10b981" opacity="0.16"/>
+    <circle r="20" fill="#10b981" opacity="0.28"/>
+    <circle r="9" fill="#10b981" stroke="#ffffff" stroke-width="3"/>
+  </g>
+</svg>
