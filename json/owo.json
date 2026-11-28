@@ -1,0 +1,849 @@
+{
+  "颜文字": {
+    "type": "emoticon",
+    "container": [
+      { "icon": "OωO", "text": "Author: DIYgod" },
+      { "icon": "|´・ω・)ノ", "text": "Hi" },
+      { "icon": "ヾ(≧∇≦*)ゝ", "text": "开心" },
+      { "icon": "(☆ω☆)", "text": "星星眼" },
+      { "icon": "（╯‵□′）╯︵┴─┴", "text": "掀桌" },
+      { "icon": "￣﹃￣", "text": "流口水" },
+      { "icon": "(/ω＼)", "text": "捂脸" },
+      { "icon": "∠( ᐛ 」∠)＿", "text": "给跪" },
+      { "icon": "(๑•̀ㅁ•́ฅ)", "text": "Hi" },
+      { "icon": "→_→", "text": "斜眼" },
+      { "icon": "୧(๑•̀⌄•́๑)૭", "text": "加油" },
+      { "icon": "٩(ˊᗜˋ*)و", "text": "有木有WiFi" },
+      { "icon": "(ノ°ο°)ノ", "text": "前方高能预警" },
+      { "icon": "(´இ皿இ｀)", "text": "我从未见过如此厚颜无耻之人" },
+      { "icon": "⌇●﹏●⌇", "text": "吓死宝宝惹" },
+      { "icon": "(ฅ´ω`ฅ)", "text": "已阅留爪" },
+      { "icon": "(╯°A°)╯︵○○○", "text": "去吧大师球" },
+      { "icon": "φ(￣∇￣o)", "text": "太萌惹" },
+      { "icon": "ヾ(´･ ･｀｡)ノ\"", "text": "咦咦咦" },
+      { "icon": "( ง ᵒ̌皿ᵒ̌)ง⁼³₌₃", "text": "气呼呼" },
+      { "icon": "(ó﹏ò｡)", "text": "我受到了惊吓" },
+      { "icon": "Σ(っ °Д °;)っ", "text": "什么鬼" },
+      { "icon": "( ,,´･ω･)ﾉ\"(´っω･｀｡)", "text": "摸摸头" },
+      { "icon": "╮(╯▽╰)╭ ", "text": "无奈" },
+      { "icon": "o(*////▽////*)q ", "text": "脸红" },
+      { "icon": "＞﹏＜", "text": "" },
+      { "icon": "( ๑´•ω•) \"(ㆆᴗㆆ)", "text": "" }
+    ]
+  },
+  "Emoji": {
+    "type": "emoji",
+    "container": [
+      { "icon": "😂", "text": "" },
+      { "icon": "😀", "text": "" },
+      { "icon": "😅", "text": "" },
+      { "icon": "😊", "text": "" },
+      { "icon": "🙂", "text": "" },
+      { "icon": "🙃", "text": "" },
+      { "icon": "😌", "text": "" },
+      { "icon": "😍", "text": "" },
+      { "icon": "😘 ", "text": "" },
+      { "icon": "😜", "text": "" },
+      { "icon": "😝", "text": "" },
+      { "icon": "😏", "text": "" },
+      { "icon": "😒", "text": "" },
+      { "icon": "🙄", "text": "" },
+      { "icon": "😳 ", "text": "" },
+      { "icon": "😡", "text": "" },
+      { "icon": "😔", "text": "" },
+      { "icon": "😫", "text": "" },
+      { "icon": "😱", "text": "" },
+      { "icon": "😭", "text": "" },
+      { "icon": "💩", "text": "" },
+      { "icon": "👻", "text": "" },
+      { "icon": "🙌", "text": "" },
+      { "icon": "🖕", "text": "" },
+      { "icon": "👍", "text": "" },
+      { "icon": "👫", "text": "" },
+      { "icon": "👬", "text": "" },
+      { "icon": "👭", "text": "" },
+      { "icon": "🌚", "text": "" },
+      { "icon": "🌝", "text": "" },
+      { "icon": "🙈", "text": "" },
+      { "icon": "💊", "text": "" },
+      { "icon": "😶", "text": "" },
+      { "icon": "🙏", "text": "" },
+      { "icon": "🍦", "text": "" },
+      { "icon": "🍉", "text": "" },
+      { "icon": "😣", "text": "" }
+    ]
+  },
+  "Bilibili": {
+    "type": "image",
+    "container": [
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/6ea59c827c414b4a2955fe79e0f6fd3dcd515e24.png\">", "text": "tv_doge" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/a8111ad55953ef5e3be3327ef94eb4a39d535d06.png\">", "text": "tv_亲亲" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/bb690d4107620f1c15cff29509db529a73aee261.png\">", "text": "tv_偷笑" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/180129b8ea851044ce71caf55cc8ce44bd4a4fc8.png\">", "text": "tv_再见" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/b9cbc755c2b3ee43be07ca13de84e5b699a3f101.png\">", "text": "tv_冷漠" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/34ba3cd204d5b05fec70ce08fa9fa0dd612409ff.png\">", "text": "tv_发怒" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/34db290afd2963723c6eb3c4560667db7253a21a.png\">", "text": "tv_发财" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/9e55fd9b500ac4b96613539f1ce2f9499e314ed9.png\">", "text": "tv_可爱" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/09dd16a7aa59b77baa1155d47484409624470c77.png\">", "text": "tv_吐血" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/fe1179ebaa191569b0d31cecafe7a2cd1c951c9d.png\">", "text": "tv_呆" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/9f996894a39e282ccf5e66856af49483f81870f3.png\">", "text": "tv_呕吐" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/241ee304e44c0af029adceb294399391e4737ef2.png\">", "text": "tv_困" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/1f0b87f731a671079842116e0991c91c2c88645a.png\">", "text": "tv_坏笑" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/093c1e2c490161aca397afc45573c877cdead616.png\">", "text": "tv_大佬" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/23269aeb35f99daee28dda129676f6e9ea87934f.png\">", "text": "tv_大哭" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/d04dba7b5465779e9755d2ab6f0a897b9b33bb77.png\">", "text": "tv_委屈" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/a37683fb5642fa3ddfc7f4e5525fd13e42a2bdb1.png\">", "text": "tv_害羞" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/7cfa62dafc59798a3d3fb262d421eeeff166cfa4.png\">", "text": "tv_尴尬" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/70dc5c7b56f93eb61bddba11e28fb1d18fddcd4c.png\">", "text": "tv_微笑" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/90cf159733e558137ed20aa04d09964436f618a1.png\">", "text": "tv_思考" },
+      { "icon": "<img src=\"https://owo.imaegoo.com/bilibili/0d15c7e2ee58e935adc6a7193ee042388adc22af.png\">", "text": "tv_惊吓" }
+    ]
+  },
+    "Heo": {
+        "type": "image",
+        "container": [
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd6a7fdf.webp'>",
+                "text": "3d眼镜"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd6b525d.webp'>",
+                "text": "beluga"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd6a7975.webp'>",
+                "text": "EDG"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd78fd6b.webp'>",
+                "text": "熬夜"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd79a962.webp'>",
+                "text": "LPL"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd7a1c60.webp'>",
+                "text": "拜托"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd84d1dc.webp'>",
+                "text": "爆炸"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd8657d9.webp'>",
+                "text": "被打"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd874a46.webp'>",
+                "text": "波吉"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd92e9ae.webp'>",
+                "text": "不服吗"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd93abe8.webp'>",
+                "text": "不好意思"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd94c5e8.webp'>",
+                "text": "擦汗"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd9cd2a4.webp'>",
+                "text": "财神红包"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cd9edd8a.webp'>",
+                "text": "菜狗"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cda06d73.webp'>",
+                "text": "菜狗花"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cda7626c.webp'>",
+                "text": "唱歌"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cda93898.webp'>",
+                "text": "超爱"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cda9de76.webp'>",
+                "text": "吵架"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdb24202.webp'>",
+                "text": "吃瓜"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdb43b0f.webp'>",
+                "text": "吃手"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdb43e76.webp'>",
+                "text": "出家人"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdbca413.webp'>",
+                "text": "呲牙笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdbe500a.webp'>",
+                "text": "打咩"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdbe6a85.webp'>",
+                "text": "错误"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdc93f6a.webp'>",
+                "text": "打牌"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdcb78e3.webp'>",
+                "text": "电话"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdcc7c99.webp'>",
+                "text": "大笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdd5ab0f.webp'>",
+                "text": "斗鸡眼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdd7a1a3.webp'>",
+                "text": "读书"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdd7af3a.webp'>",
+                "text": "恶魔"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cddeda65.webp'>",
+                "text": "恶魔恐惧"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cde2a26d.webp'>",
+                "text": "恶心"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cde2f0f8.webp'>",
+                "text": "发红包"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cde8c725.webp'>",
+                "text": "翻白眼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdebf61e.webp'>",
+                "text": "放鞭炮"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdebf1a4.webp'>",
+                "text": "烦恼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdf2f3a0.webp'>",
+                "text": "奋斗"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdf557c0.webp'>",
+                "text": "愤怒"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdf6ed26.webp'>",
+                "text": "扶额"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cdfc4d1d.webp'>",
+                "text": "尬笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce01d34f.webp'>",
+                "text": "尴尬"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce03a4c6.webp'>",
+                "text": "感动"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce07dbc0.webp'>",
+                "text": "狗头"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce0d48a6.webp'>",
+                "text": "狗头草"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce0e69a4.webp'>",
+                "text": "狗头花"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce12e879.webp'>",
+                "text": "狗头胖次"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce189c24.webp'>",
+                "text": "狗头围脖"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce180cb5.webp'>",
+                "text": "狗头失望"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce1bf227.webp'>",
+                "text": "狗头意外"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce22efde.webp'>",
+                "text": "鬼脸"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce22dc9c.webp'>",
+                "text": "鼓掌"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce261698.webp'>",
+                "text": "哈士奇"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce2cc5ad.webp'>",
+                "text": "哈士奇失望"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce2cb019.webp'>",
+                "text": "哈士奇失去意识"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce3061e0.webp'>",
+                "text": "害羞"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce37a402.webp'>",
+                "text": "好的"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce39335f.webp'>",
+                "text": "好奇"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce39ee87.webp'>",
+                "text": "黑线"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce453ddf.webp'>",
+                "text": "嘿哈"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce46ce56.webp'>",
+                "text": "胡子"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce47d8c4.webp'>",
+                "text": "虎年进宝"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce5010e4.webp'>",
+                "text": "滑稽"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce5318a3.webp'>",
+                "text": "滑稽被子"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce53a39d.webp'>",
+                "text": "滑稽吃瓜"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce596fbd.webp'>",
+                "text": "滑稽喝水"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce5c6447.webp'>",
+                "text": "滑稽狂汗"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce5d8993.webp'>",
+                "text": "滑稽奶茶"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce64525a.webp'>",
+                "text": "滑稽柠檬"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce676986.webp'>",
+                "text": "击剑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce67fda9.webp'>",
+                "text": "饥渴"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce6d8521.webp'>",
+                "text": "加班"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce71b9ce.webp'>",
+                "text": "禁言"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce72e85a.webp'>",
+                "text": "惊吓"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce79e00d.webp'>",
+                "text": "惊吓白眼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce7cc7f4.webp'>",
+                "text": "惊讶"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce7ed16c.webp'>",
+                "text": "警告"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce842a62.webp'>",
+                "text": "敬礼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce89507e.webp'>",
+                "text": "纠结"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce8ab63b.webp'>",
+                "text": "开心"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce8d1394.webp'>",
+                "text": "看穿一切"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce94806f.webp'>",
+                "text": "抠鼻"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce95af48.webp'>",
+                "text": "哭泣"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce97a962.webp'>",
+                "text": "狂热"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ce9e6dc9.webp'>",
+                "text": "老虎意外"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cea10e2c.webp'>",
+                "text": "泪奔"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cea233f4.webp'>",
+                "text": "裂开"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cea90bd0.webp'>",
+                "text": "流鼻涕"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceabd049.webp'>",
+                "text": "流汗微笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceacb2f2.webp'>",
+                "text": "绿帽"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceb503d6.webp'>",
+                "text": "没招"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceb71ec9.webp'>",
+                "text": "蒙面滑稽"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceb743bc.webp'>",
+                "text": "勉强笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cec08871.webp'>",
+                "text": "面具"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cec2045d.webp'>",
+                "text": "难以置信"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cec2c23b.webp'>",
+                "text": "牛年进宝"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cec9967b.webp'>",
+                "text": "惬意"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cecc6945.webp'>",
+                "text": "亲亲"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cecd453e.webp'>",
+                "text": "缺牙笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ced4776c.webp'>",
+                "text": "伞兵"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ced88d20.webp'>",
+                "text": "深思"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ced778d5.webp'>",
+                "text": "傻笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cede72b8.webp'>",
+                "text": "生病"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cee348dd.webp'>",
+                "text": "失去信号"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cee4f99a.webp'>",
+                "text": "失望"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cee97354.webp'>",
+                "text": "手机相机"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceecb533.webp'>",
+                "text": "耍酷"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5ceeee4f6.webp'>",
+                "text": "睡觉"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cef39af7.webp'>",
+                "text": "思考"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cef7cde8.webp'>",
+                "text": "送福"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cefc3e4a.webp'>",
+                "text": "送花"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cefcd685.webp'>",
+                "text": "抬眼镜"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf027ecc.webp'>",
+                "text": "疼痛"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf061701.webp'>",
+                "text": "痛哭"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf0a47f7.webp'>",
+                "text": "偷偷看"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf0d074f.webp'>",
+                "text": "头秃"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf0ed956.webp'>",
+                "text": "吐血"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf1707a7.webp'>",
+                "text": "托腮"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf189ab2.webp'>",
+                "text": "危险"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf1a315a.webp'>",
+                "text": "微笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf21dfbb.webp'>",
+                "text": "我看好你"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf233ad0.webp'>",
+                "text": "捂脸"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf24aa89.webp'>",
+                "text": "捂嘴笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf2bc190.webp'>",
+                "text": "喜欢"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf2dff1f.webp'>",
+                "text": "小丑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf2eaef3.webp'>",
+                "text": "小偷"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf375d9a.webp'>",
+                "text": "笑哭"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf39464c.webp'>",
+                "text": "熊猫"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf39645f.webp'>",
+                "text": "熊猫唱歌"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf40dd8c.webp'>",
+                "text": "熊猫失望"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf43c7c3.webp'>",
+                "text": "熊猫意外"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf441ebf.webp'>",
+                "text": "熊猫喜欢"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf4e5ac0.webp'>",
+                "text": "熊熊"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf5152e8.webp'>",
+                "text": "眩晕"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf52c956.webp'>",
+                "text": "疑问"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf59bbb4.webp'>",
+                "text": "倚墙笑"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf5b2215.webp'>",
+                "text": "阴险"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf5d1355.webp'>",
+                "text": "引起不适"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf63bd49.webp'>",
+                "text": "应援"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf6648ad.webp'>",
+                "text": "呦吼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf682784.webp'>",
+                "text": "有没有搞错"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf6e951f.webp'>",
+                "text": "月饼"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf712144.webp'>",
+                "text": "再见"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf72a3ac.webp'>",
+                "text": "这是啥"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf7925b8.webp'>",
+                "text": "整理发型"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf7aad5e.webp'>",
+                "text": "正确"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf7d0f1e.webp'>",
+                "text": "值得肯定"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf858152.webp'>",
+                "text": "智慧的眼神"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf87ad87.webp'>",
+                "text": "猪头"
+            },
+            {
+                "icon": "<img src='https://expression.qjqq.cn/1/650c5cf886e59.webp'>",
+                "text": "猪头意外"
+            }
+        ]
+  },
+  "酷安": {
+    "type": "image",
+    "container": [
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c0d185e.png'>", "text": "c-1" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c0b05df.png'>", "text": "c-2" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c094a72.png'>", "text": "c-3" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bfcd5da.png'>", "text": "c-4" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bfaf795.png'>", "text": "c-5" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bf8cf90.png'>", "text": "c-6" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c0768e0.png'>", "text": "c-7" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bf6b0a2.png'>", "text": "c-8" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c05fe7d.png'>", "text": "c-9" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bf4f939.png'>", "text": "c-10" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725beaead0.png'>", "text": "c-11" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725be93bfa.png'>", "text": "c-12" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725be76f5d.png'>", "text": "c-13" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725be4f224.png'>", "text": "c-14" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725be34ef0.png'>", "text": "c-15" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c03b6ed.png'>", "text": "c-16" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bf3ecd3.png'>", "text": "c-17" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725be1a468.png'>", "text": "c-18" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bdaa9c4.png'>", "text": "c-19" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bd881e5.png'>", "text": "c-20" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bd6f547.png'>", "text": "c-21" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bd4b9e3.png'>", "text": "c-22" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bd316e1.png'>", "text": "c-23" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bd0e2f2.png'>", "text": "c-24" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bca4193.png'>", "text": "c-25" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bc82264.png'>", "text": "c-26" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bc61a4f.png'>", "text": "c-27" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bc3aa81.png'>", "text": "c-28" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bc18ff7.png'>", "text": "c-29" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bbee69f.png'>", "text": "c-30" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bb62934.png'>", "text": "c-31" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bb820cb.png'>", "text": "c-32" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bb3cb6d.png'>", "text": "c-33" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bb1bf60.png'>", "text": "c-34" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bb00979.png'>", "text": "c-35" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bad5745.png'>", "text": "c-36" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ba7c224.png'>", "text": "c-37" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ba39662.png'>", "text": "c-38" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ba4e84a.png'>", "text": "c-39" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ba1cf22.png'>", "text": "c-40" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b9f416d.png'>", "text": "c-41" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b9c44ae.png'>", "text": "c-42" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b9662b8.png'>", "text": "c-43" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b94606c.png'>", "text": "c-44" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b92a1a9.png'>", "text": "c-45" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b901c35.png'>", "text": "c-46" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b8d891b.png'>", "text": "c-47" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b8b8506.png'>", "text": "c-48" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b85ef0c.png'>", "text": "c-49" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b8362f8.png'>", "text": "c-50" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b81864e.png'>", "text": "c-51" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b7efb05.png'>", "text": "c-52" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b7d3452.png'>", "text": "c-53" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b7afd93.png'>", "text": "c-54" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b7599bb.png'>", "text": "c-55" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b7354e0.png'>", "text": "c-56" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b71514a.png'>", "text": "c-57" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b6caddc.png'>", "text": "c-58" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b6e71c0.png'>", "text": "c-59" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b69bdc4.png'>", "text": "c-60" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725c016f97.png'>", "text": "c-61" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bf03143.png'>", "text": "c-62" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bdea86d.png'>", "text": "c-63" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bcdcb19.png'>", "text": "c-64" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bbd1a09.png'>", "text": "c-65" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bab24b5.png'>", "text": "c-66" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b9a65e5.png'>", "text": "c-67" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b899401.png'>", "text": "c-68" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b791a3c.png'>", "text": "c-69" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b67debc.png'>", "text": "c-70" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bfe5d9f.png'>", "text": "c-71" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bed2bac.png'>", "text": "c-72" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bdc7edb.png'>", "text": "c-73" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bcba451.png'>", "text": "c-74" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725bba8852.png'>", "text": "c-75" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ba923eb.png'>", "text": "c-76" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b986197.png'>", "text": "c-77" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b877c71.png'>", "text": "c-78" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b77684b.png'>", "text": "c-79" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b65543a.png'>", "text": "c-80" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b63bd75.png'>", "text": "c-81" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b624976.png'>", "text": "c-82" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b5f3e2c.png'>", "text": "c-83" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b53ffa2.png'>", "text": "c-84" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b51bbb2.png'>", "text": "c-85" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b501f34.png'>", "text": "c-86" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b5d918b.png'>", "text": "c-87" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b4d2dfc.png'>", "text": "c-88" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b427c20.png'>", "text": "c-89" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b405bd4.png'>", "text": "c-90" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b3db127.png'>", "text": "c-91" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b3b362f.png'>", "text": "c-92" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b31d3f4.png'>", "text": "c-93" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b2f3e7c.png'>", "text": "c-94" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b2d933d.png'>", "text": "c-95" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b2b518d.png'>", "text": "c-96" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b226a23.png'>", "text": "c-97" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b2002bc.png'>", "text": "c-98" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b1c0a77.png'>", "text": "c-99" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b1a83f6.png'>", "text": "c-100" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b105a8d.png'>", "text": "c-101" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b0dfe5b.png'>", "text": "c-102" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b0b98d1.png'>", "text": "c-103" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b09a8c4.png'>", "text": "c-104" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725afe28b3.png'>", "text": "c-105" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725afc86c0.png'>", "text": "c-106" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725af9ffc2.png'>", "text": "c-107" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae76d88.png'>", "text": "c-108" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b5b738a.png'>", "text": "c-109" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b4b594c.png'>", "text": "c-110" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b36ecf6.png'>", "text": "c-111" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b299fac.png'>", "text": "c-112" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b181d3b.png'>", "text": "c-113" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b072746.png'>", "text": "c-114" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae7deca.png'>", "text": "c-115" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b597e10.png'>", "text": "c-116" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b48c773.png'>", "text": "c-117" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b38cf7e.png'>", "text": "c-118" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b271202.png'>", "text": "c-119" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b164649.png'>", "text": "c-120" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b035eaa.png'>", "text": "c-121" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae78ff8.png'>", "text": "c-122" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae7593d.png'>", "text": "c-123" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae65f92.png'>", "text": "c-124" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae64907.png'>", "text": "c-125" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae71a9b.png'>", "text": "c-126" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae7aed1.png'>", "text": "c-127" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b58126a.png'>", "text": "c-128" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b46a066.png'>", "text": "c-129" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b351bf3.png'>", "text": "c-130" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b258fa1.png'>", "text": "c-131" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b14ad8b.png'>", "text": "c-132" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b054932.png'>", "text": "c-133" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae72b04.png'>", "text": "c-134" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b55c8e0.png'>", "text": "c-135" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b445b01.png'>", "text": "c-136" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b32e896.png'>", "text": "c-137" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b240b9f.png'>", "text": "c-138" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b12380c.png'>", "text": "c-139" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725b010113.png'>", "text": "c-140" },
+      { "icon": "<img src='https://bu.dusays.com/2025/08/21/68a725ae62e60.png'>", "text": "c-141" }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Dusklight 默认文章封面</title>
+  <desc id="desc">暮色天空中的太阳、山峦和星轨</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#101822"/>
+      <stop offset="58%" stop-color="#18323b"/>
+      <stop offset="100%" stop-color="#315d62"/>
+    </linearGradient>
+    <linearGradient id="ridge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#233d45"/>
+      <stop offset="100%" stop-color="#101b22"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1220" cy="225" r="112" fill="#e6b875" opacity="0.9"/>
+  <circle cx="1220" cy="225" r="168" fill="none" stroke="#8ad3c7" stroke-width="2" opacity="0.22"/>
+  <path d="M0 630 250 465 420 560 700 340 920 545 1130 405 1600 665V900H0Z" fill="url(#ridge)"/>
+  <path d="M0 700 330 535 535 655 805 500 1030 665 1310 515 1600 690V900H0Z" fill="#0d171d" opacity="0.82"/>
+  <g fill="#b8eee6" opacity="0.66">
+    <circle cx="180" cy="170" r="4"/><circle cx="335" cy="260" r="3"/>
+    <circle cx="610" cy="145" r="4"/><circle cx="775" cy="230" r="3"/>
+    <circle cx="985" cy="115" r="4"/><circle cx="1430" cy="305" r="3"/>
+  </g>
+  <path d="M145 338C380 115 720 72 1030 172" fill="none" stroke="#7bc7bd" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+  <text x="130" y="690" font-family="Inter,system-ui,sans-serif" font-size="82" font-weight="700" fill="#eef9f7" letter-spacing="0.02em">Dusklight</text>
+  <text x="135" y="750" font-family="Inter,system-ui,sans-serif" font-size="28" fill="#aadbd4" letter-spacing="0.18em">辰渊尘の博客</text>
+</svg>
