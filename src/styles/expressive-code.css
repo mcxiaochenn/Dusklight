@@ -73,7 +73,6 @@
 /* EC 的内置样式在本文件之后注入，需要用更具体的选择器统一回本站控件。
    图标由 EC 的 mask 负责，按钮只定义表面、边框与交互状态。 */
 .expressive-code .frame .copy button {
-  corner-shape: var(--corner-shape-continuous) !important;
   width: 2.25rem !important;
   height: 2.25rem !important;
   border: 1px solid var(--glass-border) !important;

@@ -69,7 +69,7 @@
     message = "";
     dialog.showModal();
     try {
-      await document.fonts?.load('700 58px "MiSans Subset"');
+      await document.fonts?.load('700 58px "寒蝉全圆体 Bold"');
       const context = canvas.getContext("2d");
       if (!context) throw new Error("Canvas unavailable");
       canvas.width = 1080;
@@ -96,18 +96,18 @@
         roundedRect(context, 70, 70, 940, 500, 42);
         context.fill();
         context.fillStyle = "rgba(255,255,255,.88)";
-        context.font = '700 92px "MiSans Subset", sans-serif';
+        context.font = '700 92px "寒蝉全圆体 Bold", "寒蝉全圆体", sans-serif';
         context.fillText(siteName, 120, 340, 840);
       }
 
       context.fillStyle = accent;
-      context.font = '600 30px "MiSans Subset", sans-serif';
+      context.font = '600 30px "寒蝉全圆体 Bold", "寒蝉全圆体", sans-serif';
       context.fillText(date, 76, 640);
       context.fillStyle = foreground;
-      context.font = '700 58px "MiSans Subset", sans-serif';
+      context.font = '700 58px "寒蝉全圆体 Bold", "寒蝉全圆体", sans-serif';
       let cursor = wrapText(context, title, 76, 720, 928, 76, 4) + 24;
       context.fillStyle = muted;
-      context.font = '400 30px "MiSans Subset", sans-serif';
+      context.font = '400 30px "寒蝉全圆体", sans-serif';
       wrapText(context, description, 76, cursor, 928, 46, 6);
 
       context.strokeStyle = dark ? "rgba(255,255,255,.14)" : "rgba(0,0,0,.1)";
@@ -126,7 +126,7 @@
         context.restore();
       } catch {}
       context.fillStyle = foreground;
-      context.font = '600 32px "MiSans Subset", sans-serif';
+      context.font = '600 32px "寒蝉全圆体 Bold", "寒蝉全圆体", sans-serif';
       context.fillText(siteName, 190, 1322, 500);
 
       const qrData = await QRCode.toDataURL(url, { width: 160, margin: 1, color: { dark: foreground, light: "#00000000" } });

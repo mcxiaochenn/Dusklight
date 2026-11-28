@@ -37,23 +37,21 @@ checkFiles("背景图", backgroundImages, MIB);
 
 const homepage = readFileSync(resolve(distDir, "index.html"), "utf8");
 const links = [...homepage.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0]);
-const initialMiSans = links
-	.filter((tag) => getAttribute(tag, "rel") === "preload" && getAttribute(tag, "as") === "font")
+const chineseFontLinks = links
+	.filter((tag) => getAttribute(tag, "rel") === "stylesheet")
 	.map((tag) => getAttribute(tag, "href"))
-	.filter((href) => href?.includes("/fonts/misans/"))
-	.map(toDistFile);
+	.filter((href) => href?.includes("cn-font.claude-code-best.win"));
 const homepageStyles = links
 	.filter((tag) => getAttribute(tag, "rel") === "stylesheet")
 	.map((tag) => getAttribute(tag, "href"))
-	.filter(Boolean)
+	.filter((href) => href && !/^https?:\/\//i.test(href))
 	.map(toDistFile);
 
-if (!initialMiSans.length) {
-	console.error("首页未发现预加载的 MiSans 字体。");
+if (chineseFontLinks.length < 2) {
+	console.error("首页未正确引入中文网字计划字体分包样式（寒蝉全圆体与 Maple Mono CN）。");
 	process.exit(1);
 }
 
-checkTotal("首页预加载 MiSans 总量", initialMiSans, 256 * 1024);
-checkTotal("首页样式总量", homepageStyles, 130 * 1024);
+checkTotal("首页本地样式总量", homepageStyles, 130 * 1024);
 
 console.log("资源大小检查通过。");

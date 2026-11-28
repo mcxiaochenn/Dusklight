@@ -3,20 +3,18 @@
  * ─────────────────────────────────────────────────────────
  * Spring-approximated motion. Critically damped by default.
  * Motion serves spatial awareness, not attention-seeking.
- *
- * Apple principle: "An interface feels alive when motion starts
- * from the current value, inherits velocity, projects momentum,
- * and can be grabbed and reversed at any instant."
- *
- * On a static site, we approximate with CSS cubic-bezier springs.
- * For gesture-driven interactions, JS + Web Animations API is used.
  */
+
+/* ── 流畅滚动 ── */
+html {
+  scroll-behavior: smooth;
+}
 
 /* ── Entrance — decelerate (arrives gently) ── */
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -70,27 +68,67 @@
   50%      { opacity: 0.7; }
 }
 
-/* ── 页面切换 ──
- * ClientRouter 保留 SPA 导航，但普通换页只做短暂的透明度过渡。
- * 主题切换由 ThemeToggle 的 [data-theme-switching] 规则接管，不受此处影响。 */
-@keyframes route-fade-out {
-  to { opacity: 0; }
+/* ── 优美的页面切换过渡动画（View Transitions） ──
+ * 主题切换由 ThemeToggle 的 [data-theme-switching] 规则接管。
+ * 普通页面跳转采用柔和位移 + 景深微缩放 + 减速弹簧曲线。 */
+@keyframes route-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.992);
+  }
 }
 
-@keyframes route-fade-in {
-  from { opacity: 0; }
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   :root:not([data-theme-switching])::view-transition-old(root) {
-    animation: route-fade-out 120ms var(--ease-standard) both;
+    animation: route-exit 200ms var(--ease-accelerate) both;
     mix-blend-mode: normal;
   }
 
   :root:not([data-theme-switching])::view-transition-new(root) {
-    animation: route-fade-in 120ms var(--ease-decelerate) both;
+    animation: route-enter 320ms var(--ease-entrance) both;
     mix-blend-mode: normal;
   }
+}
+
+/* ── 页内锚点跳转目标高光呼吸动效 ── */
+@keyframes anchor-spotlight {
+  0% {
+    background: oklch(from var(--accent) l c h / 0.22);
+    box-shadow: 0 0 0 6px oklch(from var(--accent) l c h / 0.14);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.anchor-spotlight {
+  border-radius: var(--radius-sm);
+  animation: anchor-spotlight 1.3s var(--ease-decelerate) both;
+}
+
+/* ── 卡片点击微缩放反馈 ── */
+a:where(.post-card, .friend-card, .anime-card, .device-card, .home-top__cat-btn, .home-hero__slide) {
+  transition: transform 180ms var(--ease-spring), border-color var(--duration-fast) var(--ease-material), box-shadow var(--duration-fast) var(--ease-material);
+}
+
+a:where(.post-card, .friend-card, .anime-card, .device-card, .home-top__cat-btn, .home-hero__slide):active {
+  transform: scale(0.985);
 }
 
 /* ── Staggered entrance utilities ── */
@@ -147,6 +185,10 @@
 
 /* ── Accessibility — reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
@@ -155,5 +197,4 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
 }

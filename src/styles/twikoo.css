@@ -309,7 +309,6 @@
   height: 40px;
   margin-right: var(--space-4);
   border-radius: 50%;
-  --corner-shape: var(--corner-shape-round);
   border: 1px solid var(--comment-border);
   background: var(--surface-2);
 }
@@ -337,7 +336,6 @@
 
 #comments .tk-tag {
   border-radius: 9999px;
-  --corner-shape: var(--corner-shape-round);
   padding: 1px 8px;
   font-size: 0.7rem;
   font-weight: 500;

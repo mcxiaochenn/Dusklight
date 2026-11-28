@@ -80,20 +80,14 @@
   --code-bg: oklch(0.98 0.008 var(--hue) / 0.85);
 
   /* ═══════════════════════════════════════════════════════
-     RADIUS — Apple-aligned rounding scale.
-     Small controls → medium → cards → large panels → pill.
+     RADIUS — Apple-aligned large geometric rounding scale.
+     全球超大苹果几何 R 角，弃用 corner-shape: squircle。
      ═══════════════════════════════════════════════════════ */
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
-
-  /* 连续曲率圆角 — border-radius 始终作为跨浏览器回退。
-     必须保持几何圆形的组件通过元素级 --corner-shape 覆写为
-     --corner-shape-round。 */
-  --corner-shape-continuous: squircle;
-  --corner-shape-round: round;
 
   /* ═══════════════════════════════════════════════════════
      SPACING — 4px base unit, major-third progression.
@@ -112,12 +106,12 @@
   --space-24: 6rem;     /* 96px */
 
   /* ═══════════════════════════════════════════════════════
-     TYPOGRAPHY — Font families + optical sizing.
+     TYPOGRAPHY — 中文网字计划（寒蝉全圆体 + Maple Mono CN）
      ═══════════════════════════════════════════════════════ */
-  --font-display: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-body: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-cjk: "MiSans Subset", "MiSans", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "Maple Mono", "MiSans Subset", "Cascadia Code", "SF Mono", monospace;
+  --font-display: "寒蝉全圆体 Bold", "寒蝉全圆体", "MiSans Subset", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "寒蝉全圆体", "MiSans Subset", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-cjk: "寒蝉全圆体", "MiSans Subset", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "Maple Mono CN", "Maple Mono", "Cascadia Code", "SF Mono", monospace;
 
   /* Apple-style tracking — size-specific, never fixed.
      Large text: negative tracking (tighter).
@@ -169,9 +163,9 @@
   /* ═══════════════════════════════════════════════════════
      LAYOUT — Structural dimensions.
      ═══════════════════════════════════════════════════════ */
-  --page-width:    1400px;
-  --content-width: 800px;
-  --post-content-width: 920px;
+  --page-width:    1280px;
+  --content-width: 1280px;
+  --post-content-width: 948px;
   --header-height: 64px;
 
   /* ═══════════════════════════════════════════════════════

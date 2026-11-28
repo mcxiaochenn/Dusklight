@@ -44,9 +44,26 @@
 }
 
 .content-container {
-  max-width: var(--content-width);
+  max-width: var(--page-width);
   margin: 0 auto;
   padding: 0 var(--space-4);
+}
+
+.page-surface {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md), var(--glass-highlight);
+  padding: var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .page-surface {
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-lg);
+  }
 }
 
 .section {

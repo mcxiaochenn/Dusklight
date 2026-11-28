@@ -633,7 +633,6 @@
 }
 
 .prose .card-github .gc-avatar {
-  --corner-shape: var(--corner-shape-round);
   width: 20px;
   height: 20px;
   border-radius: var(--radius-full);
@@ -681,7 +680,6 @@
 }
 
 .prose .card-github .gc-language-dot {
-  --corner-shape: var(--corner-shape-round);
   width: 10px;
   height: 10px;
   flex: 0 0 auto;
