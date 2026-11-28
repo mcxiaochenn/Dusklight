@@ -1,898 +1,278 @@
 ---
 /**
- * 侧栏日历 — Astro + vanilla JS。
- * 视图与交互等效参考 Luquiescene calendar-widget，视觉沿用 Dusklight 设计令牌。
- * 数据源 /api/calendar-data.json（{id, title, date: YYYY-MM-DD}）。
- *
- * 脚本使用 <script data-astro-rerun>：View Transition 后对新 DOM 重新初始化，
- * 根节点 dataset 防止重复绑定，astro:before-swap 清理跨午夜定时器与 tooltip。
+ * 倒计时与时间进度条 — 仿 Mo 的记事簿 #card-countdown
+ * 嵌入站点统计卡片内：左侧展示下一个目标节日（春节）倒计时，
+ * 右侧展示今日/本周/本月/本年进度条，悬停可切换查看剩余小时/天数。
  */
-import { Icon } from "astro-icon/components";
 ---
 
-<div class="calendar" id="site-calendar">
-  <div class="calendar__header">
-    <button type="button" class="calendar__title" id="cal-title" aria-label="选择月份或年份">
-      <span id="cal-title-text">—</span>
-    </button>
-
-    <div class="calendar__actions">
-      <button type="button" class="calendar__nav calendar__nav--today" id="cal-reset" aria-label="回到今天" hidden>
-        <Icon name="fa7-solid:rotate-left" />
-      </button>
-      <button type="button" class="calendar__nav" id="cal-prev" aria-label="上一个月">
-        <Icon name="fa7-solid:caret-left" />
-      </button>
-      <button type="button" class="calendar__nav" id="cal-next" aria-label="下一个月">
-        <Icon name="fa7-solid:caret-right" />
-      </button>
-    </div>
+<div class="countdown" id="card-countdown">
+  <div class="countdown__left">
+    <span class="countdown__text">距离</span>
+    <span class="countdown__name" id="cd-event-name">春节</span>
+    <span class="countdown__days" id="cd-days">—</span>
+    <span class="countdown__date" id="cd-event-date">—</span>
   </div>
 
-  <div class="calendar__viewport">
-    <div class="calendar__day-view" id="cal-day-view">
-      <div class="calendar__weekdays" aria-hidden="true">
-        <span>一</span><span>二</span><span>三</span><span>四</span>
-        <span>五</span><span>六</span><span>日</span>
-      </div>
-      <div class="calendar__grid" id="cal-grid" role="grid" aria-label="月历"></div>
-
-      <div class="calendar__heatmap" id="cal-heatmap" hidden>
-        <div class="calendar__heatmap-months" id="cal-heatmap-months" aria-hidden="true"></div>
-        <div class="calendar__heatmap-grid" id="cal-heatmap-grid" role="grid"></div>
-      </div>
-
-      <div class="calendar__posts" id="cal-posts" hidden>
-        <div class="calendar__divider"></div>
-        <div class="calendar__post-list" id="cal-post-list"></div>
+  <div class="countdown__right">
+    <div class="countdown__item" data-cd="day">
+      <span class="countdown__label">今日</span>
+      <div class="countdown__track">
+        <div class="countdown__bar" style="width: 0%"></div>
+        <span class="countdown__pct">—</span>
+        <span class="countdown__rem">—</span>
       </div>
     </div>
-
-    <div class="calendar__pick-view calendar__pick-view--months" id="cal-month-view" hidden></div>
-    <div class="calendar__pick-view calendar__pick-view--years" id="cal-year-view" hidden></div>
+    <div class="countdown__item" data-cd="week">
+      <span class="countdown__label">本周</span>
+      <div class="countdown__track">
+        <div class="countdown__bar" style="width: 0%"></div>
+        <span class="countdown__pct">—</span>
+        <span class="countdown__rem">—</span>
+      </div>
+    </div>
+    <div class="countdown__item" data-cd="month">
+      <span class="countdown__label">本月</span>
+      <div class="countdown__track">
+        <div class="countdown__bar" style="width: 0%"></div>
+        <span class="countdown__pct">—</span>
+        <span class="countdown__rem">—</span>
+      </div>
+    </div>
+    <div class="countdown__item" data-cd="year">
+      <span class="countdown__label">本年</span>
+      <div class="countdown__track">
+        <div class="countdown__bar" style="width: 0%"></div>
+        <span class="countdown__pct">—</span>
+        <span class="countdown__rem">—</span>
+      </div>
+    </div>
   </div>
 </div>
 
-<script data-astro-rerun>
+<script is:inline data-astro-rerun>
   (() => {
-    const root = document.getElementById("site-calendar");
-    if (!root || root.dataset.init === "1") return;
-    root.dataset.init = "1";
+    const root = document.getElementById("card-countdown");
+    if (!root || root.dataset.cdInit === "1") return;
+    root.dataset.cdInit = "1";
 
-    // Astro scoped CSS 只会自动标记模板内的静态节点。日格、热力格等
-    // 运行时节点需复用组件 scope，否则 View Transition 返回后会失去样式。
-    const scopeAttribute = [...root.attributes]
-      .map((attribute) => attribute.name)
-      .find((name) => name.startsWith("data-astro-cid-"));
+    // 近几年春节公历日期表（按 +08:00 计算）
+    const SPRING_FESTIVALS = [
+      { name: "春节", date: "2026-02-17" },
+      { name: "春节", date: "2027-02-06" },
+      { name: "春节", date: "2028-01-26" },
+      { name: "春节", date: "2029-02-13" },
+      { name: "春节", date: "2030-02-03" },
+    ];
 
-    const MONTH_NAMES = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
-    const WEEK_RANGES = ["1–7日", "8–14日", "15–21日", "22–28日", "29日至月底"];
+    function updateCountdown() {
+      const now = new Date();
+      // 换算北京时间 (+08:00) 年月日时分秒
+      const bjMs = now.getTime() + 8 * 3600000;
+      const bj = new Date(bjMs);
+      const year = bj.getUTCFullYear();
+      const month = bj.getUTCMonth();
+      const day = bj.getUTCDate();
+      const hour = bj.getUTCHours();
+      const minute = bj.getUTCMinutes();
+      const second = bj.getUTCSeconds();
 
-    const $ = (selector) => root.querySelector(selector);
-    const pad = (value) => String(value).padStart(2, "0");
-    const dateKey = (year, month, day) => `${year}-${pad(month + 1)}-${pad(day)}`;
-    const siteToday = () => {
-      const value = new Date(Date.now() + 8 * 60 * 60 * 1000);
-      return {
-        year: value.getUTCFullYear(),
-        month: value.getUTCMonth(),
-        day: value.getUTCDate(),
+      // 寻找下一个未来节日
+      const todayMidnight = Date.UTC(year, month, day) - 8 * 3600000;
+      let target = SPRING_FESTIVALS.find((f) => new Date(`${f.date}T00:00:00+08:00`).getTime() >= todayMidnight);
+      if (!target) target = { name: "元旦", date: `${year + 1}-01-01` };
+
+      const targetMs = new Date(`${target.date}T00:00:00+08:00`).getTime();
+      const daysUntil = Math.max(0, Math.ceil((targetMs - todayMidnight) / 86400000));
+
+      const nameEl = root.querySelector("#cd-event-name");
+      const daysEl = root.querySelector("#cd-days");
+      const dateEl = root.querySelector("#cd-event-date");
+      if (nameEl) nameEl.textContent = target.name;
+      if (daysEl) daysEl.textContent = String(daysUntil);
+      if (dateEl) dateEl.textContent = target.date;
+
+      // 1. 今日进度（精确到秒）
+      const passedDaySec = hour * 3600 + minute * 60 + second;
+      const dayPct = (passedDaySec / 86400) * 100;
+      const dayRemH = Math.max(0, 24 - passedDaySec / 3600);
+
+      // 2. 本周进度（周一为第 1 天）
+      const weekday = (bj.getUTCDay() + 6) % 7; // 0=Mon .. 6=Sun
+      const passedWeekDays = weekday + passedDaySec / 86400;
+      const weekPct = (passedWeekDays / 7) * 100;
+      const weekRemD = Math.max(0, 7 - weekday);
+
+      // 3. 本月进度
+      const totalDaysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+      const passedMonthDays = (day - 1) + passedDaySec / 86400;
+      const monthPct = (passedMonthDays / totalDaysInMonth) * 100;
+      const monthRemD = Math.max(0, totalDaysInMonth - day + 1);
+
+      // 4. 本年进度
+      const yearStart = Date.UTC(year, 0, 1) - 8 * 3600000;
+      const nextYearStart = Date.UTC(year + 1, 0, 1) - 8 * 3600000;
+      const totalYearMs = nextYearStart - yearStart;
+      const passedYearMs = now.getTime() - yearStart;
+      const yearPct = (passedYearMs / totalYearMs) * 100;
+      const yearRemD = Math.max(0, Math.ceil((nextYearStart - now.getTime()) / 86400000));
+
+      const map = {
+        day: { pct: dayPct, rem: `还剩${dayRemH.toFixed(1)}时` },
+        week: { pct: weekPct, rem: `还剩${weekRemD}天` },
+        month: { pct: monthPct, rem: `还剩${monthRemD}天` },
+        year: { pct: yearPct, rem: `还剩${yearRemD}天` },
       };
-    };
 
-    const title = $("#cal-title");
-    const titleText = $("#cal-title-text");
-    const reset = $("#cal-reset");
-    const previous = $("#cal-prev");
-    const next = $("#cal-next");
-    const dayView = $("#cal-day-view");
-    const grid = $("#cal-grid");
-    const heatmap = $("#cal-heatmap");
-    const heatmapMonths = $("#cal-heatmap-months");
-    const heatmapGrid = $("#cal-heatmap-grid");
-    const postsWrap = $("#cal-posts");
-    const postList = $("#cal-post-list");
-    const monthView = $("#cal-month-view");
-    const yearView = $("#cal-year-view");
-
-    if (
-      !title || !titleText || !reset || !previous || !next || !dayView || !grid ||
-      !heatmap || !heatmapMonths || !heatmapGrid || !postsWrap || !postList || !monthView || !yearView
-    ) return;
-
-    let today = siteToday();
-    let todayValue = dateKey(today.year, today.month, today.day);
-    let displayYear = today.year;
-    let displayMonth = today.month;
-    let view = "day";
-    let selectedDay = null;
-    let dataLoaded = false;
-    let posts = [];
-    let postDateMap = {};
-    let postsByMonth = {};
-    let availableYears = [today.year];
-
-    const make = (tag, className, text) => {
-      const element = document.createElement(tag);
-      if (scopeAttribute) element.setAttribute(scopeAttribute, "");
-      if (className) element.className = className;
-      if (text !== undefined) element.textContent = text;
-      return element;
-    };
-
-    const monthKey = (year, month) => `${year}-${month}`;
-
-    function rebuildData(rawPosts) {
-      posts = rawPosts
-        .filter((post) => post && typeof post.id === "string" && typeof post.title === "string" && /^\d{4}-\d{2}-\d{2}$/.test(post.date))
-        .sort((a, b) => b.date.localeCompare(a.date));
-      postDateMap = {};
-      postsByMonth = {};
-      const years = new Set([today.year]);
-
-      for (const post of posts) {
-        const [yearText, monthText] = post.date.split("-");
-        const year = Number(yearText);
-        const month = Number(monthText) - 1;
-        const key = monthKey(year, month);
-
-        postDateMap[post.date] ||= [];
-        postDateMap[post.date].push(post);
-        postsByMonth[key] ||= [];
-        postsByMonth[key].push(post);
-        years.add(year);
-      }
-
-      availableYears = [...years].sort((a, b) => b - a);
-    }
-
-    async function fetchData() {
-      try {
-        const response = await fetch("/api/calendar-data.json");
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        if (!Array.isArray(data)) throw new Error("日历数据格式无效");
-        rebuildData(data);
-        dataLoaded = true;
-        root.dataset.loadState = "ready";
-      } catch (error) {
-        rebuildData([]);
-        dataLoaded = false;
-        root.dataset.loadState = "error";
-        console.error("Failed to fetch calendar data:", error);
-      }
-      render();
-    }
-
-    function updateHeader() {
-      if (view === "day") {
-        titleText.textContent = `${displayYear}年 ${MONTH_NAMES[displayMonth]}`;
-        title.setAttribute("aria-label", "选择月份");
-      } else if (view === "month") {
-        titleText.textContent = `${displayYear}年`;
-        title.setAttribute("aria-label", "选择年份");
-      } else {
-        titleText.textContent = "选择年份";
-        title.setAttribute("aria-label", "返回日视图");
-      }
-
-      const isCurrentMonth = displayYear === today.year && displayMonth === today.month;
-      reset.hidden = isCurrentMonth && selectedDay === null;
-      previous.style.visibility = view === "day" ? "visible" : "hidden";
-      next.style.visibility = view === "day" ? "visible" : "hidden";
-      previous.setAttribute("aria-label", "上一个月");
-      next.setAttribute("aria-label", "下一个月");
-    }
-
-    function renderDay() {
-      grid.innerHTML = "";
-      const totalDays = new Date(displayYear, displayMonth + 1, 0).getDate();
-      const emptyCells = (new Date(displayYear, displayMonth, 1).getDay() + 6) % 7;
-
-      for (let index = 0; index < emptyCells; index++) {
-        const empty = make("div", "calendar__day calendar__day--empty");
-        empty.setAttribute("aria-hidden", "true");
-        grid.appendChild(empty);
-      }
-
-      for (let day = 1; day <= totalDays; day++) {
-        const key = dateKey(displayYear, displayMonth, day);
-        const dayPosts = postDateMap[key] || [];
-        const cell = make("button", "calendar__day", String(day));
-        cell.type = "button";
-        cell.dataset.day = key;
-        cell.setAttribute("role", "gridcell");
-        cell.setAttribute("aria-label", `${displayYear}年${displayMonth + 1}月${day}日${dayPosts.length ? `，${dayPosts.length}篇文章` : ""}`);
-        cell.setAttribute("aria-pressed", String(selectedDay === key));
-
-        if (dayPosts.length) {
-          cell.classList.add("calendar__day--has-post");
-          cell.appendChild(make("span", "calendar__day-dot"));
-          if (dayPosts.length > 1) cell.appendChild(make("span", "calendar__day-count", String(dayPosts.length)));
+      Object.entries(map).forEach(([key, val]) => {
+        const row = root.querySelector(`[data-cd="${key}"]`);
+        if (!row) return;
+        const bar = row.querySelector(".countdown__bar");
+        const pctEl = row.querySelector(".countdown__pct");
+        const remEl = row.querySelector(".countdown__rem");
+        const clamped = Math.max(0, Math.min(100, val.pct));
+        if (bar) {
+          bar.style.width = `${clamped.toFixed(2)}%`;
+          bar.style.opacity = String(Math.max(0.28, clamped / 100));
         }
-        if (key === todayValue) cell.classList.add("calendar__day--today");
-        if (key === selectedDay) cell.classList.add("calendar__day--selected");
-        grid.appendChild(cell);
-      }
-
-      renderHeatmap();
-      renderPosts(selectedDay ? postDateMap[selectedDay] || [] : postsByMonth[monthKey(displayYear, displayMonth)] || []);
+        if (pctEl) pctEl.textContent = `${clamped.toFixed(1)}%`;
+        if (remEl) remEl.textContent = val.rem;
+      });
     }
 
-    function renderPosts(visiblePosts) {
-      postList.innerHTML = "";
-      postsWrap.hidden = !dataLoaded || visiblePosts.length === 0;
-      if (postsWrap.hidden) return;
-
-      for (const post of visiblePosts) {
-        const [, month, day] = post.date.split("-");
-        const link = make("a", "calendar__post-link");
-        link.href = `/posts/${post.id}/`;
-        link.appendChild(make("span", "calendar__post-title", post.title));
-        link.appendChild(make("span", "calendar__post-date", `${Number(month)}-${Number(day)}`));
-        postList.appendChild(link);
-      }
-    }
-
-    function renderHeatmap() {
-      heatmap.hidden = !dataLoaded;
-      if (heatmap.hidden) return;
-
-      heatmap.setAttribute("aria-label", `${displayYear}年文章活跃度`);
-      heatmapMonths.innerHTML = "";
-      heatmapGrid.innerHTML = "";
-      const counts = Array.from({ length: 12 }, () => [0, 0, 0, 0, 0]);
-
-      for (let month = 1; month <= 12; month++) {
-        heatmapMonths.appendChild(make("span", "calendar__heat-month", String(month)));
-      }
-
-      for (const [key, dayPosts] of Object.entries(postDateMap)) {
-        const [yearText, monthText, dayText] = key.split("-");
-        if (Number(yearText) !== displayYear) continue;
-        const monthIndex = Number(monthText) - 1;
-        const weekIndex = Math.min(Math.floor((Number(dayText) - 1) / 7), 4);
-        counts[monthIndex][weekIndex] += dayPosts.length;
-      }
-
-      for (let week = 0; week < 5; week++) {
-        for (let month = 0; month < 12; month++) {
-          const count = counts[month][week];
-          const level = Math.min(count, 4);
-          const label = `${displayYear}年${month + 1}月${WEEK_RANGES[week]}，${count}篇文章`;
-          const cell = make("button", "calendar__heat-cell");
-          cell.type = "button";
-          cell.dataset.heatMonth = String(month);
-          cell.dataset.week = String(week + 1);
-          cell.dataset.count = String(count);
-          cell.dataset.level = String(level);
-          cell.dataset.tooltip = label;
-          cell.setAttribute("role", "gridcell");
-          cell.setAttribute("aria-label", label);
-          heatmapGrid.appendChild(cell);
-        }
-      }
-    }
-
-    function renderMonths() {
-      monthView.innerHTML = "";
-      const activeMonths = new Set();
-      for (const key of Object.keys(postsByMonth)) {
-        const [year, month] = key.split("-").map(Number);
-        if (year === displayYear) activeMonths.add(month);
-      }
-
-      for (let month = 0; month < 12; month++) {
-        const cell = make("button", "calendar__pick", MONTH_NAMES[month]);
-        cell.type = "button";
-        cell.dataset.monthCell = String(month);
-        cell.setAttribute("aria-label", `选择${displayYear}年${MONTH_NAMES[month]}`);
-        if (month === displayMonth) {
-          cell.classList.add("calendar__pick--current");
-          cell.setAttribute("aria-current", "date");
-        }
-        if (activeMonths.has(month)) cell.appendChild(make("span", "calendar__pick-dot"));
-        monthView.appendChild(cell);
-      }
-    }
-
-    function renderYears() {
-      yearView.innerHTML = "";
-      const yearsWithPosts = new Set(posts.map((post) => Number(post.date.slice(0, 4))));
-
-      for (const year of availableYears) {
-        const cell = make("button", "calendar__pick", `${year}年`);
-        cell.type = "button";
-        cell.dataset.yearCell = String(year);
-        cell.setAttribute("aria-label", `选择${year}年`);
-        if (year === displayYear) {
-          cell.classList.add("calendar__pick--current");
-          cell.setAttribute("aria-current", "date");
-        }
-        if (yearsWithPosts.has(year)) cell.appendChild(make("span", "calendar__pick-dot"));
-        yearView.appendChild(cell);
-      }
-    }
-
-    function render() {
-      root.dataset.view = view;
-      dayView.inert = view !== "day";
-      dayView.setAttribute("aria-hidden", String(view !== "day"));
-      monthView.hidden = view !== "month";
-      yearView.hidden = view !== "year";
-      updateHeader();
-
-      if (view === "day") renderDay();
-      else if (view === "month") renderMonths();
-      else renderYears();
-    }
-
-    root.addEventListener("click", (event) => {
-      if (!(event.target instanceof Element)) return;
-      const target = event.target.closest("[data-day],[data-month-cell],[data-year-cell],[data-heat-month]");
-      if (!target) return;
-
-      if (target.dataset.day && view === "day") {
-        selectedDay = selectedDay === target.dataset.day ? null : target.dataset.day;
-        render();
-      } else if (target.dataset.monthCell !== undefined) {
-        displayMonth = Number(target.dataset.monthCell);
-        selectedDay = null;
-        view = "day";
-        render();
-      } else if (target.dataset.yearCell) {
-        displayYear = Number(target.dataset.yearCell);
-        selectedDay = null;
-        view = "month";
-        render();
-      } else if (target.dataset.heatMonth !== undefined) {
-        displayMonth = Number(target.dataset.heatMonth);
-        selectedDay = null;
-        view = "day";
-        render();
-      }
-    });
-
-    title.addEventListener("click", () => {
-      view = view === "day" ? "month" : view === "month" ? "year" : "day";
-      selectedDay = null;
-      render();
-    });
-
-    previous.addEventListener("click", () => {
-      displayMonth--;
-      if (displayMonth < 0) {
-        displayMonth = 11;
-        displayYear--;
-      }
-      selectedDay = null;
-      render();
-    });
-
-    next.addEventListener("click", () => {
-      displayMonth++;
-      if (displayMonth > 11) {
-        displayMonth = 0;
-        displayYear++;
-      }
-      selectedDay = null;
-      render();
-    });
-
-    reset.addEventListener("click", () => {
-      today = siteToday();
-      todayValue = dateKey(today.year, today.month, today.day);
-      displayYear = today.year;
-      displayMonth = today.month;
-      selectedDay = null;
-      view = "day";
-      render();
-    });
-
-    document.querySelector("[data-calendar-tooltip]")?.remove();
-    const tooltip = make("div", "calendar__tooltip");
-    tooltip.dataset.calendarTooltip = "";
-    tooltip.hidden = true;
-    document.body.appendChild(tooltip);
-
-    const showTooltip = (target) => {
-      if (!(target instanceof HTMLElement) || !target.dataset.tooltip) return;
-      tooltip.textContent = target.dataset.tooltip;
-      tooltip.hidden = false;
-      const bounds = target.getBoundingClientRect();
-      tooltip.style.left = `${bounds.left + bounds.width / 2}px`;
-      tooltip.style.top = `${bounds.top - 6}px`;
-    };
-    const hideTooltip = () => {
-      tooltip.hidden = true;
-    };
-
-    root.addEventListener("mouseover", (event) => showTooltip(event.target));
-    root.addEventListener("mouseout", hideTooltip);
-    root.addEventListener("focusin", (event) => showTooltip(event.target));
-    root.addEventListener("focusout", hideTooltip);
-
-    const midnightTimer = window.setInterval(() => {
-      const nextToday = siteToday();
-      const nextTodayValue = dateKey(nextToday.year, nextToday.month, nextToday.day);
-      if (nextTodayValue === todayValue) return;
-      today = nextToday;
-      todayValue = nextTodayValue;
-      availableYears = [...new Set([...availableYears, today.year])].sort((a, b) => b - a);
-      render();
-    }, 60_000);
-
-    document.addEventListener("astro:before-swap", () => {
-      window.clearInterval(midnightTimer);
-      tooltip.remove();
-    }, { once: true });
-
-    render();
-    fetchData();
+    updateCountdown();
   })();
 </script>
 
 <style>
-  .calendar {
-    min-width: 0;
-    padding: var(--space-3) var(--space-4) var(--space-4);
-    overflow: hidden;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm), var(--glass-highlight);
-    transition:
-      border-color var(--duration-fast) var(--ease-material),
-      box-shadow var(--duration-fast) var(--ease-material);
-  }
-
-  .calendar:hover {
-    border-color: var(--accent);
-    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
-  }
-
-  .calendar__header {
+  .countdown {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
+    align-items: stretch;
+    gap: var(--space-3);
   }
 
-  .calendar__title {
+  .countdown__left {
     position: relative;
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
-    border: 0;
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--foreground);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-material);
-  }
-
-  .calendar__title::before {
-    position: absolute;
-    left: 0;
-    width: 4px;
-    height: var(--space-4);
-    border-radius: var(--radius-full);
-    background: var(--accent);
-    content: "";
-  }
-
-  .calendar__title:hover {
-    background: var(--surface-1);
-  }
-
-  .calendar__actions {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .calendar__nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--foreground-muted);
-    cursor: pointer;
-    transition:
-      color var(--duration-fast) var(--ease-material),
-      background var(--duration-fast) var(--ease-material);
-  }
-
-  .calendar__nav:hover {
-    background: var(--surface-1);
-    color: var(--accent);
-  }
-
-  .calendar__nav--today {
-    color: var(--accent);
-  }
-
-  .calendar__nav[hidden] {
-    display: none;
-  }
-
-  .calendar__nav [data-icon] {
-    width: 16px;
-    height: 16px;
-  }
-
-  .calendar__viewport {
-    position: relative;
-    min-height: 332px;
-  }
-
-  .calendar__day-view {
-    min-height: 332px;
-  }
-
-  .calendar__weekdays,
-  .calendar__grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 4px;
-  }
-
-  .calendar__weekdays {
-    margin-bottom: var(--space-1);
-    color: var(--foreground-muted);
-    font-size: var(--text-xs);
-    font-weight: 500;
-    text-align: center;
-  }
-
-  .calendar__weekdays span {
-    padding: 2px 0;
-  }
-
-  .calendar__day {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 36px;
-    height: 36px;
-    min-width: 0;
-    justify-self: center;
-    padding: 0;
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--foreground-secondary);
-    font: inherit;
-    font-size: var(--text-sm);
-    cursor: pointer;
-    transition:
-      color var(--duration-fast) var(--ease-material),
-      border-color var(--duration-fast) var(--ease-material),
-      background var(--duration-fast) var(--ease-material),
-      transform var(--duration-fast) var(--ease-material);
-  }
-
-  .calendar__day:hover {
-    background: var(--surface-1);
-    color: var(--foreground);
-  }
-
-  .calendar__day--empty {
-    border: 0;
-    pointer-events: none;
-  }
-
-  .calendar__day--has-post {
-    color: var(--foreground);
-    font-weight: 700;
-  }
-
-  .calendar__day--has-post:hover {
-    transform: translateY(-1px);
-  }
-
-  .calendar__day--today {
-    border-color: var(--accent);
-    background: var(--accent-subtle);
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  .calendar__day--selected,
-  .calendar__day--selected:hover {
-    border-color: transparent;
-    background: var(--accent);
-    color: var(--surface-0);
-  }
-
-  .calendar__day-dot {
-    --corner-shape: var(--corner-shape-round);
-    position: absolute;
-    bottom: 3px;
-    left: 50%;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    transform: translateX(-50%);
-  }
-
-  .calendar__day--selected .calendar__day-dot {
-    background: currentColor;
-  }
-
-  .calendar__day-count {
-    position: absolute;
-    top: 1px;
-    right: 2px;
-    color: var(--accent);
-    font-size: 9px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .calendar__day--selected .calendar__day-count {
-    color: currentColor;
-  }
-
-  .calendar__heatmap {
-    width: 100%;
-    max-width: 260px;
-    margin: var(--space-4) auto 0;
-  }
-
-  .calendar__heatmap[hidden] {
-    display: none;
-  }
-
-  .calendar__heatmap-months,
-  .calendar__heatmap-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 3px;
-  }
-
-  .calendar__heatmap-months {
-    margin-bottom: 3px;
-  }
-
-  .calendar__heat-month {
-    color: var(--foreground-muted);
-    font-size: 9px;
-    line-height: 1;
-    text-align: center;
-  }
-
-  .calendar__heatmap-grid {
-    row-gap: 3px;
-  }
-
-  .calendar__heat-cell {
-    width: 100%;
-    aspect-ratio: 1;
-    min-width: 0;
-    padding: 0;
-    border: 1px solid color-mix(in srgb, var(--foreground-muted) 16%, transparent);
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--surface-1) 88%, var(--foreground-muted));
-    cursor: pointer;
-    transition:
-      border-color var(--duration-fast) var(--ease-material),
-      box-shadow var(--duration-fast) var(--ease-material),
-      transform var(--duration-fast) var(--ease-material);
-  }
-
-  .calendar__heat-cell[data-level="1"] {
-    background: color-mix(in srgb, var(--accent) 30%, var(--surface-1));
-  }
-
-  .calendar__heat-cell[data-level="2"] {
-    background: color-mix(in srgb, var(--accent) 50%, var(--surface-1));
-  }
-
-  .calendar__heat-cell[data-level="3"] {
-    background: color-mix(in srgb, var(--accent) 72%, var(--surface-1));
-  }
-
-  .calendar__heat-cell[data-level="4"] {
-    background: var(--accent);
-  }
-
-  .calendar__heat-cell:hover,
-  .calendar__heat-cell:focus-visible {
-    z-index: 1;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-subtle);
-    outline: none;
-    transform: scale(1.12);
-  }
-
-  .calendar__pick-view {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: grid;
-    align-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3);
-    overflow-y: auto;
-    background: var(--glass-dropdown-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
-    backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturation));
-    border-radius: var(--radius-md);
-  }
-
-  .calendar__pick-view--months {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .calendar__pick-view--years {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .calendar__pick-view[hidden] {
-    display: none;
-  }
-
-  .calendar__pick {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    padding: var(--space-3) var(--space-1);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--foreground-secondary);
-    font: inherit;
-    font-size: var(--text-sm);
-    cursor: pointer;
-    transition:
-      color var(--duration-fast) var(--ease-material),
-      border-color var(--duration-fast) var(--ease-material),
-      background var(--duration-fast) var(--ease-material);
-  }
-
-  .calendar__pick:hover {
-    background: var(--surface-1);
-    color: var(--foreground);
-  }
-
-  .calendar__pick--current {
-    border-color: var(--accent);
-    background: var(--accent-subtle);
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  .calendar__pick-dot {
-    --corner-shape: var(--corner-shape-round);
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    transform: translateX(-50%);
-  }
-
-  .calendar__posts {
-    margin-top: var(--space-3);
-  }
-
-  .calendar__posts[hidden] {
-    display: none;
-  }
-
-  .calendar__divider {
-    width: 100%;
-    height: 1px;
-    margin-bottom: var(--space-2);
-    background: var(--border-subtle);
-  }
-
-  .calendar__post-list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
-    max-height: 150px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--foreground-muted) 50%, transparent) transparent;
+    align-items: center;
+    justify-content: center;
+    padding-right: var(--space-3);
+    line-height: 1.35;
+    min-width: 78px;
+    flex-shrink: 0;
   }
 
-  .calendar__post-link {
+  .countdown__left::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    height: 80%;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: 0.45;
+  }
+
+  .countdown__text {
+    font-size: 12px;
+    color: var(--foreground-muted);
+  }
+
+  .countdown__name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--foreground);
+  }
+
+  .countdown__days {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin: 2px 0;
+  }
+
+  .countdown__date {
+    font-size: 11px;
+    color: var(--foreground-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .countdown__right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .countdown__item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    padding: var(--space-2);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    color: var(--foreground-secondary);
-    font-size: var(--text-sm);
-    text-decoration: none;
-    transition:
-      color var(--duration-fast) var(--ease-material),
-      border-color var(--duration-fast) var(--ease-material),
-      background var(--duration-fast) var(--ease-material);
+    gap: 8px;
+    height: 23px;
   }
 
-  .calendar__post-link:hover {
-    border-color: var(--accent-subtle);
-    background: var(--surface-1);
-    color: var(--accent);
-  }
-
-  .calendar__post-title {
-    min-width: 0;
-    overflow: hidden;
+  .countdown__label {
+    font-size: 12px;
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .calendar__post-date {
+    color: var(--foreground-secondary);
     flex-shrink: 0;
-    color: var(--foreground-muted);
-    font-size: var(--text-xs);
   }
 
-  .calendar__tooltip {
-    position: fixed;
-    z-index: 999;
-    padding: 4px 8px;
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    background: oklch(0.16 0.012 var(--hue) / 0.94);
-    color: oklch(0.98 0.008 var(--hue));
-    font-size: var(--text-xs);
-    line-height: 1.2;
-    white-space: nowrap;
+  .countdown__track {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    border-radius: 8px;
+    background: oklch(0.5 0.015 var(--hue) / 0.14);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  :global(:root.dark) .countdown__track {
+    background: oklch(0.14 0.01 var(--hue) / 0.65);
+  }
+
+  .countdown__bar {
+    height: 100%;
+    border-radius: 8px;
+    background: var(--accent);
+    transition: width 0.4s var(--ease-material);
+  }
+
+  .countdown__pct,
+  .countdown__rem {
+    position: absolute;
+    left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--foreground);
+    text-shadow: 0 1px 2px oklch(0 0 0 / 0.25);
+    transition:
+      opacity 0.24s var(--ease-material),
+      transform 0.24s var(--ease-material);
     pointer-events: none;
-    transform: translate(-50%, -100%);
   }
 
-  .calendar__tooltip[hidden] {
-    display: none;
+  .countdown__rem {
+    opacity: 0;
+    transform: translateX(8px);
   }
 
-  @media (max-width: 767px) {
-    .calendar {
-      display: none;
-    }
+  .countdown:hover .countdown__pct {
+    opacity: 0;
+    transform: translateX(-8px);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .calendar__title,
-    .calendar__nav,
-    .calendar__day,
-    .calendar__heat-cell,
-    .calendar__pick,
-    .calendar__post-link {
-      transition: none;
-    }
-
-    .calendar__day--has-post:hover,
-    .calendar__heat-cell:hover,
-    .calendar__heat-cell:focus-visible {
-      transform: none;
-    }
+  .countdown:hover .countdown__rem {
+    opacity: 1;
+    transform: translateX(0);
   }
 </style>

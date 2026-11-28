@@ -2,7 +2,7 @@
 /**
  * 首页 — 分页文章流
  * / (第1页), /page/2/, /page/3/ ...
- * Hero 左文右卡（xiowo 风）：左标题+渐变分类按钮+随便逛逛，右精选推荐大图卡
+ * 第一页顶部：Mo 的记事簿 #home_top 全宽双栏（左：标语+斜向滚动技能图标墙+悬停随便逛逛+3渐变分类卡；右：4篇全站推荐轮播）
  */
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
@@ -14,8 +14,10 @@ import type { TaxonomyItem } from "../components/blog/TaxonomyBar.astro";
 import Pagination from "../components/ui/Pagination.astro";
 import Sidebar from "../components/sidebar/Sidebar.astro";
 import type { SidebarStats } from "../components/sidebar/Sidebar.astro";
+import { Icon } from "astro-icon/components";
 import { siteConfig } from "../config/site";
-import { getPostUrl } from "../utils/abbrlink";
+import { skillsData } from "../data/skills";
+import { getPostSlug, getPostUrl } from "../utils/abbrlink";
 import HomeHero from "../components/home/HomeHero.svelte";
 
 type BlogPost = CollectionEntry<"blog">;
@@ -32,6 +34,7 @@ interface HomeProps {
     fullBleed: boolean;
   }>;
   heroLabel: string;
+  allPostUrls: string[];
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
@@ -54,25 +57,35 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
     .sort((a, b) => b[1] - a[1])
     .map(([name, count]) => ({ name, count }));
 
-  // Hero 推荐与文章流置顶是两套独立语义。没有显式推荐时，回退到
-  // 最近 5 篇有封面的文章；文章无论是否出现在 Hero 都保留在文章流。
+  // 全站推荐：优先按 siteConfig.featuredSlugs 顺序匹配，若演示环境无对应文章则回退到 featured 字段
   const byDateDesc = (a: BlogPost, b: BlogPost) =>
     b.data.date.valueOf() - a.data.date.valueOf();
-  const explicitFeatured = allPosts
-    .filter((post) => post.data.featured)
-    .sort(byDateDesc);
+  const postBySlug = new Map<string, BlogPost>();
+  allPosts.forEach((post) => {
+    postBySlug.set(getPostSlug(post), post);
+    postBySlug.set(post.id, post);
+  });
+  const slugMatched = siteConfig.featuredSlugs
+    .map((slug) => postBySlug.get(slug))
+    .filter((p): p is BlogPost => Boolean(p));
+
+  const explicitFeatured = slugMatched.length
+    ? slugMatched
+    : allPosts.filter((post) => post.data.featured).sort(byDateDesc);
+
   const heroSource = (explicitFeatured.length
     ? explicitFeatured
     : allPosts.filter((post) => post.data.cover).sort(byDateDesc)
   ).slice(0, 5);
+
   const heroPosts = heroSource.map((post) => ({
     title: post.data.title,
     url: getPostUrl(post),
     cover: post.data.bannerCover || post.data.cover || "/images/cover-fallback.svg",
-    fullBleed: !!post.data.bannerCover,
+    fullBleed: true,
   }));
-  // 回退到「最近有封面的文章」时不是人工推荐，标签不能写「全站推荐」
-  const heroLabel = explicitFeatured.length ? "全站推荐" : "最新文章";
+  const heroLabel = "全站推荐";
+  const allPostUrls = allPosts.map((post) => getPostUrl(post));
 
   // 预渲染获取 remark-content 插件注入的自动摘录 + 全站字数
   const excerpts: Record<string, string> = {};
@@ -85,8 +98,7 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
     })
   );
 
-  // 侧栏统计（全量口径）。日期串按 UTC 读取 —— YAML 无引号日期按 UTC
-  // 解析，UTC 读回即 frontmatter 面值（与 FormattedDate 同一语义）
+  // 侧栏统计（全量口径）
   const pad = (n: number) => String(n).padStart(2, "0");
   const utcDay = (d: Date) =>
     `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
@@ -107,27 +119,85 @@ export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
       categories,
       heroPosts,
       heroLabel,
+      allPostUrls,
     },
   });
 };
 
-const { page, excerpts, stats, categories, heroPosts, heroLabel } = Astro.props as unknown as HomeProps;
+const { page, excerpts, stats, categories, heroPosts, heroLabel, allPostUrls } = Astro.props as unknown as HomeProps;
 const baseUrl = "/";
 const isFirstPage = page.currentPage === 1;
+
+// 将技能列表两两配对用于斜向滚动图标墙，并复制一份以实现 -50% 无缝循环
+const skillPairs: Array<[typeof skillsData[number], typeof skillsData[number]]> = [];
+for (let i = 0; i < skillsData.length; i += 2) {
+  const first = skillsData[i];
+  const second = skillsData[(i + 1) % skillsData.length];
+  if (first && second) skillPairs.push([first, second]);
+}
+const marqueePairs = [...skillPairs, ...skillPairs];
 ---
 
 <BaseLayout>
-  {/* 文章流 + 右侧栏 */}
   <section class="posts">
+    {/* ── 首页首屏顶部双栏（Mo 的记事簿 #home_top 风格） ── */}
+    {isFirstPage && heroPosts.length > 0 && (
+      <div class="home-top" id="home-top">
+        <div class="home-top__left">
+          {/* 左上：标语 + 斜向滚动技能墙 + 悬停随便逛逛 */}
+          <div class="home-top__banner" data-random-posts={JSON.stringify(allPostUrls)}>
+            <div class="home-top__titles">
+              {siteConfig.homeTop.titleLines.map((line) => (
+                <div class="home-top__title-big">{line}</div>
+              ))}
+              <div class="home-top__title-sub">{siteConfig.homeTop.subtitle}</div>
+            </div>
+
+            <div class="home-top__skills" aria-hidden="true">
+              <div class="home-top__skills-track">
+                {marqueePairs.map(([topSkill, bottomSkill]) => (
+                  <div class="home-top__skill-pair">
+                    <div class="home-top__skill-tile" style={`--tile-bg: ${topSkill.color || "#3b82f6"}`}>
+                      <Icon name={topSkill.icon} />
+                    </div>
+                    <div class="home-top__skill-tile" style={`--tile-bg: ${bottomSkill.color || "#10b981"}`}>
+                      <Icon name={bottomSkill.icon} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button type="button" class="home-top__random-hover" id="btn-home-random" aria-label="随便逛逛，随机访问一篇文章">
+              <Icon name="fa7-solid:paper-plane" class="home-top__random-icon" />
+              <span class="home-top__random-text">随便逛逛</span>
+              <Icon name="fa7-solid:arrow-right" class="home-top__random-arrow" />
+            </button>
+          </div>
+
+          {/* 左下：3 个悬停动态伸展的渐变分类卡 */}
+          <div class="home-top__categories">
+            {siteConfig.homeTop.categories.map((cat) => (
+              <div class="home-top__cat-item">
+                <a href={cat.href} class:list={["home-top__cat-btn", `home-top__cat-btn--${cat.theme}`]}>
+                  <span class="home-top__cat-text">{cat.name}</span>
+                  <Icon name={cat.icon} class="home-top__cat-icon" />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 右栏：全站推荐轮播大卡 */}
+        <div class="home-top__right">
+          <HomeHero posts={heroPosts} label={heroLabel} client:idle />
+        </div>
+      </div>
+    )}
+
+    {/* ── 下方双栏：左文章流 + 右侧栏 ── */}
     <div class="home-grid">
       <div class="home-grid__main">
-        {isFirstPage && heroPosts.length > 0 && (
-          <div class="hero-section">
-            <HomeHero posts={heroPosts} label={heroLabel} client:idle />
-          </div>
-        )}
-
-        {/* 分类快速跳转：与右侧 ProfileCard 顶部对齐 */}
         <div class="category-section">
           <TaxonomyBar kind="categories" items={categories} />
         </div>
@@ -154,9 +224,316 @@ const isFirstPage = page.currentPage === 1;
   </section>
 </BaseLayout>
 
+<script>
+  function initHomeRandom() {
+    const btn = document.getElementById("btn-home-random");
+    const banner = btn?.closest<HTMLElement>("[data-random-posts]");
+    if (!btn || !banner || btn.dataset.randomInit === "1") return;
+    btn.dataset.randomInit = "1";
+
+    btn.addEventListener("click", () => {
+      try {
+        const urls: string[] = JSON.parse(banner.dataset.randomPosts || "[]");
+        if (!urls.length) return;
+        const target = urls[Math.floor(Math.random() * urls.length)];
+        if (target) window.location.assign(target);
+      } catch {
+        // ignore invalid json
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initHomeRandom);
+  document.addEventListener("astro:page-load", initHomeRandom);
+</script>
+
 <style>
-  .hero-section {
-    margin-bottom: var(--space-5);
+  /* ── 首页顶部全宽双栏 (#home_top) ── */
+  .home-top {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 6fr);
+    gap: var(--space-5);
+    max-width: var(--page-width);
+    margin: 0 auto var(--space-6);
+    padding: 0 var(--space-4);
+    align-items: stretch;
+  }
+
+  .home-top__left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 340px;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .home-top__right {
+    min-width: 0;
+    height: 340px;
+  }
+
+  /* 左上：标语与斜向滚动技能图标墙 */
+  .home-top__banner {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
+    box-shadow: var(--shadow-md), var(--glass-highlight);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: var(--space-6) var(--space-8);
+    transition:
+      border-color var(--duration-fast) var(--ease-material),
+      box-shadow var(--duration-fast) var(--ease-material);
+  }
+
+  .home-top__banner:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
+  }
+
+  .home-top__titles {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+  }
+
+  .home-top__title-big {
+    font-size: clamp(1.75rem, 2.2vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  .home-top__title-sub {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--foreground-muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* 右侧 -30deg 斜向无限滚动技能图标带 */
+  .home-top__skills {
+    position: absolute;
+    top: -40px;
+    right: -70px;
+    width: 480px;
+    height: 360px;
+    transform: rotate(-30deg);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0.92;
+  }
+
+  .home-top__skills-track {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 14px;
+    animation: home-skills-rowup 45s linear infinite;
+  }
+
+  @keyframes home-skills-rowup {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .home-top__skill-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .home-top__skill-pair:nth-child(even) {
+    transform: translateY(28px);
+  }
+
+  .home-top__skill-tile {
+    width: 84px;
+    height: 84px;
+    border-radius: 22px;
+    background: var(--tile-bg, #3b82f6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px oklch(0 0 0 / 0.22);
+  }
+
+  .home-top__skill-tile :global(svg) {
+    width: 42px;
+    height: 42px;
+    filter: drop-shadow(0 2px 4px oklch(0 0 0 / 0.18));
+  }
+
+  /* 悬停浮现「随便逛逛」毛玻璃遮罩 */
+  .home-top__random-hover {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    padding-left: 3rem;
+    border: 0;
+    background: oklch(from var(--accent) l c h / 0.86);
+    -webkit-backdrop-filter: saturate(180%) blur(15px);
+    backdrop-filter: saturate(180%) blur(15px);
+    color: #fff;
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-material);
+  }
+
+  :global(:root.dark) .home-top__random-hover {
+    background: rgba(0, 132, 255, 0.84);
+  }
+
+  .home-top__banner:hover .home-top__random-hover,
+  .home-top__random-hover:focus-visible {
+    opacity: 1;
+  }
+
+  .home-top__random-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .home-top__random-arrow {
+    width: 28px;
+    height: 28px;
+    transition: transform var(--duration-fast) var(--ease-material);
+  }
+
+  .home-top__random-hover:hover .home-top__random-arrow {
+    transform: translateX(6px);
+  }
+
+  /* 左下：3 个悬停动态伸展的渐变分类卡 */
+  .home-top__categories {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    height: 82px;
+    flex-shrink: 0;
+  }
+
+  .home-top__cat-item {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: flex 0.65s cubic-bezier(0.65, 0.15, 0.37, 1.19);
+  }
+
+  .home-top__cat-item:hover {
+    flex: 1.75;
+  }
+
+  .home-top__cat-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: 0 22px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  .home-top__cat-btn:hover {
+    color: #fff;
+  }
+
+  .home-top__cat-btn::after {
+    content: "";
+    position: absolute;
+    top: 52px;
+    left: 22px;
+    width: 18px;
+    height: 2.5px;
+    border-radius: 2px;
+    background: #fff;
+    transition: width 0.35s var(--ease-material);
+  }
+
+  .home-top__cat-item:hover .home-top__cat-btn::after {
+    width: 36px;
+  }
+
+  .home-top__cat-btn--blue {
+    background: linear-gradient(90deg, #358bff, #15c6ff);
+    box-shadow: 0 8px 12px -3px #2b7afb5e;
+  }
+  :global(:root.dark) .home-top__cat-btn--blue {
+    background: linear-gradient(90deg, #0653b8, #2fcbff);
+  }
+
+  .home-top__cat-btn--green {
+    background: linear-gradient(90deg, #18e7ae, #1eebeb);
+    box-shadow: 0 8px 12px -3px #00c4b65e;
+  }
+  :global(:root.dark) .home-top__cat-btn--green {
+    background: linear-gradient(90deg, #0d9488, #14b8a6);
+  }
+
+  .home-top__cat-btn--orange {
+    background: linear-gradient(90deg, #ff6655, #ffbf37);
+    box-shadow: 0 8px 12px -3px #ff7b005e;
+  }
+  :global(:root.dark) .home-top__cat-btn--orange {
+    background: linear-gradient(90deg, #e22a16, #da980c);
+  }
+
+  .home-top__cat-text {
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+  }
+
+  .home-top__cat-icon {
+    position: absolute;
+    right: 12px;
+    width: 68px;
+    height: 68px;
+    opacity: 0.22;
+    filter: blur(1.5px);
+    transform: rotate(15deg);
+    transition:
+      transform 0.5s var(--ease-material),
+      opacity 0.5s var(--ease-material),
+      filter 0.5s var(--ease-material),
+      width 0.5s var(--ease-material),
+      height 0.5s var(--ease-material);
+  }
+
+  .home-top__cat-item:hover .home-top__cat-icon {
+    width: 42px;
+    height: 42px;
+    opacity: 0.85;
+    filter: blur(0);
+    transform: rotate(0deg);
   }
 
   /* 分类栏区 */
@@ -182,14 +559,26 @@ const isFirstPage = page.currentPage === 1;
     gap: var(--space-5);
   }
 
-  /* 默认单列；≥1300px 时双列，与 PostCard 垂直布局断点对齐 */
+  /* 默认单列；≥1200px 时双列，与 PostCard 垂直布局断点对齐 */
   .posts__item {
     flex: 0 0 100%;
   }
 
-  @media (min-width: 1300px) {
+  @media (min-width: 1200px) {
     .posts__item {
       flex: 0 0 calc(50% - var(--space-5) / 2);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .home-top {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .home-top__left {
+      display: none;
+    }
+    .home-top__right {
+      height: auto;
     }
   }
 
@@ -197,6 +586,12 @@ const isFirstPage = page.currentPage === 1;
     /* 窄屏：侧栏堆到文章流下方 */
     .home-grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-top__skills-track {
+      animation: none;
     }
   }
 </style>

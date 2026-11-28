@@ -1,13 +1,12 @@
 ---
 /**
- * 首页右侧栏 — 组合个人介绍 / 公告 / 站点统计 / 日历 / 无聊湾。
- * 统计数据由页面在 getStaticPaths 中算好传入（全量文章口径，非当页）。
+ * 全站公用右侧栏
+ * 顺序：个人介绍卡 → 公告 → [文章页在此插入粘性 TOC 插槽] → 无聊湾 → 站点统计（合并倒计时进度条） → 最新评论
  */
 import ProfileCard from "./ProfileCard.astro";
 import Announcement from "./Announcement.astro";
-import SiteStats from "./SiteStats.astro";
-import Calendar from "./Calendar.astro";
 import BoringBay from "./BoringBay.astro";
+import SiteStats from "./SiteStats.astro";
 import RecentComments from "./RecentComments.svelte";
 import { commentConfig } from "../../config/comment";
 import { siteConfig } from "../../config/site";
@@ -28,9 +27,21 @@ interface Props {
 const { stats } = Astro.props;
 ---
 
-<aside class="sidebar">
+<aside class="sidebar" data-pagefind-ignore>
   <ProfileCard />
   <Announcement />
+
+  {/* 文章页在公告下方插入目录（或随滚动固定） */}
+  <slot name="after-announcement" />
+
+  <BoringBay />
+  <SiteStats
+    postCount={stats.postCount}
+    categoryCount={stats.categoryCount}
+    tagCount={stats.tagCount}
+    totalWords={stats.totalWords}
+    latestDay={stats.latestDay}
+  />
   {commentConfig.enabled && commentConfig.recentComments.enabled && (
     <RecentComments
       client:visible
@@ -40,15 +51,6 @@ const { stats } = Astro.props;
       includeReply={commentConfig.recentComments.includeReply}
     />
   )}
-  <SiteStats
-    postCount={stats.postCount}
-    categoryCount={stats.categoryCount}
-    tagCount={stats.tagCount}
-    totalWords={stats.totalWords}
-    latestDay={stats.latestDay}
-  />
-  <Calendar />
-  <BoringBay />
 </aside>
 
 <style>
@@ -56,5 +58,6 @@ const { stats } = Astro.props;
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
+    min-width: 0;
   }
 </style>

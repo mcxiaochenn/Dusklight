@@ -134,7 +134,7 @@
   .home-hero {
     position: relative;
     width: 100%;
-    height: 320px;
+    height: 340px;
     overflow: hidden;
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);

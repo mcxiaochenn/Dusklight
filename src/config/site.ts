@@ -69,6 +69,20 @@ export const siteConfig = {
   // 分页
   postsPerPage: 8,
 
+  // 首页全站推荐固定置顶文章（按顺序匹配 abbrlink 或 post.id）
+  featuredSlugs: ["p6eae1621", "mi-unlock-713", "p801b", "pae3"] as const,
+
+  // 首页顶端左栏（Mo 的记事簿 #home_top 风格）
+  homeTop: {
+    titleLines: ["有志不在年高，", "无志空活百岁。"],
+    subtitle: "blog.mcxiaochen.top",
+    categories: [
+      { name: "教程", href: "/categories/教程/", theme: "blue", icon: "fa7-solid:book-open" },
+      { name: "日常", href: "/categories/日常/", theme: "green", icon: "fa7-solid:mug-hot" },
+      { name: "福利", href: "/categories/福利/", theme: "orange", icon: "fa7-solid:gift" },
+    ],
+  },
+
   // 防镜像站 — 检测到非官方域名时重定向到提醒页
   antiMirror: {
     enabled: true,

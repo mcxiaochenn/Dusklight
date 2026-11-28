@@ -1,10 +1,12 @@
 ---
 /**
- * 侧栏站点统计 — 静态 4 项构建期计算；
- * 运行天数 / 最后活动随时间变化，由内联脚本在客户端计算
- * （is:inline + data-astro-rerun：View Transitions 换页后重新执行）
+ * 侧栏站点统计与时间倒计时合并卡片（Mo 的记事簿风格）
+ * 上部：春节倒计时 + 今日/本周/本月/本年进度条（Calendar.astro）
+ * 分割：虚线分隔
+ * 下部：站点统计列表（静态 4 项构建期计算 + 运行天数 / 最后活动 / Umami 总访问客户端计算）
  */
 import { Icon } from "astro-icon/components";
+import Calendar from "./Calendar.astro";
 import { siteConfig } from "@/config";
 
 interface Props {
@@ -20,42 +22,45 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
 ---
 
 <div class="site-stats" data-start={siteConfig.siteStartDate} data-latest={latestDay} data-api={siteConfig.analytics.apiUrl}>
+  {/* 上部：春节倒计时 & 时间进度条 */}
+  <Calendar />
+
+  <hr class="site-stats__divider" />
+
+  {/* 下部：站点统计 */}
   <div class="site-stats__header">
     <Icon name="fa7-solid:chart-simple" class="site-stats__icon" />
     <span class="site-stats__title">站点统计</span>
   </div>
-  <dl class="site-stats__grid">
-    <div class="site-stats__item">
-      <dt>文章</dt>
-      <dd>{postCount}</dd>
+
+  <dl class="site-stats__list">
+    <div class="site-stats__row">
+      <dt>文章总数</dt>
+      <dd>{postCount} 篇</dd>
     </div>
-    <div class="site-stats__item">
-      <dt>分类</dt>
-      <dd>{categoryCount}</dd>
-    </div>
-    <div class="site-stats__item">
-      <dt>标签</dt>
-      <dd>{tagCount}</dd>
-    </div>
-    <div class="site-stats__item">
-      <dt>总字数</dt>
+    <div class="site-stats__row">
+      <dt>全站字数</dt>
       <dd>{totalWords.toLocaleString("zh-CN")}</dd>
     </div>
-    <div class="site-stats__item">
+    <div class="site-stats__row">
+      <dt>分类 / 标签</dt>
+      <dd>{categoryCount} / {tagCount}</dd>
+    </div>
+    <div class="site-stats__row">
       <dt>运行天数</dt>
       <dd data-stat="days">—</dd>
     </div>
-    <div class="site-stats__item">
+    <div class="site-stats__row">
       <dt>最后活动</dt>
       <dd data-stat="active">—</dd>
     </div>
-    <div class="site-stats__item" data-stat-row="total-pv" style="display:none">
-      <dt>总访问</dt>
-      <dd data-stat="total-pv">—</dd>
-    </div>
-    <div class="site-stats__item" data-stat-row="total-uv" style="display:none">
-      <dt>总访客</dt>
+    <div class="site-stats__row" data-stat-row="total-uv" style="display:none">
+      <dt>总访客数</dt>
       <dd data-stat="total-uv">—</dd>
+    </div>
+    <div class="site-stats__row" data-stat-row="total-pv" style="display:none">
+      <dt>总访问量</dt>
+      <dd data-stat="total-pv">—</dd>
     </div>
   </dl>
 </div>
@@ -65,19 +70,15 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
     const root = document.querySelector(".site-stats");
     if (!root) return;
     const DAY = 86400000;
-    // 站点时区（Asia/Shanghai +08:00）固定口径：与 Footer 运行时间一致。
-    // 绝对时间戳计算 → 所有访问者（含海外）看到一致的运行天数/最后活动，不随本地时区漂移。
-    // floor = 已完整运行天数，与 Footer 的天数部分同口径（ceil 会多 1 天）
     const START_SUFFIX = "T00:00:00+08:00";
     const days = root.querySelector('[data-stat="days"]');
-    if (days) days.textContent = String(Math.floor((Date.now() - new Date(root.dataset.start + START_SUFFIX).getTime()) / DAY));
+    if (days) days.textContent = `${Math.floor((Date.now() - new Date(root.dataset.start + START_SUFFIX).getTime()) / DAY)} 天`;
     const active = root.querySelector('[data-stat="active"]');
     if (active) {
       const diff = Math.floor((Date.now() - new Date(root.dataset.latest + START_SUFFIX).getTime()) / DAY);
       active.textContent = diff <= 0 ? "今天" : `${diff} 天前`;
     }
 
-    // Umami 站点统计：页面切换时优先复用会话缓存，未命中才在空闲期请求。
     var apiUrl = root.dataset.api;
     if (!apiUrl) return;
     var CACHE_KEY = "dusklight:site-stats";
@@ -150,11 +151,20 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
     box-shadow: var(--glass-hover-shadow), var(--glass-highlight);
   }
 
+  .site-stats__divider {
+    height: 0;
+    margin: var(--space-4) 0;
+    border: none;
+    border-top: 1px dashed var(--glass-border);
+    background: none;
+  }
+
   .site-stats__header {
     display: flex;
     align-items: center;
     gap: var(--space-2);
     color: var(--foreground);
+    margin-bottom: var(--space-3);
   }
 
   .site-stats__icon {
@@ -168,22 +178,28 @@ const { postCount, categoryCount, tagCount, totalWords, latestDay } = Astro.prop
     font-weight: 700;
   }
 
-  .site-stats__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3) var(--space-4);
-    margin: var(--space-3) 0 0;
+  .site-stats__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
   }
 
-  .site-stats__item dt {
-    font-size: var(--text-xs);
-    color: var(--foreground-muted);
+  .site-stats__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    line-height: 1.5;
   }
 
-  .site-stats__item dd {
-    margin: 2px 0 0;
-    font-size: var(--text-md);
-    font-weight: 600;
+  .site-stats__row dt {
+    color: var(--foreground-secondary);
+  }
+
+  .site-stats__row dd {
+    margin: 0;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
     color: var(--foreground);
   }

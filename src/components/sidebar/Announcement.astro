@@ -1,6 +1,7 @@
 ---
 /**
- * 侧栏公告卡片 — 文案与开关在 config/announcement.ts
+ * 侧栏公告卡片 — Mo 的记事簿同款
+ * 摇晃红喇叭 + 多行提示文案 + #welcome-info 访客归属地/嘉兴距离/模糊 IP/时段问候
  */
 import { Icon } from "astro-icon/components";
 import { announcementConfig } from "@/config";
@@ -12,7 +13,47 @@ import { announcementConfig } from "@/config";
       <Icon name="fa7-solid:bullhorn" class="announcement__icon" />
       <span class="announcement__title">{announcementConfig.title}</span>
     </div>
-    <p class="announcement__content">{announcementConfig.content}</p>
+
+    <div class="announcement__lines">
+      {announcementConfig.lines.map((line) => (
+        <span class="announcement__line">
+          {line.text}
+          {"kbd" in line && line.kbd && (
+            <>
+              <kbd>{line.kbd[0]}</kbd>+<kbd>{line.kbd[1]}</kbd>
+            </>
+          )}
+        </span>
+      ))}
+    </div>
+
+    {announcementConfig.welcome.enabled && (
+      <div
+        class="announcement__welcome"
+        data-welcome-info
+        data-author={announcementConfig.welcome.authorName}
+        data-lat={announcementConfig.welcome.lat}
+        data-lng={announcementConfig.welcome.lng}
+        data-poem={announcementConfig.welcome.poem}
+      >
+        <div class="announcement__welcome-row">
+          🙋 欢迎 <b data-welcome-region>远方</b> 的小伙伴
+        </div>
+        <div class="announcement__welcome-row">
+          😊 <b>{announcementConfig.welcome.poem}</b>
+        </div>
+        <div class="announcement__welcome-row">
+          🗺️ 您距离 <b>{announcementConfig.welcome.authorName}</b> 约有 <b data-welcome-dist>—</b> 公里！
+        </div>
+        <div class="announcement__welcome-row">
+          🌐 你的IP地址：<span class="announcement__ip" data-welcome-ip title="悬停查看 IP">127.0.0.1</span>
+        </div>
+        <div class="announcement__welcome-row">
+          <b data-welcome-greeting>✨ 愿你今天也有好心情！</b>
+        </div>
+      </div>
+    )}
+
     {announcementConfig.link && (
       <a href={announcementConfig.link.url} class="announcement__link">
         {announcementConfig.link.text}
@@ -22,10 +63,121 @@ import { announcementConfig } from "@/config";
   </div>
 )}
 
+<script is:inline data-astro-rerun>
+  (() => {
+    var boxes = document.querySelectorAll("[data-welcome-info]");
+    if (!boxes.length) return;
+
+    function getTimeGreeting() {
+      var h = new Date().getHours();
+      if (h < 6) return "🌙 夜深了，注意休息，别熬太晚哦！";
+      if (h < 9) return "🌅 早上好，一日之计在于晨！";
+      if (h < 12) return "☀️ 上午好，今天也要元气满满！";
+      if (h < 14) return "🍱 中午好，吃饱喝足开启午休吧！";
+      if (h < 18) return "🕞 下午好，懒懒地睡个午觉或喝杯茶吧！";
+      if (h < 22) return "🌆 晚上好，卸下一天的疲惫放松一下吧！";
+      return "🌠 夜深了，早点洗漱休息吧！";
+    }
+
+    function haversineKm(lat1, lng1, lat2, lng2) {
+      var toRad = function (d) { return (d * Math.PI) / 180; };
+      var R = 6371;
+      var dLat = toRad(lat2 - lat1);
+      var dLng = toRad(lng2 - lng1);
+      var a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    var greeting = getTimeGreeting();
+    boxes.forEach(function (box) {
+      var greetEl = box.querySelector("[data-welcome-greeting]");
+      if (greetEl) greetEl.textContent = greeting;
+    });
+
+    var CACHE_KEY = "dusklight:visitor-geo:v1";
+    var CACHE_TTL = 30 * 60 * 1000;
+
+    function applyGeo(data) {
+      if (!data) return;
+      boxes.forEach(function (box) {
+        var regionEl = box.querySelector("[data-welcome-region]");
+        var distEl = box.querySelector("[data-welcome-dist]");
+        var ipEl = box.querySelector("[data-welcome-ip]");
+
+        if (regionEl && data.regionText) regionEl.textContent = data.regionText;
+        if (ipEl && data.ip) ipEl.textContent = data.ip;
+
+        var targetLat = Number(box.dataset.lat || 30.7461);
+        var targetLng = Number(box.dataset.lng || 120.7555);
+        if (distEl && Number.isFinite(data.lat) && Number.isFinite(data.lng)) {
+          distEl.textContent = String(haversineKm(targetLat, targetLng, data.lat, data.lng));
+        }
+      });
+    }
+
+    try {
+      var cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+      if (cached && Date.now() - cached.savedAt < CACHE_TTL && cached.data) {
+        applyGeo(cached.data);
+        return;
+      }
+    } catch (_) {}
+
+    function fetchGeo() {
+      // 优先请求 ipapi.co，失败时回退至 ipwho.is
+      fetch("https://ipwho.is/")
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || d.success === false) throw new Error("ipwho failed");
+          var parts = [d.region, d.city].filter(Boolean);
+          var regionText = parts.length ? parts.join(" ") : (d.country || "远方");
+          var info = {
+            ip: d.ip || "未知 IP",
+            regionText: regionText,
+            lat: Number(d.latitude),
+            lng: Number(d.longitude),
+          };
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), data: info }));
+          } catch (_) {}
+          applyGeo(info);
+        })
+        .catch(function () {
+          fetch("https://ipapi.co/json/")
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (!d || !d.ip) return;
+              var parts = [d.region, d.city].filter(Boolean);
+              var info = {
+                ip: d.ip,
+                regionText: parts.length ? parts.join(" ") : (d.country_name || "远方"),
+                lat: Number(d.latitude),
+                lng: Number(d.longitude),
+              };
+              try {
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), data: info }));
+              } catch (_) {}
+              applyGeo(info);
+            })
+            .catch(function () {});
+        });
+    }
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(fetchGeo, { timeout: 1500 });
+    } else {
+      window.setTimeout(fetchGeo, 500);
+    }
+  })();
+</script>
+
 <style>
   .announcement {
     padding: var(--space-4) var(--space-5);
-    background: color-mix(in oklab, var(--accent) 8%, var(--glass-bg));
+    background: var(--glass-bg);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-brightness));
     border: 1px solid var(--glass-border);
@@ -45,12 +197,22 @@ import { announcementConfig } from "@/config";
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--accent);
+    color: var(--foreground);
   }
 
   .announcement__icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
+    color: #ef4444;
+    transform-origin: center;
+    animation: announcement-shake 2.4s ease-in-out infinite;
+  }
+
+  @keyframes announcement-shake {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(-14deg); }
+    20%, 40% { transform: rotate(14deg); }
+    50% { transform: rotate(0deg); }
   }
 
   .announcement__title {
@@ -59,18 +221,78 @@ import { announcementConfig } from "@/config";
     letter-spacing: 0.02em;
   }
 
-  .announcement__content {
-    margin: var(--space-2) 0 0;
+  .announcement__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: var(--space-3);
     font-size: var(--text-sm);
-    line-height: 1.65;
+    line-height: 1.6;
     color: var(--foreground-secondary);
+  }
+
+  .announcement__line {
+    display: block;
+  }
+
+  .announcement__line kbd {
+    display: inline-block;
+    margin: 0 2px;
+    padding: 1px 6px;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--foreground);
+    background: var(--surface-2);
+    border: 1px solid var(--glass-border);
+    border-radius: 5px;
+    box-shadow: 0 1px 0 var(--glass-border);
+  }
+
+  .announcement__welcome {
+    margin-top: var(--space-3);
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: oklch(0.96 0.008 var(--hue) / 0.45);
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--foreground-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  :global(:root.dark) .announcement__welcome {
+    background: oklch(0.14 0.01 var(--hue) / 0.55);
+  }
+
+  .announcement__welcome b {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .announcement__ip {
+    display: inline-block;
+    margin-left: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    filter: blur(5px);
+    cursor: pointer;
+    transition: filter 0.3s var(--ease-material);
+  }
+
+  .announcement__ip:hover {
+    filter: blur(0);
   }
 
   .announcement__link {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    margin-top: var(--space-2);
+    margin-top: var(--space-3);
     font-size: var(--text-xs);
     font-weight: 600;
     color: var(--accent);
@@ -84,5 +306,11 @@ import { announcementConfig } from "@/config";
   .announcement__link-icon {
     width: 12px;
     height: 12px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .announcement__icon {
+      animation: none;
+    }
   }
 </style>
